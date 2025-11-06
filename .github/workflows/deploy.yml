@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -27,25 +27,27 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
-      # Use npm ci if package-lock.json exists, otherwise fall back to npm install
-      - name: Install deps
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+      - name: Install dependencies
+        run: npm install
 
       - name: Build
         run: npm run build
 
+      # Debug: show that dist actually exists and has index.html
+      - name: List dist contents
+        run: ls -laR dist
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      # If you want your custom domain to persist on every deploy, uncomment:
+      # - name: Add CNAME
+      #   run: echo "richwell.is-a.dev" > dist/CNAME
+
+      - name: Upload build artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./dist
+          path: dist
 
   deploy:
     environment:
