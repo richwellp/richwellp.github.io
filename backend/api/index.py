@@ -8,6 +8,6 @@ CORS(app, origins=[
     "https://richwellp.github.io"
 ])
 
-@app.get("/hello")
-def hello():
-    return jsonify(message="Hello from Flask on Vercel (same repo)!")
+@app.get("/")
+def root():
+    return jsonify(message="Hello from Flask on Vercel (hello.py)!")
