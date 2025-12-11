@@ -60,8 +60,8 @@
           <div class="timeline-item">
             <h3>AI Engineer at Safran (June 2025 - Present)</h3>
             <p>
-              Building full-stack RAG chatbots, developing predictive maintenance systems, and
-              creating AI-driven automation tools for enterprise applications.
+              Building full-stack applications with RAG, developing predictive maintenance systems, and
+              creating AI solutions to eliminate manual labor.
             </p>
           </div>
           <div class="timeline-item">
