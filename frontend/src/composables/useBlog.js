@@ -47,7 +47,7 @@ export function useBlog() {
     error.value = null
 
     try {
-      const blogFiles = import.meta.glob('/public/blog/*.md', { as: 'raw', eager: false })
+      const blogFiles = import.meta.glob('/public/blog/*.md', { query: '?raw', import: 'default', eager: false })
 
       const postSlugs = Object.keys(blogFiles)
         .map(path => {
@@ -103,7 +103,7 @@ export function useBlog() {
 
   const getPostBySlug = async (slug) => {
     try {
-      const blogFiles = import.meta.glob('/public/blog/*.md', { as: 'raw', eager: false })
+      const blogFiles = import.meta.glob('/public/blog/*.md', { query: '?raw', import: 'default', eager: false })
 
       let matchedFile = null
       for (const path of Object.keys(blogFiles)) {
