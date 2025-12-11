@@ -5,7 +5,16 @@
       <div class="hero-content">
         <img src="/assets/photos/professional/professional_1.jpg" alt="Richwell Perez" class="hero-image" />
         <h1>Richwell Cyrille Santos Perez</h1>
-        <p class="subtitle">Computer Science Enthusiast | AI Engineer</p>
+        <p class="subtitle">BS/MCS @ UIUC | AI Engineer</p>
+
+        <!-- Animated Subtitle -->
+        <transition name="slide-fade" mode="out-in">
+          <div :key="currentIndex" class="animated-subtitle">
+            <p class="animated-title">{{ timelineItems[currentIndex].title }}</p>
+            <p class="animated-description">{{ timelineItems[currentIndex].description }}</p>
+          </div>
+        </transition>
+
         <p class="intro">
           I design AI systems that solve real problems. Currently building RAG chatbots and
           predictive models that serve hundreds of users at Safran.
@@ -49,26 +58,22 @@
         <h2>My Journey</h2>
         <div class="timeline">
           <div class="timeline-item">
-            <h3>Engineering Science Background</h3>
-            <p>
-              I started with an Engineering Science degree at Parkland College, where I gained
-              hands-on engineering experience that shaped my problem-solving approach.
-            </p>
-          </div>
-          <div class="timeline-item">
-            <h3>University of Illinois Urbana-Champaign</h3>
-            <p>
-              <strong>Bachelor of Science in Computer Science with Honors</strong> (2018-2023, GPA:
-              3.81)
-            </p>
-            <p><strong>Master of Computer Science</strong> (2022-2023, GPA: 3.52)</p>
-          </div>
-          <div class="timeline-item">
-            <h3>Current: AI Engineer at Safran</h3>
+            <h3>AI Engineer at Safran (June 2025 - Present)</h3>
             <p>
               Building full-stack RAG chatbots, developing predictive maintenance systems, and
               creating AI-driven automation tools for enterprise applications.
             </p>
+          </div>
+          <div class="timeline-item">
+            <h3>Database Administrator at Illinois Secretary of State (Feb 2025 - June 2025)</h3>
+            <p>
+              Managed and optimized high-throughput DB2 databases on z/OS mainframe systems and supported statewide digital initiatives.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h3>University of Illinois Urbana-Champaign</h3>
+              <p><strong>Master of Computer Science</strong> (2022-2023, GPA: 3.52)</p>
+              <p><strong>Bachelor of Science in Computer Science with Honors</strong> (2018-2023, GPA:3.81)</p>            
           </div>
         </div>
       </div>
@@ -77,11 +82,11 @@
     <!-- Interests -->
     <section class="interests">
       <div class="container">
-        <h2>Beyond the Code</h2>
+        <h2>Beyond Computer Science</h2>
         <div class="interests-grid">
           <div class="interest-card">
             <h3>🏐 Volleyball</h3>
-            <p>I love the strategy and teamwork that goes into every match.</p>
+            <p>I love <span class="dashed-strike">spiking</span> the strategy and teamwork that goes into every match.</p>
           </div>
           <div class="interest-card">
             <h3>💪 Powerlifting</h3>
@@ -121,7 +126,39 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+
+const timelineItems = [
+  {
+    title: 'AI Engineer',
+    description: 'Full-stack Development, RAG, and Applied Machine Learning.'
+  },
+  {
+    title: 'Master of Computer Science',
+    description: 'University of Illinois Urbana-Champaign (2022-2023, GPA: 3.52)'
+  },
+  {
+    title: 'B.S. in Computer Science',
+    description: 'University of Illinois Urbana-Champaign (2018-2023, GPA: 3.81)'
+  }
+]
+
+const currentIndex = ref(0)
+let intervalId = null
+
+onMounted(() => {
+  intervalId = setInterval(() => {
+    currentIndex.value = (currentIndex.value + 1) % timelineItems.length
+  }, 4000)
+})
+
+onUnmounted(() => {
+  if (intervalId) {
+    clearInterval(intervalId)
+  }
+})
+</script>
 
 <style scoped>
 .about-me {
@@ -139,11 +176,56 @@
   align-items: center;
   justify-content: center;
   border-bottom: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated Subtitle */
+.animated-subtitle {
+  margin: 1.5rem 0;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  margin-bottom: 0.5rem;
+}
+
+.animated-description {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.8s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.6s ease-in;
+}
+
+.slide-fade-enter-from {
+  transform: translateY(30px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateY(-30px);
+  opacity: 0;
 }
 
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-image {
@@ -268,6 +350,11 @@ h2 {
   border: 1px solid var(--border-color);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashed-strike {
+  text-decoration: line-through;
+  text-decoration-style: dashed;
 }
 
 .interest-card:hover {

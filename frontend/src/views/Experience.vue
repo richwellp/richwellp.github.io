@@ -39,25 +39,24 @@
           </div>
           <div class="card-content" v-show="expandedCards.safran">
             <p class="description">
-              Leading AI initiatives in aerospace and in-flight entertainment systems, building
+              Developing AI initiatives in aerospace and in-flight entertainment systems, building
               production-grade RAG solutions with multi-agent architectures and predictive maintenance systems.
             </p>
             <ul class="achievements">
               <li>
-                <strong>Multi-Agent RAG System (T1000):</strong> Architected and deployed a hierarchical LangGraph-based chatbot for aviation Master Data Management, serving 600+ internal users via Azure App Services. Implemented a supervisor agent orchestrating specialized business knowledge and SQL agents with Server-Sent Events (SSE) streaming for real-time responses.
+                <strong>Multi-Agent RAG System:</strong> Architected and deployed a hierarchical LangGraph-based chatbot for aviation Master Data Management, serving 600+ internal users via Azure App Services. Implemented a supervisor agent orchestrating specialized business knowledge and SQL agents with Server-Sent Events (SSE) streaming for real-time responses.
               </li>
               <li>
                 <strong>Full-Stack Development:</strong> Built end-to-end solution with Quart (async Python) backend, Vue 3 + Vuex frontend, dual PostgreSQL databases (operational + knowledge base), and Azure OpenAI integration with embeddings and Azure Dynamic Sessions for secure code execution.
               </li>
               <li>
-                <strong>Performance Optimization:</strong> Reduced response latency by 50% (2×
-                faster) through optimization of multi-agent orchestration, prompt engineering (Prompty templates), intelligent caching strategies, and prompt distillation techniques.
+                <strong>Performance Optimization:</strong> Reduced response latency by 50% (2×faster) through optimization of multi-agent orchestration, prompt engineering (Prompty templates), intelligent caching strategies, and prompt distillation techniques.
               </li>
               <li>
                 <strong>Production Infrastructure:</strong> Deployed scalable ASGI APIs with Hypercorn, implemented conversation persistence with message ratings and reasoning trace storage, structured JSONL logging, comprehensive pytest + pytest-asyncio test suites, and Azure OpenTelemetry monitoring.
               </li>
               <li>
-                <strong>ML Analytics & Insights:</strong> Applied unsupervised learning (K-Means, DBSCAN, UMAP, HDBSCAN) and topic modeling to cluster 10,000+ RAG conversation interactions, built analytical dashboards with matplotlib for usage patterns, and implemented continuous improvement feedback loops.
+                <strong>ML Analytics & Insights:</strong> Applied unsupervised machine learning (K-Means, DBSCAN, UMAP, HDBSCAN) and topic modeling to cluster 10,000+ RAG conversation interactions, built analytical dashboards with matplotlib for usage patterns, and implemented continuous improvement feedback loops.
               </li>
               <li>
                 <strong>Predictive Maintenance:</strong> Developing ML-based predictive maintenance
@@ -66,10 +65,7 @@
                 and minimize downtime.
               </li>
               <li>
-                <strong>Enterprise AI Integration:</strong> Developing Microsoft Copilot Studio agent
-                integrating enterprise data sources (SharePoint, Power BI, ERP systems) to enable
-                unified access to analytics, collaboration tools, and business processes through AI-driven
-                automation and natural language interfaces.
+                <strong>IFE Log Analysis System:</strong> Developing LLM-powered log analyzer for In-Flight Entertainment systems to process 2GB log bundles (5M+ lines). Implementing 4-stage pipeline with Drain algorithm for template mining (30x compression), ChromaDB vector database for semantic search, and intelligent 2-level query routing to achieve 500-1000x log reduction with comprehensive analysis capabilities.
               </li>
             </ul>
             <div class="tech-stack">
@@ -80,6 +76,7 @@
               <span class="tech-tag">Vuex</span>
               <span class="tech-tag">Quart</span>
               <span class="tech-tag">PostgreSQL</span>
+              <span class="tech-tag">ChromaDB</span>
               <span class="tech-tag">Azure OpenAI</span>
               <span class="tech-tag">Azure App Services</span>
               <span class="tech-tag">SSE</span>

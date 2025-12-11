@@ -44,8 +44,11 @@ const closeMobileMenu = () => {
 
           <!-- Theme Toggle -->
           <button @click="toggleTheme" class="theme-toggle" aria-label="Toggle theme">
-            <span v-if="theme === 'dark'">☀️</span>
-            <span v-else>🌙</span>
+            <div class="toggle-track">
+              <span class="toggle-icon sun">☀️</span>
+              <span class="toggle-icon moon">🌙</span>
+              <div class="toggle-slider" :class="{ 'dark-mode': theme === 'dark' }"></div>
+            </div>
           </button>
         </div>
       </div>
@@ -266,22 +269,69 @@ main {
 
 /* Theme Toggle Button */
 .theme-toggle {
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.5rem;
-  font-size: 1.2rem;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.toggle-track {
+  position: relative;
+  width: 70px;
+  height: 32px;
+  background: var(--bg-hover);
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover .toggle-track {
+  border-color: var(--accent-primary);
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  z-index: 1;
+  transition: all 0.3s ease;
   line-height: 1;
 }
 
-.theme-toggle:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--accent-primary);
+.toggle-icon.sun {
+  opacity: 0.4;
+}
+
+.toggle-icon.moon {
+  opacity: 0.4;
+}
+
+/* Highlight active icon */
+:root[data-theme='light'] .toggle-icon.sun {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+:root[data-theme='dark'] .toggle-icon.moon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.toggle-slider {
+  position: absolute;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.toggle-slider.dark-mode {
+  transform: translateX(38px);
 }
 
 /* Footer */
