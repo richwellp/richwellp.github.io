@@ -130,9 +130,13 @@
       <div class="container">
         <h2>Visitors</h2>
         <div id="map-container">
-          <a v-if="showFallback" href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" class="fallback-map">
-            <img src="//www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff" alt="Visitor Map" />
-          </a>
+          <div v-if="showFallback" class="fallback-message">
+            <div class="globe-icon">🌍</div>
+            <p>Visitor map blocked by ad blocker</p>
+            <a href="https://clustrmaps.com/site/1c8ov" target="_blank" rel="noopener noreferrer" class="view-stats-link">
+              View visitor stats →
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -502,20 +506,36 @@ h2 {
   height: auto !important;
 }
 
-.fallback-map {
-  display: inline-block;
-  transition: opacity 0.3s ease;
+.fallback-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 2px dashed var(--border-color);
 }
 
-.fallback-map:hover {
-  opacity: 0.8;
+.globe-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
 }
 
-.fallback-map img {
-  max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px var(--shadow);
-  border: 1px solid var(--border-color);
+.fallback-message p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.view-stats-link {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.view-stats-link:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
 }
 
 /* Responsive */
