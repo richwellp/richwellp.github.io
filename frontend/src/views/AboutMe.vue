@@ -58,22 +58,37 @@
         <h2>My Journey</h2>
         <div class="timeline">
           <div class="timeline-item">
-            <h3>AI Engineer at Safran (June 2025 - Present)</h3>
-            <p>
+            <div class="timeline-header">
+              <h3>AI Engineer at Safran</h3>
+              <span class="timeline-date">June 2025 - Present</span>
+            </div>
+            <p class="timeline-description">
               Building full-stack applications with RAG, developing predictive maintenance systems, and
               creating AI solutions to eliminate manual labor.
             </p>
           </div>
+
           <div class="timeline-item">
-            <h3>Database Administrator at Illinois Secretary of State (Feb 2025 - June 2025)</h3>
-            <p>
+            <div class="timeline-header">
+              <h3>Database Administrator at Illinois Secretary of State</h3>
+              <span class="timeline-date">February 2025 - June 2025</span>
+            </div>
+            <p class="timeline-description">
               Managed and optimized high-throughput DB2 databases on z/OS mainframe systems and supported statewide digital initiatives.
             </p>
           </div>
+
           <div class="timeline-item">
-            <h3>University of Illinois Urbana-Champaign</h3>
-              <p><strong>Master of Computer Science</strong> (2022-2023, GPA: 3.52)</p>
-              <p><strong>Bachelor of Science in Computer Science with Honors</strong> (2018-2023, GPA:3.81)</p>            
+            <div class="timeline-header">
+              <h3>University of Illinois Urbana-Champaign</h3>
+              <span class="timeline-date">August 2018 - May 2023</span>
+            </div>
+            <div class="timeline-details">
+              <p><strong>Master of Computer Science</strong> (August 2022 - May 2023, GPA: 3.52)</p>
+              <p><strong>Bachelor of Science in Computer Science with Honors</strong> (August 2018 - May 2023, GPA: 3.81)</p>
+              <p><strong>Graduate Teaching Assistant</strong> (August 2022 - May 2023)</p>
+              <p><strong>Software Engineer</strong> (July 2021 - August 2021)</p>
+            </div>
           </div>
         </div>
       </div>
@@ -94,7 +109,7 @@
           </div>
           <div class="interest-card">
             <h3>🎮 Gaming</h3>
-            <p>Dota 2, Valorant, and anime games—where my AI interest began.</p>
+            <p>Dota 2, Valorant, and some anime games—where my AI interest began.</p>
           </div>
           <div class="interest-card">
             <h3>✈️ Traveling</h3>
@@ -309,8 +324,8 @@ h2 {
 }
 
 .timeline-item {
-  margin-bottom: 2.5rem;
-  padding: 1.5rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
   background: var(--bg-card);
   border-left: 4px solid var(--accent-primary);
   border-radius: 8px;
@@ -318,16 +333,49 @@ h2 {
   border: 1px solid var(--border-color);
 }
 
-.timeline-item h3 {
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  font-size: 1.3rem;
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.timeline-item p {
+.timeline-item h3 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.timeline-date {
+  color: var(--accent-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.timeline-description {
   color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 0.5rem;
+  line-height: 1.8;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.timeline-details {
+  margin-top: 1rem;
+}
+
+.timeline-details p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.timeline-details p:last-child {
+  margin-bottom: 0;
 }
 
 /* Interests */

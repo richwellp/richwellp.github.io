@@ -73,7 +73,7 @@ const closeMobileMenu = () => {
               Email
             </a>
             <a
-              href="https://www.linkedin.com/in/richwellp"
+              href="https://www.linkedin.com/in/richwell-perez"
               target="_blank"
               rel="noopener noreferrer"
               class="social-link"
