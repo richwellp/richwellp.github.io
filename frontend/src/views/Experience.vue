@@ -65,18 +65,15 @@
                 and minimize downtime.
               </li>
               <li>
-                <strong>IFE Log Analysis System:</strong> Developing LLM-powered log analyzer for In-Flight Entertainment systems to process 2GB log bundles (5M+ lines). Implementing 4-stage pipeline with Drain algorithm for template mining (30x compression), ChromaDB vector database for semantic search, and intelligent 2-level query routing to achieve 500-1000x log reduction with comprehensive analysis capabilities.
+                <strong>IFE Log Analysis System:</strong> Developing LLM-powered log analyzer for In-Flight Entertainment systems to process 2GB log bundles (5M+ lines). Implementing 4-stage pipeline with Drain algorithm for template mining (30x compression), vector database for semantic search, and intelligent 2-level query routing to achieve 500-1000x log reduction with comprehensive analysis capabilities.
               </li>
             </ul>
             <div class="tech-stack">
               <span class="tech-tag">Python</span>
               <span class="tech-tag">LangChain</span>
-              <span class="tech-tag">LangGraph</span>
               <span class="tech-tag">Vue.js</span>
-              <span class="tech-tag">Vuex</span>
               <span class="tech-tag">Quart</span>
               <span class="tech-tag">PostgreSQL</span>
-              <span class="tech-tag">ChromaDB</span>
               <span class="tech-tag">Azure OpenAI</span>
               <span class="tech-tag">Azure App Services</span>
               <span class="tech-tag">SSE</span>

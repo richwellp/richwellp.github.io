@@ -7,6 +7,24 @@
         elsewhere.
       </p>
 
+      <!-- Blog Section -->
+      <section class="blog-section">
+        <div class="section-header">
+          <h2 class="section-title">Blog</h2>
+          <router-link to="/misc/blog" class="view-all-link">View All →</router-link>
+        </div>
+        <p class="section-description">Thoughts, reflections, and technical write-ups</p>
+        <div class="blog-preview">
+          <router-link to="/misc/blog" class="blog-cta">
+            <div class="blog-icon">📝</div>
+            <div>
+              <h3>Read My Posts</h3>
+              <p>Explore articles about AI, software engineering, and personal experiences</p>
+            </div>
+          </router-link>
+        </div>
+      </section>
+      
       <!-- Photo Albums Section -->
       <section class="albums-section">
         <h2 class="section-title">Photo Albums</h2>
@@ -58,23 +76,6 @@
         </div>
       </section>
 
-      <!-- Blog Section -->
-      <section class="blog-section">
-        <div class="section-header">
-          <h2 class="section-title">Blog</h2>
-          <router-link to="/misc/blog" class="view-all-link">View All →</router-link>
-        </div>
-        <p class="section-description">Thoughts, reflections, and technical write-ups</p>
-        <div class="blog-preview">
-          <router-link to="/misc/blog" class="blog-cta">
-            <div class="blog-icon">📝</div>
-            <div>
-              <h3>Read My Posts</h3>
-              <p>Explore articles about AI, software engineering, and personal experiences</p>
-            </div>
-          </router-link>
-        </div>
-      </section>
     </div>
   </div>
 </template>

@@ -5,7 +5,7 @@
       <div class="hero-content">
         <img src="/assets/photos/professional/professional_1.jpg" alt="Richwell Perez" class="hero-image" />
         <h1>Richwell Cyrille Santos Perez</h1>
-        <p class="subtitle">BS/MCS @ UIUC | AI Engineer</p>
+        <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | AI Engineer</p>
 
         <!-- Animated Subtitle -->
         <transition name="slide-fade" mode="out-in">
@@ -16,9 +16,8 @@
         </transition>
 
         <p class="intro">
-          I build AI systems, data pipelines, and software that solve real problems. I am passionate
-          about working on everything from machine learning models to full-stack applications, using
-          technology to contribute to making the world a better place.
+          I build AI systems, data pipelines, and software that solve real problems. I'm passionate
+          about using technology to make the world a better place, from machine learning to full-stack applications.
         </p>
       </div>
     </section>
@@ -130,15 +129,7 @@
     <section class="visitor-map">
       <div class="container">
         <h2>Visitors</h2>
-        <div id="map-container">
-          <!-- Clustrmaps widget will be inserted here -->
-          <a href="https://clustrmaps.com/site/1c5wm" title="Visit tracker">
-            <img
-              src="//www.clustrmaps.com/map_v2.png?d=YOUR_CLUSTER_ID&cl=ffffff&w=a"
-              alt="Visitor map"
-            />
-          </a>
-        </div>
+        <div id="map-container"></div>
       </div>
     </section>
   </div>
@@ -150,7 +141,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const timelineItems = [
   {
     title: 'AI Engineer',
-    description: 'Full-stack Development, RAG, and Applied Machine Learning.'
+    description: 'Full-stack Development, RAG, and Applied Machine Learning'
   },
   {
     title: 'Master of Computer Science',
@@ -169,11 +160,27 @@ onMounted(() => {
   intervalId = setInterval(() => {
     currentIndex.value = (currentIndex.value + 1) % timelineItems.length
   }, 4000)
+
+  // Load ClustrMaps globe script
+  const script = document.createElement('script')
+  script.id = 'clstr_globe'
+  script.type = 'text/javascript'
+  script.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+  const mapContainer = document.getElementById('map-container')
+  if (mapContainer && !document.getElementById('clstr_globe')) {
+    mapContainer.appendChild(script)
+  }
 })
 
 onUnmounted(() => {
   if (intervalId) {
     clearInterval(intervalId)
+  }
+
+  // Clean up the globe script
+  const globeScript = document.getElementById('clstr_globe')
+  if (globeScript) {
+    globeScript.remove()
   }
 })
 </script>
@@ -267,6 +274,17 @@ onUnmounted(() => {
   margin-bottom: 1.5rem;
   opacity: 0.95;
   font-weight: 300;
+}
+
+.subtitle a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.subtitle a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
 }
 
 .intro {
@@ -448,6 +466,9 @@ h2 {
   display: flex;
   justify-content: center;
   margin-top: 2rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #map-container img {
@@ -455,6 +476,11 @@ h2 {
   border-radius: 8px;
   box-shadow: 0 4px 20px var(--shadow);
   border: 1px solid var(--border-color);
+}
+
+#map-container :deep(canvas) {
+  max-width: 100%;
+  height: auto !important;
 }
 
 /* Responsive */
