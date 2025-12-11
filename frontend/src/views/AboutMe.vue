@@ -16,8 +16,9 @@
         </transition>
 
         <p class="intro">
-          I design AI systems that solve real problems. Currently building RAG chatbots and
-          predictive models that serve hundreds of users at Safran.
+          I build AI systems, data pipelines, and software that solve real problems. I am passionate
+          about working on everything from machine learning models to full-stack applications, using
+          technology to contribute to making the world a better place.
         </p>
       </div>
     </section>
