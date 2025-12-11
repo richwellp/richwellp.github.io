@@ -29,15 +29,15 @@
         <div class="story-content">
           <div class="story-text">
             <p>
-              I'm an AI and software engineer with a BS and MCS in Computer Science from UIUC. I grew up watching technology 
-              reshape everything. My background spans teaching, full-stack development, database systems, and AI engineering.
-              I've worked on machine learning models, RAG systems, cloud platforms, and data pipelines. I like building things
-              that solve real problems at scale.
+              I'm an AI and software engineer with a BS and MCS in Computer Science from UIUC. Born in the Philippines, 
+              I grew up watching technology reshape everything. My background spans teaching, full-stack development, 
+              database systems, and AI engineering. I've worked on machine learning models, RAG systems, cloud platforms, 
+              and data pipelines. I like building things that solve real problems at scale.
             </p>
             <p>
-              My interest in AI started with watching OpenAI's bot dominate professional Dota 2 players back in 2017.
-              Seeing it master a complex game with millions of possible moves showed me what AI could really do. As I 
-              study AI deeper, it wasn't about replacing people. It was about handling the repetitive, data-heavy work
+              My interest in AI started with watching OpenAI dominate professional Dota 2 players back in 2017.
+              Seeing it master a complex game with millions of possible moves showed me what AI could really do. 
+              As I study AI deeper, it wasn't about replacing people. It was about handling the repetitive, data-heavy work
               so people could focus on the creative and strategic parts that actually need human thinking.
             </p>
             <p>

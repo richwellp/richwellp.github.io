@@ -185,6 +185,4 @@ And if you're curious about AI-assisted development, I encourage you to try Clau
 
 ---
 
-**Visit the live site**: [richwellp.github.io](https://richwellp.github.io)
-
-**Questions or feedback?** Feel free to reach out via [email](mailto:richwell.perez@gmail.com) or [LinkedIn](https://www.linkedin.com/in/richwellp).
+**Questions or feedback?** Feel free to reach out via [email](mailto:richwell.perez@gmail.com) or [LinkedIn](https://www.linkedin.com/in/richwell-perez).
