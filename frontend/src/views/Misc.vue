@@ -22,7 +22,7 @@
             <div class="album-info">
               <h3>✈️ Travel</h3>
               <p class="album-description">Adventures around the world</p>
-              <span class="photo-count">Wyoming • Colorado • California • Illinois • Philippines</span>
+              <span class="photo-count">Philippines • Japan • Wyoming • Colorado • California • Illinois and more </span>
             </div>
           </router-link>
 

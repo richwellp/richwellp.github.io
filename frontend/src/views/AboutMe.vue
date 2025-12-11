@@ -29,20 +29,22 @@
         <div class="story-content">
           <div class="story-text">
             <p>
-              I'm an introvert who opens up once you know me. Born in the Philippines, I've always
-              been fascinated by how technology can transform the way we work and live.
+              I'm an AI and software engineer with a BS and MCS in Computer Science from UIUC. I grew up watching technology 
+              reshape everything. My background spans teaching, full-stack development, database systems, and AI engineering.
+              I've worked on machine learning models, RAG systems, cloud platforms, and data pipelines. I like building things
+              that solve real problems at scale.
             </p>
             <p>
-              My interest in AI grew stronger when I watched OpenAI play Dota 2 in 2017. Seeing AI
-              defeat pro players in a 1v1 game—and eventually master 5v5 matches—sparked something
-              in me. I realized AI wasn't just about algorithms; it was about eliminating manual
-              labor and building the future.
+              My interest in AI started with watching OpenAI's bot dominate professional Dota 2 players back in 2017.
+              Seeing it master a complex game with millions of possible moves showed me what AI could really do. As I 
+              study AI deeper, it wasn't about replacing people. It was about handling the repetitive, data-heavy work
+              so people could focus on the creative and strategic parts that actually need human thinking.
             </p>
             <p>
-              Today, I work with cutting-edge technology every day. There's something incredibly
-              satisfying about watching a model correctly interpret an image, understand a sentence,
-              or learn a pattern on its own. It's rewarding to constantly learn new ideas and see AI
-              systems perform in real-world scenarios.
+              That's what gets me excited about this field. I want to build technologies that actually improve
+              people's lives—whether it's through intelligent systems that make work easier, data-driven insights
+              that help make better decisions, or reliable engineering that just works. I stay curious about new
+              tools and approaches, and I do my best work in teams that value learning and building things that matter.
             </p>
           </div>
           <div class="story-images">
@@ -80,7 +82,7 @@
 
           <div class="timeline-item">
             <div class="timeline-header">
-              <h3>University of Illinois Urbana-Champaign</h3>
+              <h3>University of Illinois at Urbana-Champaign</h3>
               <span class="timeline-date">August 2018 - May 2023</span>
             </div>
             <div class="timeline-details">
