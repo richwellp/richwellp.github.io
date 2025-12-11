@@ -42,7 +42,7 @@
             </p>
             <p>
               That's what gets me excited about this field. I want to build technologies that actually improve
-              people's lives—whether it's through intelligent systems that make work easier, data-driven insights
+              people's lives: whether it's through intelligent systems that make work easier, data-driven insights
               that help make better decisions, or reliable engineering that just works. I stay curious about new
               tools and approaches, and I do my best work in teams that value learning and building things that matter.
             </p>
@@ -111,7 +111,7 @@
           </div>
           <div class="interest-card">
             <h3>🎮 Gaming</h3>
-            <p>Dota 2, Valorant, and some anime games—where my AI interest began.</p>
+            <p>Dota 2, Valorant, and some anime games: where my AI interest began.</p>
           </div>
           <div class="interest-card">
             <h3>✈️ Traveling</h3>
