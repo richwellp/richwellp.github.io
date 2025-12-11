@@ -129,7 +129,11 @@
     <section class="visitor-map">
       <div class="container">
         <h2>Visitors</h2>
-        <div id="map-container"></div>
+        <div id="map-container">
+          <a v-if="showFallback" href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" class="fallback-map">
+            <img src="//www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff" alt="Visitor Map" />
+          </a>
+        </div>
       </div>
     </section>
   </div>
@@ -154,6 +158,7 @@ const timelineItems = [
 ]
 
 const currentIndex = ref(0)
+const showFallback = ref(false)
 let intervalId = null
 
 onMounted(() => {
@@ -166,9 +171,23 @@ onMounted(() => {
   script.id = 'clstr_globe'
   script.type = 'text/javascript'
   script.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+
+  // Detect if script fails to load (blocked by adblocker)
+  script.onerror = () => {
+    showFallback.value = true
+  }
+
   const mapContainer = document.getElementById('map-container')
   if (mapContainer && !document.getElementById('clstr_globe')) {
     mapContainer.appendChild(script)
+
+    // Also check after a timeout if the globe loaded
+    setTimeout(() => {
+      const globeElement = mapContainer.querySelector('canvas')
+      if (!globeElement) {
+        showFallback.value = true
+      }
+    }, 3000)
   }
 })
 
@@ -481,6 +500,22 @@ h2 {
 #map-container :deep(canvas) {
   max-width: 100%;
   height: auto !important;
+}
+
+.fallback-map {
+  display: inline-block;
+  transition: opacity 0.3s ease;
+}
+
+.fallback-map:hover {
+  opacity: 0.8;
+}
+
+.fallback-map img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 /* Responsive */
