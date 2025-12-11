@@ -37,49 +37,136 @@ npm run dev
 npm run build
 ```
 
-## About This Portfolio
+There are two ways to deploy:
 
-This is a personal portfolio website showcasing professional experience, academic projects, and personal interests in AI and software engineering.
+#### Option 1: Automated Deployment with GitHub Actions
 
-### Site Structure
+GitHub Actions automatically builds and deploys the site whenever you push to the `main` branch.
 
-- **About me** (`/`) - Homepage featuring personal introduction, educational background, professional journey, and interests
-- **Experience** (`/experience`) - Detailed work experience and academic projects in chronological order
-- **CV** (`/cv`) - Embedded PDF viewer for downloadable resume
-- **Misc** (`/misc`) - Gallery and miscellaneous content
+**Initial Setup (One-time):**
 
-### Key Features
+1. The workflow file already exists at `.github/workflows/deploy.yml`
 
-- Fully responsive design optimized for desktop and mobile
-- Vue Router for client-side navigation
-- Embedded PDF viewer for resume
-- Photo gallery for personal and professional images
-- Contact information in footer (email and LinkedIn)
-- Visitor tracking map integration
-- Clean, modern UI with professional color scheme
+2. Configure GitHub Pages to use GitHub Actions:
+   - Go to: `https://github.com/richwellp/richwellp.github.io/settings/pages`
+   - Under **"Build and deployment"**, change **Source** to `GitHub Actions`
+   - Click **Save**
 
-### Project Dependencies
+**Deploying Changes:**
 
-- Vue 3 - Progressive JavaScript framework
-- Vue Router 4 - Official routing library
-- Vite - Next-generation frontend tooling
+```bash
+# Make your changes, then:
+git add .
+git commit -m "Your commit message"
+git push origin main
+```
 
-### Asset Management
+That's it! GitHub Actions will:
+- Install dependencies
+- Build the project (`npm run build`)
+- Deploy the `dist/` folder to GitHub Pages
+- Your changes will be live in 1-2 minutes
 
-Static assets (photos, PDFs) are stored in `public/assets/`:
-- `public/assets/photos/` - Personal and professional photographs
-- `public/assets/Resume.pdf` - Current resume in PDF format
+**Monitoring Deployments:**
 
-To update assets, replace files in the respective directories and rebuild the project.
+View deployment status at: `https://github.com/richwellp/richwellp.github.io/actions`
 
-### Deployment
+#### Option 2: Manual Deployment
 
-The site is deployed to GitHub Pages at [richwellp.github.io](https://richwellp.github.io).
+If you prefer to deploy manually or GitHub Actions is not available:
 
-After making changes:
-1. Build the production version: `npm run build`
-2. Deploy the `dist/` folder to GitHub Pages
-3. Ensure GitHub Pages is configured to serve from the correct branch/folder
+**Using gh-pages (Recommended for manual deployment):**
+
+1. Install gh-pages package:
+   ```bash
+   npm install --save-dev gh-pages
+   ```
+
+2. Add deploy script to `package.json`:
+   ```json
+   "scripts": {
+     "deploy": "npm run build && gh-pages -d dist"
+   }
+   ```
+
+3. Deploy:
+   ```bash
+   npm run deploy
+   ```
+
+4. Configure GitHub Pages:
+   - Go to repository settings → Pages
+   - Set source to `gh-pages` branch
+   - Root directory: `/ (root)`
+
+**Manual copy to gh-pages branch:**
+
+1. Build the project:
+   ```bash
+   npm run build
+   ```
+
+2. The build output is in `dist/` folder
+
+3. Copy contents to `gh-pages` branch:
+   ```bash
+   # From the repository root
+   git checkout gh-pages
+   cp -r frontend/dist/* .
+   git add .
+   git commit -m "Deploy update"
+   git push origin gh-pages
+   git checkout main
+   ```
+
+4. GitHub Pages will serve from the `gh-pages` branch
+
+#### GitHub Actions Workflow Explained
+
+The deployment workflow (`.github/workflows/deploy.yml`) contains two jobs:
+
+**Build Job:**
+```yaml
+- Checkout code from repository
+- Setup Node.js 20
+- Install dependencies (npm ci)
+- Build the project (npm run build)
+- Upload the dist/ folder as artifact
+```
+
+**Deploy Job:**
+```yaml
+- Download the build artifact
+- Deploy to GitHub Pages
+- Provides deployment URL
+```
+
+**Key Features:**
+- Triggers on push to `main` branch
+- Can also be triggered manually from Actions tab
+- Uses GitHub Pages deployment environment
+- Caches npm dependencies for faster builds
+- Only requires read/write permissions for Pages
+
+**Troubleshooting GitHub Actions:**
+
+If deployment fails:
+1. Check the Actions tab for error logs
+2. Verify `package-lock.json` is committed
+3. Ensure all dependencies are in `package.json`
+4. Check that build succeeds locally: `npm run build`
+5. Verify GitHub Pages is configured to use GitHub Actions
+
+#### Deployment Checklist
+
+Before deploying, ensure:
+- [ ] All tests pass
+- [ ] Build completes without errors: `npm run build`
+- [ ] Preview the build locally: `npm run preview`
+- [ ] Check console for errors in the preview
+- [ ] Verify all routes work correctly
+- [ ] Test on mobile viewport
+- [ ] Check that all assets load correctly (images, PDFs, etc.)
 
 ### Development Workflow
 
