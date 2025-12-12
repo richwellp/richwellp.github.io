@@ -179,13 +179,24 @@ let intervalId = null
 let mapCheckTimeout = null
 
 const handleMapLoad = () => {
-  mapLoaded.value = true
+  console.log('Map load event fired')
+  console.log('Image dimensions:', mapImage.value?.naturalWidth, 'x', mapImage.value?.naturalHeight)
+
+  // Check if the image has valid dimensions (not a 1x1 pixel tracker)
+  if (mapImage.value && (mapImage.value.naturalWidth < 10 || mapImage.value.naturalHeight < 10)) {
+    console.log('Image too small, probably blocked')
+    mapLoadError.value = true
+  } else {
+    mapLoaded.value = true
+  }
+
   if (mapCheckTimeout) {
     clearTimeout(mapCheckTimeout)
   }
 }
 
 const handleMapError = () => {
+  console.log('Map error event fired')
   mapLoadError.value = true
   if (mapCheckTimeout) {
     clearTimeout(mapCheckTimeout)
@@ -193,14 +204,19 @@ const handleMapError = () => {
 }
 
 onMounted(() => {
+  console.log('Component mounted')
+
   intervalId = setInterval(() => {
     currentIndex.value = (currentIndex.value + 1) % timelineItems.length
   }, 4000)
 
   // Check after 2 seconds if the map loaded
   nextTick(() => {
+    console.log('Setting timeout to check map load')
     mapCheckTimeout = setTimeout(() => {
+      console.log('Timeout fired. mapLoaded:', mapLoaded.value)
       if (!mapLoaded.value) {
+        console.log('Map did not load, showing fallback')
         mapLoadError.value = true
       }
     }, 2000)
