@@ -134,9 +134,17 @@
       <div class="container">
         <h2>Visitors</h2>
         <div class="map-container">
-          <a href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
-            <img src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff" alt="Visitor Map" />
+          <a v-if="!mapLoadError" href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff"
+              alt="Visitor Map"
+              @error="mapLoadError = true"
+            />
           </a>
+          <div v-else class="map-error">
+            <p>🌍 Visitor map is hidden</p>
+            <p class="error-hint">If you're using an ad blocker, it may be blocking the visitor map. You can disable it to see where visitors are from!</p>
+          </div>
         </div>
       </div>
     </section>
@@ -162,6 +170,7 @@ const timelineItems = [
 ]
 
 const currentIndex = ref(0)
+const mapLoadError = ref(false)
 let intervalId = null
 
 onMounted(() => {
@@ -485,6 +494,30 @@ h2 {
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
+}
+
+.map-error {
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.map-error p:first-child {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.error-hint {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
 }
 
 /* Responsive */
