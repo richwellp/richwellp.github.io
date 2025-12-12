@@ -119,8 +119,12 @@
           </div>
         </div>
         <div class="personal-photos">
-          <img src="/assets/photos/travel/wyoming/personal.JPG" alt="Travel" class="personal-photo" />
-          <img src="/assets/photos/travel/colorado/personal_emlake.jpg" alt="Nature" class="personal-photo" />
+          <img src="/assets/photos/travel/japan/20240603_194332.jpg" alt="Japan" class="personal-photo" />
+          <img src="/assets/photos/travel/colorado/IMG_4426.JPG" alt="Colorado mountains" class="personal-photo" />
+          <img src="/assets/photos/travel/japan/20240604_121505.jpg" alt="Japan" class="personal-photo" />
+          <img src="/assets/photos/travel/philippines/IMG_8348.jpg" alt="Philippines scenery" class="personal-photo" />
+          <img src="/assets/photos/travel/california/IMG_4551.JPG" alt="California views" class="personal-photo" />
+          <img src="/assets/photos/travel/philippines/PXL_20230920_091946963.jpg" alt="Philippines views" class="personal-photo" />
         </div>
       </div>
     </section>
