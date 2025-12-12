@@ -2,6 +2,17 @@
 
 This template should help get you started developing with Vue 3 in Vite.
 
+## Requirements
+
+**Node.js Version:** ^20.19.0 or >=22.12.0
+
+You can check your Node.js version with:
+```bash
+node --version
+```
+
+To install or update Node.js, visit [nodejs.org](https://nodejs.org/)
+
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).

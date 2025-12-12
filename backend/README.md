@@ -1,3 +1,12 @@
+## Requirements
+
+**Python Version:** 3.13 or higher
+
+You can check your Python version with:
+```bash
+python --version
+```
+
 ## 1. Create virtual env and install
 ```
 C:\Users\<name>\AppData\Local\Programs\Python\Python313\python.exe -m venv .venv
