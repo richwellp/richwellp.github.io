@@ -5,7 +5,7 @@
     subtitle="Adventures around the world"
     :photos="travelPhotos"
     :categories="travelCategories"
-    default-category="wyoming"
+    default-category="usa"
   />
 </template>
 
