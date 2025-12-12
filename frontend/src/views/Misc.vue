@@ -14,14 +14,32 @@
           <router-link to="/misc/blog" class="view-all-link">View All →</router-link>
         </div>
         <p class="section-description">Thoughts, reflections, and technical write-ups</p>
-        <div class="blog-preview">
-          <router-link to="/misc/blog" class="blog-cta">
-            <div class="blog-icon">📝</div>
-            <div>
-              <h3>Read My Posts</h3>
-              <p>Explore articles about AI, software engineering, and personal experiences</p>
+
+        <div v-if="loading" class="loading-state">
+          <p>Loading posts...</p>
+        </div>
+
+        <div v-else-if="recentPosts.length > 0" class="blog-grid">
+          <router-link
+            v-for="post in recentPosts"
+            :key="post.slug"
+            :to="`/misc/blog/${post.slug}`"
+            class="blog-card"
+          >
+            <div class="blog-card-content">
+              <div class="blog-date">{{ new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</div>
+              <h3>{{ post.title }}</h3>
+              <p class="blog-excerpt">{{ post.excerpt }}</p>
+              <div v-if="post.tags && post.tags.length" class="blog-tags">
+                <span v-for="tag in post.tags" :key="tag" class="tag">{{ tag }}</span>
+              </div>
             </div>
+            <div class="read-more">Read More →</div>
           </router-link>
+        </div>
+
+        <div v-else class="no-posts">
+          <p>No blog posts yet. Check back soon!</p>
         </div>
       </section>
       
@@ -82,6 +100,16 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import { onMounted, computed } from 'vue'
+import { useBlog } from '../composables/useBlog'
+
+const { posts, loading, fetchPosts } = useBlog()
+
+const recentPosts = computed(() => posts.value.slice(0, 3))
+
+onMounted(() => {
+  fetchPosts()
+})
 </script>
 
 <style scoped>
@@ -267,47 +295,97 @@ h1 {
 }
 
 /* Blog Section */
-.blog-preview {
-  display: flex;
-  justify-content: center;
+.loading-state,
+.no-posts {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
 }
 
-.blog-cta {
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.blog-card {
   background: var(--bg-card);
   border-radius: 12px;
   padding: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
   box-shadow: 0 2px 10px var(--shadow);
   border: 1px solid var(--border-color);
   text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  max-width: 600px;
-  width: 100%;
+  min-height: 280px;
 }
 
-.blog-cta:hover {
-  transform: translateY(-3px);
+.blog-card:hover {
+  transform: translateY(-5px);
   box-shadow: 0 4px 20px var(--shadow);
   border-color: var(--accent-primary);
 }
 
-.blog-icon {
-  font-size: 3rem;
-  flex-shrink: 0;
+.blog-card-content {
+  flex: 1;
 }
 
-.blog-cta h3 {
+.blog-date {
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.blog-card h3 {
   font-size: 1.5rem;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
 }
 
-.blog-cta p {
+.blog-excerpt {
   color: var(--text-secondary);
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.read-more {
+  color: var(--link-color);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 1rem;
+  transition: color 0.3s ease;
+}
+
+.blog-card:hover .read-more {
+  color: var(--link-hover);
 }
 
 /* Responsive */
@@ -320,19 +398,14 @@ h1 {
     font-size: 2rem;
   }
 
-  .albums-grid {
+  .albums-grid,
+  .blog-grid {
     grid-template-columns: 1fr;
   }
 
   .section-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .blog-cta {
-    flex-direction: column;
-    text-align: center;
     gap: 1rem;
   }
 }
