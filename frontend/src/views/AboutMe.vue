@@ -133,14 +133,10 @@
     <section class="visitor-map">
       <div class="container">
         <h2>Visitors</h2>
-        <div id="map-container">
-          <div v-if="showFallback" class="fallback-message">
-            <div class="globe-icon">🌍</div>
-            <p>Visitor map blocked by ad blocker</p>
-            <a href="https://clustrmaps.com/site/1c8ov" target="_blank" rel="noopener noreferrer" class="view-stats-link">
-              View visitor stats →
-            </a>
-          </div>
+        <div class="map-container">
+          <a href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
+            <img src="//www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff" alt="Visitor Map" />
+          </a>
         </div>
       </div>
     </section>
@@ -166,63 +162,17 @@ const timelineItems = [
 ]
 
 const currentIndex = ref(0)
-const showFallback = ref(false)
 let intervalId = null
-let mapCheckTimeout = null
 
 onMounted(() => {
   intervalId = setInterval(() => {
     currentIndex.value = (currentIndex.value + 1) % timelineItems.length
   }, 4000)
-
-  // Load ClustrMaps globe script
-  const script = document.createElement('script')
-  script.id = 'clstr_globe'
-  script.type = 'text/javascript'
-  script.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
-
-  // Detect if script fails to load (blocked by adblocker)
-  script.onerror = () => {
-    showFallback.value = true
-  }
-
-  // Detect if map loaded successfully
-  script.onload = () => {
-    // Clear any pending fallback check since script loaded
-    if (mapCheckTimeout) {
-      clearTimeout(mapCheckTimeout)
-      mapCheckTimeout = null
-    }
-  }
-
-  const mapContainer = document.getElementById('map-container')
-  if (mapContainer && !document.getElementById('clstr_globe')) {
-    mapContainer.appendChild(script)
-
-    // Check after a timeout if the globe loaded
-    mapCheckTimeout = setTimeout(() => {
-      const globeElement = mapContainer.querySelector('canvas')
-      if (!globeElement && !showFallback.value) {
-        showFallback.value = true
-      }
-      mapCheckTimeout = null
-    }, 3000)
-  }
 })
 
 onUnmounted(() => {
   if (intervalId) {
     clearInterval(intervalId)
-  }
-
-  if (mapCheckTimeout) {
-    clearTimeout(mapCheckTimeout)
-  }
-
-  // Clean up the globe script
-  const globeScript = document.getElementById('clstr_globe')
-  if (globeScript) {
-    globeScript.remove()
   }
 })
 </script>
@@ -502,59 +452,39 @@ h2 {
 /* Visitor Map */
 .visitor-map {
   background: var(--bg-primary);
+  padding: 2rem 2rem;
 }
 
-#map-container {
+.visitor-map h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.map-container {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
-  max-width: 400px;
+  margin-top: 1rem;
+  max-width: 300px;
   margin-left: auto;
   margin-right: auto;
 }
 
-#map-container img {
+.map-container a {
+  display: block;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.map-container a:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
+.map-container img {
   max-width: 100%;
+  height: auto;
   border-radius: 8px;
-  box-shadow: 0 4px 20px var(--shadow);
+  box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
-}
-
-#map-container :deep(canvas) {
-  max-width: 100%;
-  height: auto !important;
-}
-
-.fallback-message {
-  text-align: center;
-  padding: 3rem 2rem;
-  background: var(--bg-card);
-  border-radius: 12px;
-  border: 2px dashed var(--border-color);
-}
-
-.globe-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.fallback-message p {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-}
-
-.view-stats-link {
-  color: var(--link-color);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: color 0.3s ease;
-}
-
-.view-stats-link:hover {
-  color: var(--link-hover);
-  text-decoration: underline;
 }
 
 /* Responsive */
