@@ -15,7 +15,7 @@
     <div class="container">
       <h1>Experience & Projects</h1>
       <p class="page-intro">
-        A chronological overview of my professional work and academic projects, showcasing my journey
+        A chronological overview of my professional work and personal/academic projects, showcasing my journey
         in AI and software engineering.
       </p>
 
