@@ -164,6 +164,7 @@ const timelineItems = [
 const currentIndex = ref(0)
 const showFallback = ref(false)
 let intervalId = null
+let mapCheckTimeout = null
 
 onMounted(() => {
   intervalId = setInterval(() => {
@@ -181,16 +182,26 @@ onMounted(() => {
     showFallback.value = true
   }
 
+  // Detect if map loaded successfully
+  script.onload = () => {
+    // Clear any pending fallback check since script loaded
+    if (mapCheckTimeout) {
+      clearTimeout(mapCheckTimeout)
+      mapCheckTimeout = null
+    }
+  }
+
   const mapContainer = document.getElementById('map-container')
   if (mapContainer && !document.getElementById('clstr_globe')) {
     mapContainer.appendChild(script)
 
-    // Also check after a timeout if the globe loaded
-    setTimeout(() => {
+    // Check after a timeout if the globe loaded
+    mapCheckTimeout = setTimeout(() => {
       const globeElement = mapContainer.querySelector('canvas')
-      if (!globeElement) {
+      if (!globeElement && !showFallback.value) {
         showFallback.value = true
       }
+      mapCheckTimeout = null
     }, 3000)
   }
 })
@@ -198,6 +209,10 @@ onMounted(() => {
 onUnmounted(() => {
   if (intervalId) {
     clearInterval(intervalId)
+  }
+
+  if (mapCheckTimeout) {
+    clearTimeout(mapCheckTimeout)
   }
 
   // Clean up the globe script
