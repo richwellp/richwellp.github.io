@@ -140,7 +140,7 @@
               src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff"
               alt="Visitor Map"
               @load="handleMapLoad"
-              @error="mapLoadError = true"
+              @error="handleMapError"
             />
           </a>
           <div v-else class="map-error">
@@ -154,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 
 const timelineItems = [
   {
@@ -173,19 +173,22 @@ const timelineItems = [
 
 const currentIndex = ref(0)
 const mapLoadError = ref(false)
+const mapLoaded = ref(false)
 const mapImage = ref(null)
 let intervalId = null
 let mapCheckTimeout = null
 
 const handleMapLoad = () => {
-  // Clear the timeout since the image loaded
+  mapLoaded.value = true
   if (mapCheckTimeout) {
     clearTimeout(mapCheckTimeout)
   }
+}
 
-  // Check if the image actually has dimensions (wasn't blocked)
-  if (mapImage.value && (mapImage.value.naturalWidth === 0 || mapImage.value.naturalHeight === 0)) {
-    mapLoadError.value = true
+const handleMapError = () => {
+  mapLoadError.value = true
+  if (mapCheckTimeout) {
+    clearTimeout(mapCheckTimeout)
   }
 }
 
@@ -194,12 +197,14 @@ onMounted(() => {
     currentIndex.value = (currentIndex.value + 1) % timelineItems.length
   }, 4000)
 
-  // Set a timeout to check if the map image loaded within 3 seconds
-  mapCheckTimeout = setTimeout(() => {
-    if (mapImage.value && (mapImage.value.naturalWidth === 0 || mapImage.value.naturalHeight === 0)) {
-      mapLoadError.value = true
-    }
-  }, 3000)
+  // Check after 2 seconds if the map loaded
+  nextTick(() => {
+    mapCheckTimeout = setTimeout(() => {
+      if (!mapLoaded.value) {
+        mapLoadError.value = true
+      }
+    }, 2000)
+  })
 })
 
 onUnmounted(() => {
