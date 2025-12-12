@@ -135,7 +135,7 @@
         <h2>Visitors</h2>
         <div class="map-container">
           <a href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
-            <img src="//www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff" alt="Visitor Map" />
+            <img src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff" alt="Visitor Map" />
           </a>
         </div>
       </div>
