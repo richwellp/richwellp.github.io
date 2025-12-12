@@ -136,8 +136,10 @@
         <div class="map-container">
           <a v-if="!mapLoadError" href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
             <img
+              ref="mapImage"
               src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff"
               alt="Visitor Map"
+              @load="handleMapLoad"
               @error="mapLoadError = true"
             />
           </a>
@@ -171,17 +173,41 @@ const timelineItems = [
 
 const currentIndex = ref(0)
 const mapLoadError = ref(false)
+const mapImage = ref(null)
 let intervalId = null
+let mapCheckTimeout = null
+
+const handleMapLoad = () => {
+  // Clear the timeout since the image loaded
+  if (mapCheckTimeout) {
+    clearTimeout(mapCheckTimeout)
+  }
+
+  // Check if the image actually has dimensions (wasn't blocked)
+  if (mapImage.value && (mapImage.value.naturalWidth === 0 || mapImage.value.naturalHeight === 0)) {
+    mapLoadError.value = true
+  }
+}
 
 onMounted(() => {
   intervalId = setInterval(() => {
     currentIndex.value = (currentIndex.value + 1) % timelineItems.length
   }, 4000)
+
+  // Set a timeout to check if the map image loaded within 3 seconds
+  mapCheckTimeout = setTimeout(() => {
+    if (mapImage.value && (mapImage.value.naturalWidth === 0 || mapImage.value.naturalHeight === 0)) {
+      mapLoadError.value = true
+    }
+  }, 3000)
 })
 
 onUnmounted(() => {
   if (intervalId) {
     clearInterval(intervalId)
+  }
+  if (mapCheckTimeout) {
+    clearTimeout(mapCheckTimeout)
   }
 })
 </script>
