@@ -3,7 +3,7 @@
     <div class="container">
       <h1>Curriculum Vitae</h1>
       <p class="page-intro">
-        My one-page resume, optimized for job applications. You can view it below or download it
+        You can view my one-page resume below or download it
         using your browser's built-in PDF controls.
       </p>
 

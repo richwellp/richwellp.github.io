@@ -1,26 +1,14 @@
 <template>
   <div class="experience">
-    <!-- Sticky Jump Navigation -->
-    <nav class="jump-nav" :class="{ sticky: isSticky }">
-      <div class="jump-nav-container">
-        <a href="#work-experience" @click.prevent="scrollToSection('work-experience')" class="jump-link">
-          Work Experience
-        </a>
-        <a href="#projects" @click.prevent="scrollToSection('projects')" class="jump-link">
-          Projects
-        </a>
-      </div>
-    </nav>
-
     <div class="container">
-      <h1>Experience & Projects</h1>
+      <h1>Experience</h1>
       <p class="page-intro">
-        A chronological overview of my professional work and personal/academic projects, showcasing my journey
+        A chronological overview of my professional work experience, showcasing my journey
         in AI and software engineering.
       </p>
 
       <!-- Work Experience -->
-      <section id="work-experience" class="work-experience">
+      <section class="work-experience">
         <h2 class="section-title">Work Experience</h2>
 
         <!-- Safran -->
@@ -205,181 +193,24 @@
           </div>
         </div>
       </section>
-
-      <!-- Projects -->
-      <section id="projects" class="projects">
-        <h2 class="section-title">Projects</h2>
-
-        <!-- UIUC Letter Grades -->
-        <div class="project-card" :class="{ collapsed: !expandedCards.lettergrades }">
-          <div class="project-header-clickable" @click="toggleCard('lettergrades')">
-            <h3>UIUC Letter Grades — Full-Stack Web App with AI Integration</h3>
-            <button class="collapse-btn" aria-label="Toggle details">
-              <span class="collapse-icon">{{ expandedCards.lettergrades ? '▼' : '▶' }}</span>
-            </button>
-          </div>
-          <div class="project-content" v-show="expandedCards.lettergrades">
-            <p class="project-description">
-              Built a full-stack analytics platform to help students make informed decisions about
-              their courses by visualizing historical GPA data and predicting outcomes.
-            </p>
-            <ul class="achievements">
-            <li>
-              Built a full-stack analytics platform with Node.js, MongoDB, and Python to visualize
-              and analyze GPA data across 10+ years, enabling students to compare instructors and
-              predict course outcomes.
-            </li>
-            <li>
-              Trained ML models (linear/logistic regression, sequential models) and visualizations
-              for predictive grade analytics.
-            </li>
-            <li>
-              Analyzed and designed interactive data visualizations for users to track performance
-              across semesters and predict future grades.
-            </li>
-            <li>
-              Implemented user authentication and automated data processing pipelines for efficient
-              data handling.
-            </li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">Node.js</span>
-            <span class="tech-tag">MongoDB</span>
-            <span class="tech-tag">Python</span>
-            <span class="tech-tag">TensorFlow</span>
-            <span class="tech-tag">Data Visualization</span>
-          </div>
-          </div>
-        </div>
-
-        <!-- Video Anomaly Detection -->
-        <div class="project-card" :class="{ collapsed: !expandedCards.anomaly }">
-          <div class="project-header-clickable" @click="toggleCard('anomaly')">
-            <h3>Video Anomaly Detection Model — Leveraging Weapon Recognition for Enhanced Accuracy</h3>
-            <button class="collapse-btn" aria-label="Toggle details">
-              <span class="collapse-icon">{{ expandedCards.anomaly ? '▼' : '▶' }}</span>
-            </button>
-          </div>
-          <div class="project-content" v-show="expandedCards.anomaly">
-            <p class="project-description">
-              Developed an AI pipeline for real-time crime detection in surveillance videos, combining
-              anomaly detection with weapon recognition.
-            </p>
-            <ul class="achievements">
-            <li>
-              Integrated weapon detection with anomaly scores, improving crime classification
-              accuracy through multi-model decision-making.
-            </li>
-            <li>
-              Developed an AI pipeline using UCF-Crime anomaly detection & YOLO/Faster R-CNN for
-              real-time crime recognition.
-            </li>
-            <li>
-              Optimized anomaly detection using Multi-Instance Learning (MIL) & improved loss
-              functions for better predictions.
-            </li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">PyTorch</span>
-            <span class="tech-tag">YOLO</span>
-            <span class="tech-tag">Faster R-CNN</span>
-            <span class="tech-tag">Computer Vision</span>
-            <span class="tech-tag">MIL</span>
-          </div>
-          </div>
-        </div>
-
-        <!-- Deep Learning Aerosol Model -->
-        <div class="project-card" :class="{ collapsed: !expandedCards.aerosol }">
-          <div class="project-header-clickable" @click="toggleCard('aerosol')">
-            <div class="project-header">
-              <h3>Deep Learning Aerosol Model</h3>
-              <a href="https://ai.ncsa.illinois.edu/center-for-ai-innovation-announces-hackathon-winners/" target="_blank" rel="noopener noreferrer" class="award">🏆 3rd Place, Ashby Prize in Computational Science</a>
-            </div>
-            <button class="collapse-btn project-collapse" aria-label="Toggle details">
-              <span class="collapse-icon">{{ expandedCards.aerosol ? '▼' : '▶' }}</span>
-            </button>
-          </div>
-          <div class="project-content" v-show="expandedCards.aerosol">
-            <p class="project-subtitle">NCSA AI Innovation Hackathon</p>
-            <p class="project-description">
-              Engineered deep learning models to predict climate-relevant aerosol properties using
-              high-performance computing infrastructure.
-            </p>
-            <ul class="achievements">
-            <li>
-              Engineered a transformer and Encoder/Decoder models to capture temporal patterns in
-              climate-relevant aerosol properties.
-            </li>
-            <li>
-              Applied advanced data preprocessing techniques to handle high-dimensional climate data
-              and reduce the curse of dimensionality.
-            </li>
-            <li>
-              Leveraged HAL 9000 (UIUC's supercomputer) for high-performance training, optimizing
-              deep learning workload scalability.
-            </li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">PyTorch</span>
-            <span class="tech-tag">Transformers</span>
-            <span class="tech-tag">Climate Data</span>
-            <span class="tech-tag">HPC</span>
-          </div>
-          </div>
-        </div>
-      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { reactive } from 'vue'
 
 // Card expansion state - all cards start expanded
 const expandedCards = reactive({
   safran: true,
   ilsos: true,
   uiucta: true,
-  uiucse: true,
-  lettergrades: true,
-  anomaly: true,
-  aerosol: true
+  uiucse: true
 })
-
-// Sticky navigation becomes active after scrolling 200px
-const isSticky = ref(false)
 
 const toggleCard = (cardId) => {
   expandedCards[cardId] = !expandedCards[cardId]
 }
-
-const scrollToSection = (sectionId) => {
-  const element = document.getElementById(sectionId)
-  if (element) {
-    // Offset accounts for navbar (60px) + jump nav (40px)
-    const offset = 100
-    const elementPosition = element.getBoundingClientRect().top
-    const offsetPosition = elementPosition + window.pageYOffset - offset
-
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: 'smooth'
-    })
-  }
-}
-
-const handleScroll = () => {
-  isSticky.value = window.scrollY > 200
-}
-
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
 </script>
 
 <style scoped>
@@ -387,47 +218,6 @@ onUnmounted(() => {
   padding: 4rem 2rem;
   background: var(--bg-primary);
   min-height: 100vh;
-}
-
-/* Jump Navigation - becomes sticky after scrolling */
-.jump-nav {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem 2rem;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 50;
-}
-
-.jump-nav.sticky {
-  position: sticky;
-  top: 60px;
-  box-shadow: 0 2px 10px var(--shadow);
-}
-
-.jump-nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-}
-
-.jump-link {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-}
-
-.jump-link:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-  border-color: var(--border-color);
 }
 
 .container {
@@ -605,82 +395,6 @@ h1 {
   border: 1px solid var(--border-color);
 }
 
-/* Projects Section */
-.project-header-clickable {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  user-select: none;
-  margin-bottom: 0.5rem;
-}
-
-.project-header-clickable:hover h3 {
-  color: var(--accent-primary);
-}
-
-.project-card h3 {
-  font-size: 1.4rem;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.project-content {
-  margin-top: 0.5rem;
-}
-
-.project-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.project-header h3 {
-  margin-bottom: 0;
-}
-
-.project-collapse {
-  margin-left: auto;
-}
-
-.award {
-  background: var(--bg-tertiary);
-  color: var(--accent-primary);
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: 1px solid var(--accent-primary);
-  text-decoration: none;
-  transition: all 0.3s ease;
-  display: inline-block;
-}
-
-.award:hover {
-  background: var(--accent-primary);
-  color: var(--bg-card);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow);
-}
-
-.project-subtitle {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  font-style: italic;
-  margin-bottom: 1rem;
-}
-
-.project-description {
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .experience {
@@ -689,19 +403,6 @@ h1 {
 
   h1 {
     font-size: 2rem;
-  }
-
-  .jump-nav {
-    padding: 0.75rem 1rem;
-  }
-
-  .jump-nav-container {
-    gap: 1rem;
-  }
-
-  .jump-link {
-    font-size: 0.9rem;
-    padding: 0.4rem 0.8rem;
   }
 
   .card-header {
@@ -715,20 +416,6 @@ h1 {
 
   .date {
     align-self: flex-start;
-  }
-
-  .project-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .project-header-clickable {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .collapse-btn {
-    align-self: flex-end;
   }
 }
 </style>
