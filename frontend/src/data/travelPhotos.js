@@ -21,6 +21,10 @@ export const travelPhotos = {
   japan: [
     { src: '/assets/photos/travel/japan/20240603_194332.jpg', caption: 'Tokyo Tower' },
     { src: '/assets/photos/travel/japan/20240604_121505.jpg', caption: 'Japan food' }
+  ],
+  mexico: [
+  ],
+  canada: [
   ]
 }
 

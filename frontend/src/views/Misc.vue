@@ -54,6 +54,44 @@
       <div class="container">
         <h2 class="section-title">Beyond Computer Science</h2>
         <p class="section-intro">When I'm not coding, you'll find me exploring the world, staying active, and diving into competitive games.</p>
+        
+        <!-- Interests - Compact Grid -->
+        <div class="interests-section">
+          <h3 class="subsection-title">What I Love</h3>
+          <div class="interests-grid">
+            <div class="interest-item">
+              <span class="interest-icon">🏐</span>
+              <div class="interest-text">
+                <h4>Volleyball</h4>
+                <p>Strategy and teamwork on the court</p>
+              </div>
+            </div>
+
+            <div class="interest-item">
+              <span class="interest-icon">💪</span>
+              <div class="interest-text">
+                <h4>Powerlifting</h4>
+                <p>Building strength, one rep at a time</p>
+              </div>
+            </div>
+
+            <div class="interest-item">
+              <span class="interest-icon">🎮</span>
+              <div class="interest-text">
+                <h4>Gaming</h4>
+                <p>Dota 2, Valorant, and anime games</p>
+              </div>
+            </div>
+
+            <div class="interest-item">
+              <span class="interest-icon">📚</span>
+              <div class="interest-text">
+                <h4>Learning</h4>
+                <p>Always exploring new technologies</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Photo Albums - Featured Section -->
         <div class="albums-section">
@@ -102,43 +140,6 @@
           </div>
         </div>
 
-        <!-- Interests - Compact Grid -->
-        <div class="interests-section">
-          <h3 class="subsection-title">What I Love</h3>
-          <div class="interests-grid">
-            <div class="interest-item">
-              <span class="interest-icon">🏐</span>
-              <div class="interest-text">
-                <h4>Volleyball</h4>
-                <p>Strategy and teamwork on the court</p>
-              </div>
-            </div>
-
-            <div class="interest-item">
-              <span class="interest-icon">💪</span>
-              <div class="interest-text">
-                <h4>Powerlifting</h4>
-                <p>Building strength, one rep at a time</p>
-              </div>
-            </div>
-
-            <div class="interest-item">
-              <span class="interest-icon">🎮</span>
-              <div class="interest-text">
-                <h4>Gaming</h4>
-                <p>Dota 2, Valorant, and anime games</p>
-              </div>
-            </div>
-
-            <div class="interest-item">
-              <span class="interest-icon">📚</span>
-              <div class="interest-text">
-                <h4>Learning</h4>
-                <p>Always exploring new technologies</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
