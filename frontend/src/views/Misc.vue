@@ -94,21 +94,113 @@
         </div>
       </section>
 
+      <!-- Interests -->
+      <section class="interests-section">
+        <h2 class="section-title">Beyond Computer Science</h2>
+        <div class="interests-grid">
+          <div class="interest-card">
+            <h3>🏐 Volleyball</h3>
+            <p>I love <span class="dashed-strike">spiking</span> the strategy and teamwork that goes into every match.</p>
+          </div>
+          <div class="interest-card">
+            <h3>💪 Powerlifting</h3>
+            <p>Building strength and discipline, one rep at a time.</p>
+          </div>
+          <div class="interest-card">
+            <h3>🎮 Gaming</h3>
+            <p>Dota 2, Valorant, and some anime games: where my AI interest began.</p>
+          </div>
+          <div class="interest-card">
+            <h3>✈️ Traveling</h3>
+            <p>Exploring new places and experiencing different cultures.</p>
+          </div>
+        </div>
+        <div class="personal-photos">
+          <img src="/assets/photos/travel/japan/20240603_194332.jpg" alt="Japan" class="personal-photo" />
+          <img src="/assets/photos/travel/colorado/IMG_4426.JPG" alt="Colorado mountains" class="personal-photo" />
+          <img src="/assets/photos/travel/japan/20240604_121505.jpg" alt="Japan" class="personal-photo" />
+          <img src="/assets/photos/travel/philippines/IMG_8348.jpg" alt="Philippines scenery" class="personal-photo" />
+          <img src="/assets/photos/travel/california/IMG_4551.JPG" alt="California views" class="personal-photo" />
+          <img src="/assets/photos/travel/philippines/PXL_20230920_091946963.jpg" alt="Philippines views" class="personal-photo" />
+        </div>
+      </section>
+
+      <!-- Visitor Map -->
+      <section class="visitor-map">
+        <h2 class="section-title">Visitors</h2>
+        <div class="map-container">
+          <a v-if="!mapLoadError" href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
+            <img
+              ref="mapImage"
+              src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff"
+              alt="Visitor Map"
+              @load="handleMapLoad"
+              @error="handleMapError"
+            />
+          </a>
+          <div v-else class="map-error">
+            <p>🌍 Visitor map is hidden</p>
+            <p class="error-hint">If you're using an ad blocker, it may be blocking the visitor map. You can disable it to see where visitors are from!</p>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 </template>
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, ref, nextTick } from 'vue'
 import { useBlog } from '../composables/useBlog'
 
 const { posts, loading, fetchPosts } = useBlog()
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 
+// Visitor map functionality
+const mapLoadError = ref(false)
+const mapLoaded = ref(false)
+const mapImage = ref(null)
+let mapCheckTimeout = null
+
+const handleMapLoad = () => {
+  // Check if the image has valid dimensions (adblockers often replace with 1x1 pixel)
+  if (mapImage.value && (mapImage.value.naturalWidth < 10 || mapImage.value.naturalHeight < 10)) {
+    mapLoadError.value = true
+  } else {
+    mapLoaded.value = true
+  }
+
+  if (mapCheckTimeout) {
+    clearTimeout(mapCheckTimeout)
+  }
+}
+
+const handleMapError = () => {
+  mapLoadError.value = true
+  if (mapCheckTimeout) {
+    clearTimeout(mapCheckTimeout)
+  }
+}
+
 onMounted(() => {
   fetchPosts()
+
+  // Fallback: Check after 2 seconds if the map loaded
+  nextTick(() => {
+    mapCheckTimeout = setTimeout(() => {
+      if (!mapLoaded.value) {
+        mapLoadError.value = true
+      }
+    }, 2000)
+  })
+})
+
+onUnmounted(() => {
+  if (mapCheckTimeout) {
+    clearTimeout(mapCheckTimeout)
+  }
 })
 </script>
 
@@ -388,6 +480,120 @@ h1 {
   color: var(--link-hover);
 }
 
+/* Interests Section */
+.interests-section {
+  margin-bottom: 4rem;
+}
+
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.interest-card {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px var(--shadow);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashed-strike {
+  text-decoration: line-through;
+  text-decoration-style: dashed;
+}
+
+.interest-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px var(--shadow);
+  border-color: var(--accent-primary);
+}
+
+.interest-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.interest-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.personal-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.personal-photo {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+/* Visitor Map Section */
+.visitor-map {
+  margin-bottom: 4rem;
+}
+
+.map-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.map-container a {
+  display: block;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.map-container a:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
+.map-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.map-error {
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.map-error p:first-child {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.error-hint {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .misc {
@@ -407,6 +613,14 @@ h1 {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .interests-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .personal-photos {
+    grid-template-columns: 1fr;
   }
 }
 </style>
