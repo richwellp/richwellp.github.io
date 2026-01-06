@@ -7,16 +7,44 @@
         in AI and software engineering.
       </p>
 
-      <!-- Work Experience -->
-      <section class="work-experience">
-        <h2 class="section-title">Work Experience</h2>
+      <!-- Career Highlights -->
+      <div class="highlights">
+        <div class="highlight-card">
+          <span class="highlight-icon">👥</span>
+          <span class="highlight-number">600+</span>
+          <span class="highlight-label">Users Served</span>
+        </div>
+        <div class="highlight-card">
+          <span class="highlight-icon">⚡</span>
+          <span class="highlight-number">50%</span>
+          <span class="highlight-label">Faster Systems</span>
+        </div>
+        <div class="highlight-card">
+          <span class="highlight-icon">💾</span>
+          <span class="highlight-number">5B+</span>
+          <span class="highlight-label">Records Managed</span>
+        </div>
+        <div class="highlight-card">
+          <span class="highlight-icon">🎓</span>
+          <span class="highlight-number">800+</span>
+          <span class="highlight-label">Students Taught</span>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <section class="timeline">
 
         <!-- Safran -->
-        <div class="experience-card" :class="{ collapsed: !expandedCards.safran }">
+        <div class="experience-card featured" :class="{ collapsed: !expandedCards.safran }">
+          <div class="timeline-marker"></div>
+          <div class="card-badge current">Current Role</div>
           <div class="card-header" @click="toggleCard('safran')">
-            <div>
-              <h3>AI Engineer</h3>
-              <p class="company">Safran | Laramie, WY; Brea, CA</p>
+            <div class="header-left">
+              <div class="company-icon">🚀</div>
+              <div>
+                <h3>AI Engineer</h3>
+                <p class="company">Safran | Laramie, WY; Brea, CA</p>
+              </div>
             </div>
             <div class="header-right">
               <span class="date">June 2025 - Present</span>
@@ -73,10 +101,14 @@
 
         <!-- Illinois Secretary of State -->
         <div class="experience-card" :class="{ collapsed: !expandedCards.ilsos }">
+          <div class="timeline-marker"></div>
           <div class="card-header" @click="toggleCard('ilsos')">
-            <div>
-              <h3>Database Administrator</h3>
-              <p class="company">Illinois Secretary of State | Springfield, IL</p>
+            <div class="header-left">
+              <div class="company-icon">💾</div>
+              <div>
+                <h3>Database Administrator</h3>
+                <p class="company">Illinois Secretary of State | Springfield, IL</p>
+              </div>
             </div>
             <div class="header-right">
               <span class="date">February 2025 - June 2025</span>
@@ -128,10 +160,14 @@
 
         <!-- UIUC - Teaching Assistant -->
         <div class="experience-card" :class="{ collapsed: !expandedCards.uiucta }">
+          <div class="timeline-marker"></div>
           <div class="card-header" @click="toggleCard('uiucta')">
-            <div>
-              <h3>Graduate Teaching Assistant</h3>
-              <p class="company">University of Illinois Urbana-Champaign | Urbana, IL</p>
+            <div class="header-left">
+              <div class="company-icon">🎓</div>
+              <div>
+                <h3>Graduate Teaching Assistant</h3>
+                <p class="company">University of Illinois Urbana-Champaign | Urbana, IL</p>
+              </div>
             </div>
             <div class="header-right">
               <span class="date">August 2022 - May 2023</span>
@@ -162,10 +198,14 @@
 
         <!-- UIUC - Software Engineer -->
         <div class="experience-card" :class="{ collapsed: !expandedCards.uiucse }">
+          <div class="timeline-marker"></div>
           <div class="card-header" @click="toggleCard('uiucse')">
-            <div>
-              <h3>Software Engineer</h3>
-              <p class="company">University of Illinois Urbana-Champaign | Urbana, IL</p>
+            <div class="header-left">
+              <div class="company-icon">⚙️</div>
+              <div>
+                <h3>Software Engineer</h3>
+                <p class="company">University of Illinois Urbana-Champaign | Urbana, IL</p>
+              </div>
             </div>
             <div class="header-right">
               <span class="date">July 2021 - August 2021</span>
@@ -242,31 +282,123 @@ h1 {
   margin-right: auto;
 }
 
-.section-title {
+/* Career Highlights */
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.highlight-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.highlight-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px var(--shadow);
+  border-color: var(--accent-primary);
+}
+
+.highlight-icon {
   font-size: 2rem;
-  color: var(--text-primary);
-  margin: 3rem 0 2rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 3px solid var(--accent-primary);
+  margin-bottom: 0.25rem;
+}
+
+.highlight-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  line-height: 1;
+}
+
+.highlight-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2rem;
+  bottom: 2rem;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--accent-primary), var(--border-color));
 }
 
 /* Experience Card */
-.experience-card,
-.project-card {
+.experience-card {
+  position: relative;
   background: var(--bg-card);
   border-radius: 12px;
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  margin-left: 1rem;
   box-shadow: 0 2px 10px var(--shadow);
   border: 1px solid var(--border-color);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.experience-card:hover,
-.project-card:hover {
-  transform: translateY(-3px);
+.experience-card:hover {
+  transform: translateX(5px);
   box-shadow: 0 4px 20px var(--shadow);
   border-color: var(--accent-primary);
+}
+
+.experience-card.featured {
+  border: 2px solid var(--accent-primary);
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2.65rem;
+  top: 2rem;
+  width: 16px;
+  height: 16px;
+  background: var(--accent-primary);
+  border: 3px solid var(--bg-primary);
+  border-radius: 50%;
+  z-index: 1;
+  box-shadow: 0 0 0 4px var(--bg-card);
+}
+
+.experience-card.featured .timeline-marker {
+  width: 20px;
+  height: 20px;
+  left: -2.85rem;
+  background: var(--accent-primary);
+  box-shadow: 0 0 0 5px var(--accent-primary), 0 0 0 8px var(--bg-card);
+}
+
+.card-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--accent-primary);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
@@ -282,6 +414,24 @@ h1 {
 
 .card-header:hover h3 {
   color: var(--accent-primary);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.company-icon {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .card-header h3 {
@@ -405,8 +555,70 @@ h1 {
     font-size: 2rem;
   }
 
+  .highlights {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .highlight-card {
+    padding: 1rem;
+  }
+
+  .highlight-icon {
+    font-size: 1.5rem;
+  }
+
+  .highlight-number {
+    font-size: 1.5rem;
+  }
+
+  .highlight-label {
+    font-size: 0.85rem;
+  }
+
+  .timeline {
+    padding-left: 1.5rem;
+  }
+
+  .timeline::before {
+    width: 2px;
+  }
+
+  .timeline-marker {
+    left: -2.1rem;
+    width: 12px;
+    height: 12px;
+  }
+
+  .experience-card.featured .timeline-marker {
+    width: 16px;
+    height: 16px;
+    left: -2.25rem;
+  }
+
+  .experience-card {
+    margin-left: 0.5rem;
+    padding: 1.5rem;
+  }
+
+  .company-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+  }
+
+  .card-badge {
+    position: static;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
   .card-header {
     flex-direction: column;
+  }
+
+  .header-left {
+    width: 100%;
   }
 
   .header-right {
@@ -416,6 +628,12 @@ h1 {
 
   .date {
     align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .highlights {
+    grid-template-columns: 1fr;
   }
 }
 </style>
