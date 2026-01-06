@@ -18,15 +18,10 @@
             their courses by visualizing historical GPA data and predicting outcomes.
           </p>
           <ul class="project-highlights">
-            <li>Built a full-stack analytics platform with Node.js, MongoDB, and Python to visualize
-            and analyze GPA data across 10+ years, enabling students to compare instructors and
-            predict course outcomes.</li>
-            <li>Trained ML models (linear/logistic regression, sequential models) and visualizations
-            for predictive grade analytics.</li>
-            <li>Analyzed and designed interactive data visualizations for users to track performance
-            across semesters and predict future grades.</li>
-            <li>Implemented user authentication and automated data processing pipelines for efficient
-            data handling.</li>
+            <li>Built analytics platform with Node.js, MongoDB, and Python to visualize GPA data across 10+ years</li>
+            <li>Trained ML models (linear/logistic regression, sequential models) for predictive grade analytics</li>
+            <li>Designed interactive data visualizations for tracking performance across semesters</li>
+            <li>Implemented user authentication and automated data processing pipelines</li>
           </ul>
           <div class="tech-stack">
             <span class="tech-tag">Node.js</span>
@@ -48,12 +43,9 @@
             anomaly detection with weapon recognition.
           </p>
           <ul class="project-highlights">
-            <li>Integrated weapon detection with anomaly scores, improving crime classification
-            accuracy through multi-model decision-making.</li>
-            <li>Developed an AI pipeline using UCF-Crime anomaly detection & YOLO/Faster R-CNN for
-            real-time crime recognition.</li>
-            <li>Optimized anomaly detection using Multi-Instance Learning (MIL) & improved loss
-            functions for better predictions.</li>
+            <li>Integrated weapon detection with anomaly scores for improved crime classification</li>
+            <li>Developed AI pipeline using UCF-Crime anomaly detection & YOLO/Faster R-CNN</li>
+            <li>Optimized anomaly detection using Multi-Instance Learning (MIL) & improved loss functions</li>
           </ul>
           <div class="tech-stack">
             <span class="tech-tag">PyTorch</span>
@@ -78,18 +70,115 @@
             high-performance computing infrastructure.
           </p>
           <ul class="project-highlights">
-            <li>Engineered a transformer and Encoder/Decoder models to capture temporal patterns in
-            climate-relevant aerosol properties.</li>
-            <li>Applied advanced data preprocessing techniques to handle high-dimensional climate data
-            and reduce the curse of dimensionality.</li>
-            <li>Leveraged HAL 9000 (UIUC's supercomputer) for high-performance training, optimizing
-            deep learning workload scalability.</li>
+            <li>Engineered transformer and Encoder/Decoder models to capture temporal patterns in aerosol properties</li>
+            <li>Applied advanced preprocessing techniques to handle high-dimensional climate data</li>
+            <li>Leveraged HAL 9000 (UIUC's supercomputer) for high-performance training</li>
           </ul>
           <div class="tech-stack">
             <span class="tech-tag">PyTorch</span>
             <span class="tech-tag">Transformers</span>
             <span class="tech-tag">Climate Data</span>
             <span class="tech-tag">HPC</span>
+          </div>
+        </div>
+
+        <!-- COVID Logging System -->
+        <div class="project-block">
+          <div class="project-header">
+            <h3>COVID Logging System</h3>
+            <p class="project-subtitle">Database Systems Project</p>
+            <a href="https://github.com/richwellp/CS411_Project" target="_blank" rel="noopener noreferrer" class="github-link">
+              View on GitHub →
+            </a>
+          </div>
+          <p class="project-description">
+            Built a comprehensive COVID-19 tracking and logging system with database management for monitoring cases and contact tracing.
+          </p>
+          <ul class="project-highlights">
+            <li>Designed relational database schema for COVID case management and contact tracing</li>
+            <li>Implemented CRUD operations with complex queries for data analysis</li>
+            <li>Built web interface for real-time case logging and reporting</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">SQL</span>
+            <span class="tech-tag">Database Design</span>
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Web Development</span>
+          </div>
+        </div>
+
+        <!-- Not Geoff - Facial Recognition -->
+        <div class="project-block">
+          <div class="project-header">
+            <h3>Not Geoff</h3>
+            <p class="project-subtitle">Facial Recognition System</p>
+            <a href="https://github.com/richwellp/Not-Geoff" target="_blank" rel="noopener noreferrer" class="github-link">
+              View on GitHub →
+            </a>
+          </div>
+          <p class="project-description">
+            Developed a facial recognition system using computer vision techniques to identify and verify individuals.
+          </p>
+          <ul class="project-highlights">
+            <li>Implemented face detection and recognition using OpenCV and deep learning models</li>
+            <li>Built real-time video processing pipeline for face identification</li>
+            <li>Trained custom models for improved accuracy on specific datasets</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">OpenCV</span>
+            <span class="tech-tag">Computer Vision</span>
+            <span class="tech-tag">Deep Learning</span>
+          </div>
+        </div>
+
+        <!-- Rocket Rollers -->
+        <div class="project-block">
+          <div class="project-header">
+            <h3>Rocket Rollers</h3>
+            <p class="project-subtitle">Game Development Project</p>
+            <a href="https://github.com/richwellp/Rocket-Rollers" target="_blank" rel="noopener noreferrer" class="github-link">
+              View on GitHub →
+            </a>
+          </div>
+          <p class="project-description">
+            Created an interactive game featuring physics-based mechanics and dynamic gameplay elements.
+          </p>
+          <ul class="project-highlights">
+            <li>Implemented game physics engine with collision detection and response</li>
+            <li>Designed level progression system with increasing difficulty</li>
+            <li>Built responsive controls and smooth animation systems</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">Unity</span>
+            <span class="tech-tag">C#</span>
+            <span class="tech-tag">Game Development</span>
+            <span class="tech-tag">Physics</span>
+          </div>
+        </div>
+
+        <!-- Open Flights -->
+        <div class="project-block">
+          <div class="project-header">
+            <h3>Open Flights</h3>
+            <p class="project-subtitle">Flight Data Analysis Platform</p>
+            <a href="https://github.com/richwellp/Open-Flights" target="_blank" rel="noopener noreferrer" class="github-link">
+              View on GitHub →
+            </a>
+          </div>
+          <p class="project-description">
+            Built a data analysis platform for visualizing and analyzing global flight routes and airport data.
+          </p>
+          <ul class="project-highlights">
+            <li>Processed and visualized large-scale flight route datasets</li>
+            <li>Implemented interactive maps for exploring flight connections</li>
+            <li>Built analytics dashboard for route optimization and statistics</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Data Analysis</span>
+            <span class="tech-tag">Visualization</span>
+            <span class="tech-tag">Pandas</span>
           </div>
         </div>
       </div>
@@ -132,7 +221,20 @@ h1 {
 /* Projects Grid */
 .projects-grid {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 2.5rem;
+}
+
+@media (max-width: 1200px) {
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .project-block {
@@ -167,7 +269,8 @@ h1 {
   margin-bottom: 0.5rem;
 }
 
-.award-badge {
+.award-badge,
+.github-link {
   display: inline-block;
   background: var(--bg-tertiary);
   color: var(--accent-primary);
@@ -181,7 +284,8 @@ h1 {
   margin-top: 0.5rem;
 }
 
-.award-badge:hover {
+.award-badge:hover,
+.github-link:hover {
   background: var(--accent-primary);
   color: var(--bg-card);
   transform: translateY(-2px);
