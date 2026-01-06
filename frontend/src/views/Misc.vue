@@ -124,14 +124,6 @@
             <p>Exploring new places and experiencing different cultures.</p>
           </div>
         </div>
-        <div class="personal-photos">
-          <img src="/assets/photos/travel/japan/20240603_194332.jpg" alt="Japan" class="personal-photo" />
-          <img src="/assets/photos/travel/colorado/IMG_4426.JPG" alt="Colorado mountains" class="personal-photo" />
-          <img src="/assets/photos/travel/japan/20240604_121505.jpg" alt="Japan" class="personal-photo" />
-          <img src="/assets/photos/travel/philippines/IMG_8348.jpg" alt="Philippines scenery" class="personal-photo" />
-          <img src="/assets/photos/travel/california/IMG_4551.JPG" alt="California views" class="personal-photo" />
-          <img src="/assets/photos/travel/philippines/PXL_20230920_091946963.jpg" alt="Philippines views" class="personal-photo" />
-        </div>
       </div>
     </section>
 
@@ -265,7 +257,7 @@ h1 {
 
 .visitor-map {
   background: var(--bg-secondary);
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .section-title {
@@ -477,6 +469,7 @@ h1 {
   margin-bottom: 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -550,19 +543,6 @@ h1 {
   line-height: 1.6;
 }
 
-.personal-photos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.personal-photo {
-  width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px var(--shadow);
-  border: 1px solid var(--border-color);
-}
 
 /* Visitor Map Section */
 .map-container {
@@ -621,9 +601,12 @@ h1 {
   .hero-section,
   .blog-section,
   .albums-section,
-  .interests-section,
-  .visitor-map {
+  .interests-section {
     padding: 2rem 1rem;
+  }
+
+  .visitor-map {
+    padding: 2rem 1rem 1rem;
   }
 
   h1 {
@@ -645,8 +628,5 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .personal-photos {
-    grid-template-columns: 1fr;
-  }
 }
 </style>
