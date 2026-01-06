@@ -1,6 +1,6 @@
 ## About This Portfolio
 
-Welcome! This is a personal portfolio website showcasing professional experience, academic projects, and personal interests in my career.
+Welcome! This is a personal portfolio website showcasing professional experience, academic projects, and personal interests!
 
 ### Site Structure
 
