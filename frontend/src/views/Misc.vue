@@ -1,14 +1,19 @@
 <template>
   <div class="misc">
-    <div class="container">
-      <h1>Miscellaneous</h1>
-      <p class="page-intro">
-        Random things I want to share—photos, thoughts, and other stuff that doesn't quite fit
-        elsewhere.
-      </p>
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="container">
+        <h1>Miscellaneous</h1>
+        <p class="page-intro">
+          Random things I want to share—photos, thoughts, and other stuff that doesn't quite fit
+          elsewhere.
+        </p>
+      </div>
+    </div>
 
-      <!-- Blog Section -->
-      <section class="blog-section">
+    <!-- Blog Section -->
+    <section class="blog-section">
+      <div class="container">
         <div class="section-header">
           <h2 class="section-title">Blog</h2>
           <router-link to="/misc/blog" class="view-all-link">View All →</router-link>
@@ -41,10 +46,12 @@
         <div v-else class="no-posts">
           <p>No blog posts yet. Check back soon!</p>
         </div>
-      </section>
-      
-      <!-- Photo Albums Section -->
-      <section class="albums-section">
+      </div>
+    </section>
+
+    <!-- Photo Albums Section -->
+    <section class="albums-section">
+      <div class="container">
         <h2 class="section-title">Photo Albums</h2>
         <div class="albums-grid">
           <!-- Travel Album -->
@@ -92,10 +99,12 @@
             </div>
           </router-link>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Interests -->
-      <section class="interests-section">
+    <!-- Interests -->
+    <section class="interests-section">
+      <div class="container">
         <h2 class="section-title">Beyond Computer Science</h2>
         <div class="interests-grid">
           <div class="interest-card">
@@ -123,10 +132,12 @@
           <img src="/assets/photos/travel/california/IMG_4551.JPG" alt="California views" class="personal-photo" />
           <img src="/assets/photos/travel/philippines/PXL_20230920_091946963.jpg" alt="Philippines views" class="personal-photo" />
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Visitor Map -->
-      <section class="visitor-map">
+    <!-- Visitor Map -->
+    <section class="visitor-map">
+      <div class="container">
         <h2 class="section-title">Visitors</h2>
         <div class="map-container">
           <a v-if="!mapLoadError" href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
@@ -143,9 +154,8 @@
             <p class="error-hint">If you're using an ad blocker, it may be blocking the visitor map. You can disable it to see where visitors are from!</p>
           </div>
         </div>
-      </section>
-
-    </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -206,9 +216,13 @@ onUnmounted(() => {
 
 <style scoped>
 .misc {
-  padding: 4rem 2rem;
-  background: var(--bg-primary);
   min-height: 100vh;
+}
+
+/* Hero Section */
+.hero-section {
+  background: var(--bg-secondary);
+  padding: 4rem 2rem;
 }
 
 .container {
@@ -227,15 +241,31 @@ h1 {
   text-align: center;
   font-size: 1.1rem;
   color: var(--text-secondary);
-  margin-bottom: 4rem;
+  margin-bottom: 0;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.albums-section,
+/* Section Backgrounds */
 .blog-section {
-  margin-bottom: 4rem;
+  background: var(--bg-primary);
+  padding: 4rem 2rem;
+}
+
+.albums-section {
+  background: var(--bg-secondary);
+  padding: 4rem 2rem;
+}
+
+.interests-section {
+  background: var(--bg-primary);
+  padding: 4rem 2rem;
+}
+
+.visitor-map {
+  background: var(--bg-secondary);
+  padding: 4rem 2rem;
 }
 
 .section-title {
@@ -481,10 +511,6 @@ h1 {
 }
 
 /* Interests Section */
-.interests-section {
-  margin-bottom: 4rem;
-}
-
 .interests-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -539,10 +565,6 @@ h1 {
 }
 
 /* Visitor Map Section */
-.visitor-map {
-  margin-bottom: 4rem;
-}
-
 .map-container {
   display: flex;
   justify-content: center;
@@ -596,7 +618,11 @@ h1 {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .misc {
+  .hero-section,
+  .blog-section,
+  .albums-section,
+  .interests-section,
+  .visitor-map {
     padding: 2rem 1rem;
   }
 
