@@ -30,9 +30,8 @@
           <div class="story-text">
             <p>
               I graduated with a BS and MCS in Computer Science from UIUC, specializing in the field of Data and Artificial intelligence. 
-              Born in the Philippines, I grew up watching technology reshape everything. My background spans teaching, full-stack development, 
-              database systems, and AI engineering. I've worked on machine learning models, RAG systems, cloud platforms, 
-              and data pipelines. I like building things that solve real world problems.
+              My background spans teaching, full-stack development, database systems, and AI engineering. I've worked on machine learning models, 
+              RAG systems, cloud platforms, and data pipelines. I like building things that solve real world problems.
             </p>
             <p>
               My interest in AI started with watching OpenAI dominate professional Dota 2 players back in 2017.
@@ -42,9 +41,8 @@
             </p>
             <p>
               That's what gets me excited about this field. I want to build technologies that actually improve
-              people's lives: whether it's through intelligent systems that make work easier, data-driven insights
-              that help make better decisions, or reliable engineering that just works. I stay curious about new
-              tools and approaches, and I do my best work in teams that value learning and building things that matter.
+              people's lives: whether it's through intelligent systems, data-driven insights, or reliable engineering. 
+              I stay curious about new tools and approaches, and I do my best work in teams that value learning and building things that matter.
             </p>
           </div>
           <div class="story-images">
