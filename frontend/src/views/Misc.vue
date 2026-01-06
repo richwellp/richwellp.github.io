@@ -49,10 +49,13 @@
       </div>
     </section>
 
-    <!-- Photo Albums Section -->
-    <section class="albums-section">
+    <!-- Beyond Computer Science -->
+    <section class="interests-section">
       <div class="container">
-        <h2 class="section-title">Photo Albums</h2>
+        <h2 class="section-title">Beyond Computer Science</h2>
+
+        <!-- Photo Albums -->
+        <h3 class="subsection-title">Photo Albums</h3>
         <div class="albums-grid">
           <!-- Travel Album -->
           <router-link to="/misc/travel" class="album-card">
@@ -99,13 +102,9 @@
             </div>
           </router-link>
         </div>
-      </div>
-    </section>
 
-    <!-- Interests -->
-    <section class="interests-section">
-      <div class="container">
-        <h2 class="section-title">Beyond Computer Science</h2>
+        <!-- Interests -->
+        <h3 class="subsection-title">Interests</h3>
         <div class="interests-grid">
           <div class="interest-card">
             <h3>🏐 Volleyball</h3>
@@ -245,18 +244,13 @@ h1 {
   padding: 4rem 2rem;
 }
 
-.albums-section {
-  background: var(--bg-secondary);
-  padding: 4rem 2rem;
-}
-
 .interests-section {
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   padding: 4rem 2rem;
 }
 
 .visitor-map {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   padding: 4rem 2rem 2rem;
 }
 
@@ -266,6 +260,18 @@ h1 {
   margin-bottom: 2rem;
   padding-bottom: 0.5rem;
   border-bottom: 3px solid var(--accent-primary);
+}
+
+.subsection-title {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.subsection-title:first-of-type {
+  margin-top: 0;
 }
 
 .section-header {
@@ -299,7 +305,7 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
-  margin-top: 2rem;
+  margin-bottom: 3rem;
 }
 
 .album-card {
@@ -508,7 +514,6 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
-  margin-bottom: 3rem;
 }
 
 .interest-card {
@@ -600,7 +605,6 @@ h1 {
 @media (max-width: 768px) {
   .hero-section,
   .blog-section,
-  .albums-section,
   .interests-section {
     padding: 2rem 1rem;
   }

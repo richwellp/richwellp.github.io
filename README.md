@@ -1,6 +1,6 @@
 ## About This Portfolio
 
-This is a personal portfolio website showcasing professional experience, academic projects, and personal interests in AI and software engineering.
+Welcome! This is a personal portfolio website showcasing professional experience, academic projects, and personal interests in my career.
 
 ### Site Structure
 
