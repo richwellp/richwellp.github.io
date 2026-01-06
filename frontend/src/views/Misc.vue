@@ -50,77 +50,93 @@
     </section>
 
     <!-- Beyond Computer Science -->
-    <section class="interests-section">
+    <section class="beyond-cs">
       <div class="container">
         <h2 class="section-title">Beyond Computer Science</h2>
+        <p class="section-intro">When I'm not coding, you'll find me exploring the world, staying active, and diving into competitive games.</p>
 
-        <!-- Photo Albums -->
-        <h3 class="subsection-title">Photo Albums</h3>
-        <div class="albums-grid">
-          <!-- Travel Album -->
-          <router-link to="/misc/travel" class="album-card">
-            <div class="album-cover">
-              <img src="/assets/photos/travel/colorado/personal_emlake.jpg" alt="Travel" />
-              <div class="album-overlay">
-                <span class="view-album">View Album →</span>
+        <!-- Photo Albums - Featured Section -->
+        <div class="albums-section">
+          <h3 class="subsection-title">Photo Albums</h3>
+          <div class="albums-grid">
+            <!-- Travel Album -->
+            <router-link to="/misc/travel" class="album-card featured">
+              <div class="album-image">
+                <img src="/assets/photos/travel/colorado/personal_emlake.jpg" alt="Travel Adventures" />
+                <div class="album-overlay">
+                  <div class="overlay-content">
+                    <span class="album-icon">✈️</span>
+                    <span class="album-title">Travel</span>
+                    <span class="album-subtitle">Philippines • Japan • Wyoming • Colorado • California</span>
+                    <span class="view-link">View Album →</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="album-info">
-              <h3>✈️ Travel</h3>
-              <p class="album-description">Adventures around the world</p>
-              <span class="photo-count">Philippines • Japan • Wyoming • Colorado • California • Illinois and more </span>
-            </div>
-          </router-link>
+            </router-link>
 
-          <!-- Professional Album -->
-          <router-link to="/misc/professional" class="album-card">
-            <div class="album-cover">
-              <img src="/assets/photos/professional/professional_1.jpg" alt="Professional" />
-              <div class="album-overlay">
-                <span class="view-album">View Album →</span>
+            <!-- Professional Album -->
+            <router-link to="/misc/professional" class="album-card">
+              <div class="album-image">
+                <img src="/assets/photos/professional/professional_1.jpg" alt="Professional Milestones" />
+                <div class="album-overlay">
+                  <div class="overlay-content">
+                    <span class="album-icon">💼</span>
+                    <span class="album-title">Professional</span>
+                    <span class="album-subtitle">Graduation • Work Events</span>
+                    <span class="view-link">View Album →</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="album-info">
-              <h3>💼 Professional</h3>
-              <p class="album-description">Work events and milestones</p>
-              <span class="photo-count">Graduation • Headshots • Work Events</span>
-            </div>
-          </router-link>
+            </router-link>
 
-          <!-- Sports Album -->
-          <router-link to="/misc/sports" class="album-card">
-            <div class="album-cover">
-              <div class="album-placeholder">
-                <span class="placeholder-icon">💪</span>
-                <span class="placeholder-text">Coming Soon</span>
+            <!-- Sports Album -->
+            <router-link to="/misc/sports" class="album-card">
+              <div class="album-image placeholder">
+                <div class="placeholder-content">
+                  <span class="album-icon">🏐</span>
+                  <span class="album-title">Sports</span>
+                  <span class="album-subtitle">Coming Soon</span>
+                </div>
               </div>
-            </div>
-            <div class="album-info">
-              <h3>🏐 Sports</h3>
-              <p class="album-description">Volleyball and powerlifting adventures</p>
-              <span class="photo-count">Volleyball • Powerlifting</span>
-            </div>
-          </router-link>
+            </router-link>
+          </div>
         </div>
 
-        <!-- Interests -->
-        <h3 class="subsection-title">Interests</h3>
-        <div class="interests-grid">
-          <div class="interest-card">
-            <h3>🏐 Volleyball</h3>
-            <p>I love <span class="dashed-strike">spiking</span> the strategy and teamwork that goes into every match.</p>
-          </div>
-          <div class="interest-card">
-            <h3>💪 Powerlifting</h3>
-            <p>Building strength and discipline, one rep at a time.</p>
-          </div>
-          <div class="interest-card">
-            <h3>🎮 Gaming</h3>
-            <p>Dota 2, Valorant, and some anime games: where my AI interest began.</p>
-          </div>
-          <div class="interest-card">
-            <h3>✈️ Traveling</h3>
-            <p>Exploring new places and experiencing different cultures.</p>
+        <!-- Interests - Compact Grid -->
+        <div class="interests-section">
+          <h3 class="subsection-title">What I Love</h3>
+          <div class="interests-grid">
+            <div class="interest-item">
+              <span class="interest-icon">🏐</span>
+              <div class="interest-text">
+                <h4>Volleyball</h4>
+                <p>Strategy and teamwork on the court</p>
+              </div>
+            </div>
+
+            <div class="interest-item">
+              <span class="interest-icon">💪</span>
+              <div class="interest-text">
+                <h4>Powerlifting</h4>
+                <p>Building strength, one rep at a time</p>
+              </div>
+            </div>
+
+            <div class="interest-item">
+              <span class="interest-icon">🎮</span>
+              <div class="interest-text">
+                <h4>Gaming</h4>
+                <p>Dota 2, Valorant, and anime games</p>
+              </div>
+            </div>
+
+            <div class="interest-item">
+              <span class="interest-icon">📚</span>
+              <div class="interest-text">
+                <h4>Learning</h4>
+                <p>Always exploring new technologies</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -244,7 +260,7 @@ h1 {
   padding: 4rem 2rem;
 }
 
-.interests-section {
+.beyond-cs {
   background: var(--bg-secondary);
   padding: 4rem 2rem;
 }
@@ -260,18 +276,6 @@ h1 {
   margin-bottom: 2rem;
   padding-bottom: 0.5rem;
   border-bottom: 3px solid var(--accent-primary);
-}
-
-.subsection-title {
-  font-size: 1.5rem;
-  color: var(--text-primary);
-  margin-top: 2rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-}
-
-.subsection-title:first-of-type {
-  margin-top: 0;
 }
 
 .section-header {
@@ -300,61 +304,83 @@ h1 {
   margin-bottom: 2rem;
 }
 
-/* Photo Albums */
+.section-intro {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.subsection-title {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Photo Albums Section */
+.albums-section {
+  margin-bottom: 4rem;
+}
+
 .albums-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
-  margin-bottom: 3rem;
 }
 
 .album-card {
-  background: var(--bg-card);
+  position: relative;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 10px var(--shadow);
-  border: 1px solid var(--border-color);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   text-decoration: none;
   display: block;
+  box-shadow: 0 4px 15px var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  aspect-ratio: 4 / 3;
 }
 
 .album-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px var(--shadow);
-  border-color: var(--accent-primary);
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px var(--shadow);
 }
 
-.album-cover {
+.album-card.featured {
+  grid-column: span 1;
+}
+
+.album-image {
   position: relative;
   width: 100%;
-  height: 250px;
+  height: 100%;
   overflow: hidden;
-  background: var(--bg-secondary);
 }
 
-.album-cover img {
+.album-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
-.album-card:hover .album-cover img {
-  transform: scale(1.05);
+.album-card:hover .album-image img {
+  transform: scale(1.1);
 }
 
-/* Hover overlay with "View Album" text */
 .album-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8));
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  padding: 2rem;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -363,55 +389,127 @@ h1 {
   opacity: 1;
 }
 
-.view-album {
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.album-placeholder {
-  width: 100%;
-  height: 100%;
+.overlay-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-tertiary);
+  gap: 0.5rem;
+  color: white;
 }
 
-.placeholder-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.placeholder-text {
-  color: var(--text-secondary);
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.album-info {
-  padding: 1.5rem;
-}
-
-.album-info h3 {
-  font-size: 1.5rem;
-  color: var(--text-primary);
+.album-icon {
+  font-size: 2.5rem;
   margin-bottom: 0.5rem;
 }
 
-.album-description {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
-  line-height: 1.5;
+.album-title {
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
-.photo-count {
-  display: inline-block;
-  color: var(--text-tertiary);
-  font-size: 0.9rem;
-  padding: 0.25rem 0;
+.album-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.view-link {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease 0.1s;
+}
+
+.album-card:hover .view-link {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.album-image.placeholder {
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.placeholder-content .album-icon {
+  font-size: 4rem;
+  margin: 0;
+}
+
+.placeholder-content .album-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.placeholder-content .album-subtitle {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* Interests Section */
+.interests-section {
+  margin-top: 3rem;
+}
+
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.interest-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.interest-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px var(--shadow);
+  border-color: var(--accent-primary);
+}
+
+.interest-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+}
+
+.interest-text h4 {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.interest-text p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* Blog Section */
@@ -509,46 +607,6 @@ h1 {
   color: var(--link-hover);
 }
 
-/* Interests Section */
-.interests-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-}
-
-.interest-card {
-  background: var(--bg-card);
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px var(--shadow);
-  border: 1px solid var(--border-color);
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.dashed-strike {
-  text-decoration: line-through;
-  text-decoration-style: dashed;
-}
-
-.interest-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px var(--shadow);
-  border-color: var(--accent-primary);
-}
-
-.interest-card h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
-  color: var(--text-primary);
-}
-
-.interest-card p {
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-
 /* Visitor Map Section */
 .map-container {
   display: flex;
@@ -605,7 +663,7 @@ h1 {
 @media (max-width: 768px) {
   .hero-section,
   .blog-section,
-  .interests-section {
+  .beyond-cs {
     padding: 2rem 1rem;
   }
 
@@ -617,7 +675,56 @@ h1 {
     font-size: 2rem;
   }
 
-  .albums-grid,
+  .section-intro {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .albums-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .album-card.featured {
+    grid-column: span 1;
+  }
+
+  .album-overlay {
+    padding: 1.5rem;
+  }
+
+  .album-title {
+    font-size: 1.5rem;
+  }
+
+  .album-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .interests-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .interest-item {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .interest-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+  }
+
+  .interest-text h4 {
+    font-size: 1.1rem;
+  }
+
+  .interest-text p {
+    font-size: 0.9rem;
+  }
+
   .blog-grid {
     grid-template-columns: 1fr;
   }
@@ -627,10 +734,5 @@ h1 {
     align-items: flex-start;
     gap: 1rem;
   }
-
-  .interests-grid {
-    grid-template-columns: 1fr;
-  }
-
 }
 </style>
