@@ -30,7 +30,7 @@
           <div class="story-text">
             <p>
               I graduated with a BS and MCS in Computer Science from UIUC, specializing in the field of Data and Artificial intelligence. 
-              My background spans teaching, full-stack development, database systems, and AI engineering. I've worked on machine learning models, 
+              My background spans teaching assistantship, full-stack development, database systems, and AI engineering. I've worked on machine learning models, 
               RAG systems, cloud platforms, and data pipelines. I like building things that solve real world problems.
             </p>
             <p>
