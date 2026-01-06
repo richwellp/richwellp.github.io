@@ -63,7 +63,7 @@ const closeMobileMenu = () => {
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>Connect</h4>
+          <h4>Let's Connect!</h4>
           <div class="social-links">
             <a href="mailto:richwell.perez@gmail.com" target="_blank" rel="noopener" class="social-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -86,7 +86,7 @@ const closeMobileMenu = () => {
           </div>
         </div>
         <div class="footer-section">
-          <p class="copyright">© 2025 Richwell Perez. Built with Vue.js.</p>
+          <p class="copyright">© 2026 Richwell Perez. Built with Vue.js.</p>
         </div>
       </div>
     </footer>
