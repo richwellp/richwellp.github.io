@@ -38,7 +38,7 @@
               all to create solutions that make a real difference.
             </p>
             <p>
-              My journey in Computer Science started with curiosity about computers, the internet, and how software could connect people and solve problems. 
+              My journey in Computer Science started with curiosity about computers, the internet, software and how they could connect people, provide entertainment, and solve problems. 
               Through school and early projects, I focused on roles that matched my strengths in critical thinking and problem-solving, which led me to specialize in software, data, and AI. 
               I enjoy building systems that learn from information, analyze data, and provide actionable insights, and I am always seeking practical ways to apply my skills.
             </p>
