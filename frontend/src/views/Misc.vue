@@ -105,7 +105,7 @@
                   <div class="overlay-content">
                     <span class="album-icon">✈️</span>
                     <span class="album-title">Travel</span>
-                    <span class="album-subtitle">Philippines • Japan • Wyoming • Colorado • California</span>
+                    <span class="album-subtitle">Some photos from Philippines, USA, Japan, and many more</span>
                     <span class="view-link">View Album →</span>
                   </div>
                 </div>
@@ -120,7 +120,7 @@
                   <div class="overlay-content">
                     <span class="album-icon">💼</span>
                     <span class="album-title">Professional</span>
-                    <span class="album-subtitle">Graduation • Work Events</span>
+                    <span class="album-subtitle">Graduation • School/Work Events</span>
                     <span class="view-link">View Album →</span>
                   </div>
                 </div>
