@@ -29,16 +29,18 @@
         <div class="story-content">
           <div class="story-text">
             <p>
-              Hello and welcome! My name is Richwell Perez. I earned a BS and MCS in Computer Science from UIUC, specializing in Data and Artificial Intelligence. 
-              I am drawn to building technology that solves real-world problems and have pursued opportunities to turn that curiosity into hands-on experience. 
+              Hello and welcome! I am Richwell Perez, and I have earned a BS and MCS in Computer Science from UIUC, specializing in Data and Artificial Intelligence.
               My background includes teaching assistantships, software engineering, database systems, data science, and AI engineering. 
+            </p>
+            <p>
+              I am drawn to building technology that solves real-world problems and have pursued opportunities into hands-on experience. 
               I have developed full-stack applications, ML and deep learning models, explored data analytics, built retrieval-augmented generation (RAG) systems, worked with cloud platforms, and delivered AI-powered applications,
               all to create solutions that make a real difference.
             </p>
             <p>
               My journey in Computer Science started with curiosity about computers, the internet, and how software could connect people and solve problems. 
               Through school and early projects, I focused on roles that matched my strengths in critical thinking and problem-solving, which led me to specialize in software, data, and AI. 
-              I enjoy building systems that learn from information, analyze data, and provide actionable insights, always seeking practical ways to apply my skills.
+              I enjoy building systems that learn from information, analyze data, and provide actionable insights, and I am always seeking practical ways to apply my skills.
             </p>
             <p>
               I am passionate about developing technologies that improve lives and deliver meaningful impact through software, data insights, and intelligent AI systems. 
@@ -75,7 +77,7 @@
               <span class="timeline-date">February 2025 - June 2025</span>
             </div>
             <p class="timeline-description">
-              Managed and optimized high-throughput DB2 databases on z/OS mainframe systems and supported statewide digital initiatives.
+              Managed and optimized high-throughput DB2 databases on z/OS mainframe systems and supported statewide digital initiatives, including the creation of Apple mDL database tables.
             </p>
           </div>
 
@@ -86,9 +88,13 @@
             </div>
             <div class="timeline-details">
               <p><strong>Master of Computer Science</strong> (August 2022 - May 2023, GPA: 3.52)</p>
+              <p>Focused on Computer Vision, Deep Learning, Data Mining, and Web Programming.</p>
               <p><strong>Bachelor of Science in Computer Science with Honors</strong> (August 2018 - May 2023, GPA: 3.81)</p>
-              <p><strong>Graduate Teaching Assistant</strong> (August 2022 - May 2023)</p>
-              <p><strong>Software Engineer</strong> (July 2021 - August 2021)</p>
+              <p>Specialized in Intelligence and Data.</p>
+              <p><strong>Graduate Teaching Assistant</strong> (Part-time, August 2022 - May 2023)</p>
+              <p>Led discussions and labs for Software Design & Database Systems, teaching design patterns and databases to 800+ students.</p>
+              <p><strong>Software Engineer</strong> (Part-time, July 2021 - August 2021)</p>
+              <p>Developed and deployed LabWindows/CVI embedded software interfacing with new magnet-mapping hardware, enabling real-time data acquisition, control logic, and optimized system performance.</p>
             </div>
           </div>
         </div>
