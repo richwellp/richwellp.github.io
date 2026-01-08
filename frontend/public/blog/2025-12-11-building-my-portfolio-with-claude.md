@@ -2,7 +2,7 @@
 title: "Building My Portfolio Website with Claude Code"
 date: "2025-12-11"
 author: "Richwell Perez"
-excerpt: "A journey from zero to production: How I built a modern portfolio website with Vue 3, Flask, and Claude Code as my AI pair programmer."
+excerpt: "I used Claude Code as my AI pair programmer and generated this blog."
 tags: ["web development", "vue", "flask", "AI", "portfolio"]
 ---
 
