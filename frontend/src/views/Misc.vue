@@ -53,7 +53,7 @@
     <section class="beyond-cs">
       <div class="container">
         <h2 class="section-title">Beyond Computer Science</h2>
-        <p class="section-intro">When I'm not coding, you'll find me exploring the world, staying active, and diving into competitive games.</p>
+        <p class="section-intro">When I'm not coding, you'll find me staying active by lifting or playing volleyball, playing games for fun, or exploring the world.</p>
         
         <!-- Interests - Compact Grid -->
         <div class="interests-section">
