@@ -5,7 +5,7 @@
       <div class="hero-content">
         <img src="/assets/photos/professional/professional_1.jpg" alt="Richwell Perez" class="hero-image" />
         <h1>Richwell Cyrille Santos Perez</h1>
-        <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | AI Engineer</p>
+        <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | Currently an AI Engineer at <a href="https://www.safran-group.com/companies/safran-passenger-innovations" target="_blank" rel="noopener noreferrer">Safran</a></p>
 
         <!-- Animated Subtitle -->
         <transition name="slide-fade" mode="out-in">
@@ -16,8 +16,8 @@
         </transition>
 
         <p class="intro">
-          I build AI systems, data pipelines, and software that solve real problems. I'm passionate
-          about using technology to make the world a better place, from machine learning to full-stack applications.
+          I build software, data, and AI systems that solve real-world problems, actively seeking opportunities to continuously learn, grow, and apply my expertise.
+          I thrive in collaborative, fast-paced environments where I can make a meaningful, positive impact.
         </p>
       </div>
     </section>
@@ -29,20 +29,21 @@
         <div class="story-content">
           <div class="story-text">
             <p>
-              I graduated with a BS and MCS in Computer Science from UIUC, specializing in the field of Data and Artificial intelligence. 
-              My background spans teaching assistantship, full-stack development, database systems, and AI engineering. I've worked on machine learning models, 
-              RAG systems, cloud platforms, and data pipelines. I like building things that solve real world problems.
+              Hello and welcome! My name is Richwell Perez. I earned a BS and MCS in Computer Science from UIUC, specializing in Data and Artificial Intelligence. 
+              I am drawn to building technology that solves real-world problems and have pursued opportunities to turn that curiosity into hands-on experience. 
+              My background includes teaching assistantships, software engineering, database systems, data science, and AI engineering. 
+              I have developed full-stack applications, ML and deep learning models, explored data analytics, built retrieval-augmented generation (RAG) systems, worked with cloud platforms, and delivered AI-powered applications,
+              all to create solutions that make a real difference.
             </p>
             <p>
-              My interest in AI started with watching OpenAI dominate professional Dota 2 players back in 2017.
-              Seeing it master a complex game with millions of possible moves showed me what AI could really do. 
-              As I study AI deeper, I learned its strength in handling the repetitive, data-heavy work
-              so people could focus on the creative and strategic parts that actually need human thinking.
+              My journey in Computer Science started with curiosity about computers, the internet, and how software could connect people and solve problems. 
+              Through school and early projects, I focused on roles that matched my strengths in critical thinking and problem-solving, which led me to specialize in software, data, and AI. 
+              I enjoy building systems that learn from information, analyze data, and provide actionable insights, always seeking practical ways to apply my skills.
             </p>
             <p>
-              That's what gets me excited about this field. I want to build technologies that actually improve
-              people's lives: whether it's through intelligent systems, data-driven insights, or reliable engineering. 
-              I stay curious about new tools and approaches, and I do my best work in teams that value learning and building things that matter.
+              I am passionate about developing technologies that improve lives and deliver meaningful impact through software, data insights, and intelligent AI systems. 
+              To pursue this passion, I have taken on projects and roles that challenge me and expand my skills in designing scalable applications, building ML models, developing data pipelines, and deploying cloud-based AI solutions. 
+              I stay current with new tools and frameworks, thrive in fast-paced, collaborative environments, and aim to contribute to making the world a better place.
             </p>
           </div>
           <div class="story-images">
