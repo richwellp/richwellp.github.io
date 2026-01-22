@@ -1,5 +1,10 @@
-from http.server import BaseHTTPRequestHandler
+import os
+import sys
 import json
+from http.server import BaseHTTPRequestHandler
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -9,7 +14,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
-        return
 
     def do_POST(self):
         """Handle chat requests"""
@@ -21,7 +25,7 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
 
             # Get request body
-            content_length = int(self.headers['Content-Length'])
+            content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode('utf-8'))
 
@@ -48,13 +52,18 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode())
 
         except Exception as e:
-            print(f"Chat error: {str(e)}")
+            error_msg = f"Chat error: {str(e)}"
+            print(error_msg)
+
+            # Send error response with CORS headers
             self.send_response(500)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', 'https://richwellp.github.io')
             self.end_headers()
+
             response = {
                 'error': 'An error occurred',
-                'response': "I'm having trouble right now. Please contact richwell.perez@gmail.com directly."
+                'response': "I'm having trouble right now. Please contact richwell.perez@gmail.com directly.",
+                'debug': error_msg
             }
             self.wfile.write(json.dumps(response).encode())
