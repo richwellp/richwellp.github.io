@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
+from api.resume_parser import get_resume_summary
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,6 +21,14 @@ def build_system_prompt(site_context=None):
 Your role is to answer questions about Richwell's professional background, education, work experience, projects, skills, and blog posts using ONLY the information provided below. Be conversational, friendly, and concise.
 
 """
+
+    # Add resume content first (most authoritative source)
+    resume_content = get_resume_summary()
+    if resume_content:
+        prompt += resume_content
+        prompt += "\n" + "="*80 + "\n"
+        prompt += "ADDITIONAL CONTEXT FROM WEBSITE:\n"
+        prompt += "="*80 + "\n\n"
 
     if site_context:
         prof = site_context.get('professional', {})
@@ -109,12 +118,14 @@ Your role is to answer questions about Richwell's professional background, educa
     prompt += """
 IMPORTANT INSTRUCTIONS:
 1. Answer questions using ONLY the information above
-2. If asked about something not covered, politely suggest contacting Richwell:
+2. PRIORITIZE the RESUME CONTENT as the most authoritative and up-to-date source
+3. If asked about something not covered, politely suggest contacting Richwell:
    "For more details about that, I'd recommend reaching out to Richwell directly at richwell.perez@gmail.com or connecting on LinkedIn at linkedin.com/in/richwell-perez"
-3. Keep responses concise (2-3 sentences unless more detail is requested)
-4. Be conversational and friendly
-5. If asked about availability or hiring, say: "Richwell is currently working at Safran, but you can reach out to discuss opportunities at richwell.perez@gmail.com"
-6. Do not make up information or speculate beyond what's provided
+4. Keep responses concise (2-3 sentences unless more detail is requested)
+5. Be conversational and friendly
+6. If asked about availability or hiring, say: "Richwell is currently working at Safran, but you can reach out to discuss opportunities at richwell.perez@gmail.com"
+7. Do not make up information or speculate beyond what's provided
+8. When answering questions, draw from the resume's detailed information about specific achievements, projects, and responsibilities
 """
 
     return prompt
