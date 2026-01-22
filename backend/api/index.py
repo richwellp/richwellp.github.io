@@ -1,45 +1,15 @@
 from flask import Flask, jsonify, request
-from api.gemini import call_gemini
 
 app = Flask(__name__)
 
-# Manual CORS configuration for Vercel compatibility
-@app.after_request
-def after_request(response):
-    origin = request.headers.get('Origin')
-    allowed_origins = [
-        'http://localhost:5173',
-        'https://richwellp.github.io'
-    ]
-
-    if origin in allowed_origins:
-        response.headers['Access-Control-Allow-Origin'] = origin
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-
-    return response
-
 @app.get("/")
 def root():
-    return jsonify(message="Hello from Flask on Vercel (hello.py)!")
+    return jsonify(message="Hello from Flask on Vercel!")
 
 @app.route("/chat", methods=["OPTIONS"])
-def chat_preflight():
-    """Handle preflight OPTIONS request for /chat endpoint"""
-    from flask import make_response
-    response = make_response("", 204)
-    origin = request.headers.get('Origin')
-    allowed_origins = [
-        'http://localhost:5173',
-        'https://richwellp.github.io'
-    ]
-    if origin in allowed_origins:
-        response.headers['Access-Control-Allow-Origin'] = origin
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-    return response
+def chat_options():
+    """Handle preflight OPTIONS request - CORS headers set by vercel.json"""
+    return "", 200
 
 @app.post("/chat")
 def chat():
@@ -49,6 +19,8 @@ def chat():
     Returns JSON: {"response": "assistant response"}
     """
     try:
+        from api.gemini import call_gemini
+
         data = request.get_json()
 
         if not data or 'message' not in data:
