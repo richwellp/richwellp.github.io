@@ -1,15 +1,20 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+# Configure CORS for all routes
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:5173", "https://richwellp.github.io"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 @app.get("/")
 def root():
     return jsonify(message="Hello from Flask on Vercel!")
-
-@app.route("/chat", methods=["OPTIONS"])
-def chat_options():
-    """Handle preflight OPTIONS request - CORS headers set by vercel.json"""
-    return "", 200
 
 @app.post("/chat")
 def chat():
