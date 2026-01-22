@@ -1,22 +1,33 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS
 from api.gemini import call_gemini
 
 app = Flask(__name__)
 
-# Configure CORS with proper settings for Vercel deployment
-CORS(app,
-     origins=[
-         "http://localhost:5173",         # local dev
-         "https://richwellp.github.io"
-     ],
-     methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type"],
-     supports_credentials=True)
+# Manual CORS configuration for Vercel compatibility
+@app.after_request
+def after_request(response):
+    origin = request.headers.get('Origin')
+    allowed_origins = [
+        'http://localhost:5173',
+        'https://richwellp.github.io'
+    ]
+
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+
+    return response
 
 @app.get("/")
 def root():
     return jsonify(message="Hello from Flask on Vercel (hello.py)!")
+
+@app.route("/chat", methods=["OPTIONS"])
+def chat_preflight():
+    """Handle preflight OPTIONS request for /chat endpoint"""
+    return "", 204
 
 @app.post("/chat")
 def chat():
