@@ -4,11 +4,15 @@ from api.gemini import call_gemini
 
 app = Flask(__name__)
 
-# While testing, allow both your Pages URL and your custom domain
-CORS(app, origins=[
-    "http://localhost:5173",         # local dev
-    "https://richwellp.github.io"
-])
+# Configure CORS with proper settings for Vercel deployment
+CORS(app,
+     origins=[
+         "http://localhost:5173",         # local dev
+         "https://richwellp.github.io"
+     ],
+     methods=["GET", "POST", "OPTIONS"],
+     allow_headers=["Content-Type"],
+     supports_credentials=True)
 
 @app.get("/")
 def root():
