@@ -71,13 +71,57 @@ export function useChatAssistant() {
         })
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      // Parse response JSON first to get error details
+      let data
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        console.error('Failed to parse response JSON:', {
+          status: response.status,
+          statusText: response.statusText,
+          parseError: parseError.message
+        })
+        throw new Error(`Server returned invalid response (${response.status})`)
       }
 
-      const data = await response.json()
+      // Check for rate limit or API errors
+      if (response.status === 429 || response.status === 500) {
+        console.error('Chat API error:', {
+          status: response.status,
+          error: data.error,
+          errorType: data.error_type,
+          details: data.error_details
+        })
 
-      // Add assistant response
+        // Use error message from backend, or provide default
+        const errorMessage = data.message || data.error ||
+          (data.error_type === 'rate_limit'
+            ? `I'm currently experiencing high demand and have reached my request limit. Please try again in a few moments, or reach Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.`
+            : `I'm having trouble connecting right now. You can reach Richwell directly at richwell.perez@gmail.com or via LinkedIn at linkedin.com/in/richwell-perez.`)
+
+        messages.value.push({
+          id: Date.now() + 1,
+          type: 'assistant',
+          content: errorMessage,
+          timestamp: new Date()
+        })
+        return
+      }
+
+      // Check for other HTTP errors
+      if (!response.ok) {
+        console.error('Chat API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          errorType: data.error_type,
+          details: data.error_details
+        })
+
+        throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      // Add successful assistant response
       messages.value.push({
         id: Date.now() + 1,
         type: 'assistant',
@@ -85,7 +129,11 @@ export function useChatAssistant() {
         timestamp: new Date()
       })
     } catch (error) {
-      console.error('Chat error:', error)
+      console.error('Chat error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
 
       // Add error message with email fallback
       messages.value.push({

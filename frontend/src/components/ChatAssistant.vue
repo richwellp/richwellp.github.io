@@ -207,8 +207,8 @@ watch(isOpen, async (newValue) => {
 /* Floating Action Button */
 .chat-fab {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  right: calc(24px + env(safe-area-inset-right));
   width: 56px;
   height: 56px;
   border-radius: 12px;
@@ -216,12 +216,15 @@ watch(isOpen, async (newValue) => {
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 16px var(--shadow);
-  z-index: 501;
+  z-index: 1000;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  /* Ensure it's always on top and tappable */
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .chat-fab:hover {
@@ -264,7 +267,7 @@ watch(isOpen, async (newValue) => {
   border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 12px 48px var(--shadow), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  z-index: 500;
+  z-index: 999;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -658,6 +661,9 @@ watch(isOpen, async (newValue) => {
     height: 100%;
     border-radius: 0;
     border: none;
+    /* Respect safe areas on mobile (notches, home indicators) */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .chat-panel-enter-from {
@@ -673,6 +679,19 @@ watch(isOpen, async (newValue) => {
   .chat-header {
     padding: 1rem 1.25rem;
     border-bottom: 2px solid var(--border-color);
+    /* Add extra padding on left/right for safe areas */
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+    /* Ensure close button is always tappable */
+    position: relative;
+    z-index: 10;
+  }
+
+  .chat-action-btn {
+    /* Larger touch target for mobile */
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem;
   }
 
   .chat-messages {
@@ -680,28 +699,55 @@ watch(isOpen, async (newValue) => {
     min-height: auto;
     flex: 1;
     padding: 1.25rem;
+    /* Respect safe areas */
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
   }
 
   .chat-quick-actions {
     padding: 0.875rem 1.25rem;
     gap: 0.5rem;
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
   }
 
   .chat-quick-actions button {
     padding: 0.5rem 0.875rem;
     font-size: 0.8125rem;
+    /* Larger touch target */
+    min-height: 40px;
   }
 
   .chat-input-area {
     padding: 1rem 1.25rem;
     gap: 0.625rem;
+    /* Respect safe areas and ensure it's not blocked by keyboard */
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+    /* Ensure input area is always above the FAB */
+    position: relative;
+    z-index: 10;
+  }
+
+  .send-btn {
+    /* Larger touch target for mobile */
+    min-width: 50px;
+    min-height: 50px;
+    flex-shrink: 0;
   }
 
   .chat-fab {
-    bottom: 20px;
-    right: 20px;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    right: calc(20px + env(safe-area-inset-right));
     width: 60px;
     height: 60px;
+    /* Ensure FAB is visible when chat is closed */
+    z-index: 1000;
+  }
+
+  /* Hide FAB when chat is open on mobile */
+  .chat-fab-active {
+    display: none;
   }
 
   .chat-icon {
@@ -714,6 +760,8 @@ watch(isOpen, async (newValue) => {
 @media (max-width: 480px) {
   .chat-header {
     padding: 0.875rem 1rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .chat-title {
@@ -723,6 +771,8 @@ watch(isOpen, async (newValue) => {
   .chat-messages {
     padding: 1rem;
     gap: 0.875rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .message-content {
@@ -737,15 +787,20 @@ watch(isOpen, async (newValue) => {
   .chat-quick-actions {
     padding: 0.75rem 1rem;
     gap: 0.5rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .chat-quick-actions button {
     padding: 0.5rem 0.75rem;
     font-size: 0.8125rem;
+    min-height: 40px;
   }
 
   .chat-input-area {
     padding: 0.875rem 1rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .chat-input-area input {
@@ -755,12 +810,13 @@ watch(isOpen, async (newValue) => {
 
   .send-btn {
     padding: 0.75rem 1rem;
-    min-width: 44px;
+    min-width: 48px;
+    min-height: 48px;
   }
 
   .chat-fab {
-    bottom: 16px;
-    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    right: calc(16px + env(safe-area-inset-right));
     width: 56px;
     height: 56px;
   }
@@ -775,6 +831,8 @@ watch(isOpen, async (newValue) => {
 @media (max-width: 360px) {
   .chat-header {
     padding: 0.75rem 0.875rem;
+    padding-left: max(0.875rem, env(safe-area-inset-left));
+    padding-right: max(0.875rem, env(safe-area-inset-right));
   }
 
   .chat-title {
@@ -783,6 +841,8 @@ watch(isOpen, async (newValue) => {
 
   .chat-messages {
     padding: 0.875rem;
+    padding-left: max(0.875rem, env(safe-area-inset-left));
+    padding-right: max(0.875rem, env(safe-area-inset-right));
   }
 
   .message-content {
@@ -792,19 +852,29 @@ watch(isOpen, async (newValue) => {
 
   .chat-quick-actions {
     padding: 0.625rem 0.875rem;
+    padding-left: max(0.875rem, env(safe-area-inset-left));
+    padding-right: max(0.875rem, env(safe-area-inset-right));
   }
 
   .chat-quick-actions button {
     padding: 0.5rem 0.625rem;
     font-size: 0.75rem;
+    min-height: 40px;
   }
 
   .chat-input-area {
     padding: 0.75rem 0.875rem;
+    padding-left: max(0.875rem, env(safe-area-inset-left));
+    padding-right: max(0.875rem, env(safe-area-inset-right));
   }
 
   .chat-input-area input {
     font-size: 0.8125rem;
+  }
+
+  .send-btn {
+    min-width: 46px;
+    min-height: 46px;
   }
 }
 

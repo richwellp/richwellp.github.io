@@ -172,5 +172,23 @@ def call_gemini(user_message, history=None, site_context=None):
         return response.text
 
     except Exception as e:
+        error_msg = str(e).lower()
         print(f"Gemini API error: {str(e)}")
-        return f"I'm having trouble processing your request. You can reach Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez."
+        print(f"Error type: {type(e).__name__}")
+
+        # Check for rate limit errors
+        if 'quota' in error_msg or 'rate limit' in error_msg or '429' in error_msg or 'resource_exhausted' in error_msg:
+            return {
+                "error": True,
+                "error_type": "rate_limit",
+                "message": "I'm currently experiencing high demand and have reached my request limit. I am using a free model (resets at midnight Pacific time). Please reach out directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.",
+                "details": str(e)
+            }
+
+        # Generic error
+        return {
+            "error": True,
+            "error_type": "api_error",
+            "message": "I'm having trouble processing your request. You can reach Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.",
+            "details": str(e)
+        }
