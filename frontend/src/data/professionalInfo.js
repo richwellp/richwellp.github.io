@@ -1,0 +1,232 @@
+// Professional information extracted from portfolio for AI assistant context
+
+export const professionalInfo = {
+  personal: {
+    name: 'Richwell Cyrille Santos Perez',
+    email: 'richwell.perez@gmail.com',
+    linkedIn: 'https://www.linkedin.com/in/richwell-perez',
+    github: 'https://github.com/richwellp',
+    location: 'Laramie, WY / Brea, CA',
+    summary: 'AI Engineer specializing in full-stack development, RAG systems, and applied machine learning',
+    tagline: 'I build software, data, and AI systems that solve real-world problems'
+  },
+
+  education: [
+    {
+      degree: 'Master of Computer Science',
+      institution: 'University of Illinois Urbana-Champaign',
+      shortName: 'UIUC',
+      dates: 'August 2022 - May 2023',
+      gpa: '3.52',
+      focus: ['Computer Vision', 'Deep Learning', 'Data Mining', 'Web Programming']
+    },
+    {
+      degree: 'Bachelor of Science in Computer Science with Honors',
+      institution: 'University of Illinois Urbana-Champaign',
+      shortName: 'UIUC',
+      dates: 'August 2018 - May 2023',
+      gpa: '3.81',
+      specializations: ['Intelligence', 'Data']
+    }
+  ],
+
+  experience: [
+    {
+      title: 'AI Engineer',
+      company: 'Safran',
+      location: 'Laramie, WY; Brea, CA',
+      dates: 'June 2025 - Present',
+      current: true,
+      description: 'Developing AI initiatives in aerospace and in-flight entertainment systems, building production-grade RAG solutions with multi-agent architectures and predictive maintenance systems.',
+      highlights: [
+        'Multi-Agent RAG System: Architected and deployed a hierarchical LangGraph-based chatbot for aviation Master Data Management, serving 600+ internal users via Azure App Services',
+        'Full-Stack Development: Built end-to-end solution with Quart (async Python) backend, Vue 3 + Vuex frontend, dual PostgreSQL databases (operational + knowledge base), and Azure OpenAI integration',
+        'Performance Optimization: Reduced response latency by 50% (2x faster) through optimization of multi-agent orchestration, prompt engineering, intelligent caching strategies, and prompt distillation',
+        'Production Infrastructure: Deployed scalable ASGI APIs with Hypercorn, implemented conversation persistence with message ratings and reasoning trace storage, structured JSONL logging, comprehensive pytest suites, and Azure OpenTelemetry monitoring',
+        'ML Analytics & Insights: Applied unsupervised machine learning (K-Means, DBSCAN, UMAP, HDBSCAN) and topic modeling to cluster 10,000+ RAG conversation interactions, built analytical dashboards with matplotlib',
+        'Predictive Maintenance: Developing ML-based predictive maintenance system to forecast RDU (Removable Display Unit) resets in in-flight entertainment (IFE) systems using historical telemetry and scikit-learn models',
+        'IFE Log Analysis System: Developing LLM-powered log analyzer for In-Flight Entertainment systems to process 2GB log bundles (5M+ lines). Implementing 4-stage pipeline with Drain algorithm for template mining (30x compression), vector database for semantic search, and intelligent query routing to achieve 500-1000x log reduction'
+      ],
+      technologies: ['Python', 'LangChain', 'Vue.js', 'Quart', 'PostgreSQL', 'Azure OpenAI', 'Azure App Services', 'SSE', 'RAG', 'Scikit-learn']
+    },
+    {
+      title: 'Database Administrator',
+      company: 'Illinois Secretary of State',
+      location: 'Springfield, IL',
+      dates: 'February 2025 - June 2025',
+      current: false,
+      description: 'Managed high-throughput DB2 databases on z/OS mainframe systems, supporting statewide digital initiatives.',
+      highlights: [
+        'Database Optimization: Managed high-throughput DB2 databases (5B+ records) on z/OS mainframe systems, optimizing queries and schemas to support statewide applications',
+        'Performance Tuning: Improved query performance by designing and tuning complex SQL queries and schemas, reducing lookup time from 20 seconds to instantaneous for critical backend application queries',
+        'Automation: Implemented ETL pipelines and automation scripts to streamline data migration and significantly reduce manual effort',
+        'Cross-functional Collaboration: Collaborated with cross-functional development teams to design efficient schemas, stored procedures, and to integrate Azure-based services for scalable, cloud-connected applications',
+        'Digital Initiatives: Supported the development and deployment of statewide digital initiatives, including mobile driver\'s licenses and REAL ID'
+      ],
+      technologies: ['DB2', 'SQL', 'z/OS', 'Azure', 'ETL', 'Python']
+    },
+    {
+      title: 'Graduate Teaching Assistant',
+      company: 'University of Illinois Urbana-Champaign',
+      location: 'Urbana, IL',
+      dates: 'August 2022 - May 2023',
+      current: false,
+      description: 'Led discussions and labs for Software Design & Database Systems courses.',
+      highlights: [
+        'Led discussions and labs for Software Design & Database Systems, teaching object-oriented design, design patterns, and database performance optimization to 800+ students'
+      ],
+      technologies: ['Java', 'SQL', 'OOP', 'Design Patterns']
+    },
+    {
+      title: 'Software Engineer',
+      company: 'University of Illinois Urbana-Champaign',
+      location: 'Urbana, IL',
+      dates: 'July 2021 - August 2021',
+      current: false,
+      description: 'Developed embedded software for magnet mapping hardware systems.',
+      highlights: [
+        'Developed LabWindows/CVI software to support new magnet mapping hardware, implementing real-time data interpretation, control logic, and optimizing frontend/backend performance'
+      ],
+      technologies: ['C', 'LabWindows/CVI', 'Embedded Systems']
+    }
+  ],
+
+  projects: [
+    {
+      name: 'UIUC Letter Grades',
+      subtitle: 'Full-Stack Web App with AI Integration',
+      description: 'Built a full-stack analytics platform to help students make informed decisions about their courses by visualizing historical GPA data and predicting outcomes.',
+      highlights: [
+        'Built analytics platform with Node.js, MongoDB, and Python to visualize GPA data across 10+ years',
+        'Trained ML models (linear/logistic regression, sequential models) for predictive grade analytics',
+        'Designed interactive data visualizations for tracking performance across semesters',
+        'Implemented user authentication and automated data processing pipelines'
+      ],
+      technologies: ['Node.js', 'MongoDB', 'Python', 'TensorFlow', 'Data Visualization'],
+      links: []
+    },
+    {
+      name: 'Video Anomaly Detection Model',
+      subtitle: 'Leveraging Weapon Recognition for Enhanced Accuracy',
+      description: 'Developed an AI pipeline for real-time crime detection in surveillance videos, combining anomaly detection with weapon recognition.',
+      highlights: [
+        'Integrated weapon detection with anomaly scores for improved crime classification',
+        'Developed AI pipeline using UCF-Crime anomaly detection & YOLO/Faster R-CNN',
+        'Optimized anomaly detection using Multi-Instance Learning (MIL) & improved loss functions'
+      ],
+      technologies: ['PyTorch', 'YOLO', 'Faster R-CNN', 'Computer Vision', 'MIL'],
+      links: []
+    },
+    {
+      name: 'Deep Learning Aerosol Model',
+      subtitle: 'NCSA AI Innovation Hackathon',
+      description: 'Engineered deep learning models to predict climate-relevant aerosol properties using high-performance computing infrastructure. Won 3rd Place, Ashby Prize in Computational Science.',
+      highlights: [
+        'Engineered transformer and Encoder/Decoder models to capture temporal patterns in aerosol properties',
+        'Applied advanced preprocessing techniques to handle high-dimensional climate data',
+        'Leveraged HAL 9000 (UIUC\'s supercomputer) for high-performance training'
+      ],
+      technologies: ['PyTorch', 'Transformers', 'Climate Data', 'HPC'],
+      links: ['https://ai.ncsa.illinois.edu/center-for-ai-innovation-announces-hackathon-winners/']
+    },
+    {
+      name: 'COVID Logging System',
+      subtitle: 'Database Systems Project',
+      description: 'Built a comprehensive COVID-19 tracking and logging system with database management for monitoring cases and contact tracing.',
+      highlights: [
+        'Designed relational database schema for COVID case management and contact tracing',
+        'Implemented CRUD operations with complex queries for data analysis',
+        'Built web interface for real-time case logging and reporting'
+      ],
+      technologies: ['SQL', 'Database Design', 'Python', 'Web Development'],
+      links: ['https://github.com/richwellp/CS411_Project']
+    },
+    {
+      name: 'Not Geoff',
+      subtitle: 'Facial Recognition System',
+      description: 'Developed a facial recognition system using computer vision techniques to identify and verify individuals.',
+      highlights: [
+        'Implemented face detection and recognition using OpenCV and deep learning models',
+        'Built real-time video processing pipeline for face identification',
+        'Trained custom models for improved accuracy on specific datasets'
+      ],
+      technologies: ['Python', 'OpenCV', 'Computer Vision', 'Deep Learning'],
+      links: ['https://github.com/richwellp/Not-Geoff']
+    },
+    {
+      name: 'Rocket Rollers',
+      subtitle: 'Game Development Project',
+      description: 'Created an interactive game featuring physics-based mechanics and dynamic gameplay elements.',
+      highlights: [
+        'Implemented game physics engine with collision detection and response',
+        'Designed level progression system with increasing difficulty',
+        'Built responsive controls and smooth animation systems'
+      ],
+      technologies: ['Unity', 'C#', 'Game Development', 'Physics'],
+      links: ['https://github.com/richwellp/Rocket-Rollers']
+    },
+    {
+      name: 'Open Flights',
+      subtitle: 'Flight Data Analysis Platform',
+      description: 'Built a data analysis platform for visualizing and analyzing global flight routes and airport data.',
+      highlights: [
+        'Processed and visualized large-scale flight route datasets',
+        'Implemented interactive maps for exploring flight connections',
+        'Built analytics dashboard for route optimization and statistics'
+      ],
+      technologies: ['Python', 'Data Analysis', 'Visualization', 'Pandas'],
+      links: ['https://github.com/richwellp/Open-Flights']
+    }
+  ],
+
+  skills: {
+    languages: ['Python', 'JavaScript', 'TypeScript', 'SQL', 'C', 'C#', 'Java'],
+    frameworks: ['Vue.js', 'Flask', 'Quart', 'LangChain', 'PyTorch', 'TensorFlow', 'Node.js', 'Express'],
+    databases: ['PostgreSQL', 'MongoDB', 'DB2'],
+    cloud: ['Azure', 'Azure OpenAI', 'Azure App Services', 'Vercel', 'GitHub Actions'],
+    ai_ml: ['RAG', 'LLMs', 'Computer Vision', 'Deep Learning', 'Scikit-learn', 'Transformers', 'YOLO', 'Faster R-CNN'],
+    tools: ['Git', 'Docker', 'OpenCV', 'Vite', 'Pytest', 'OpenTelemetry', 'Vuex']
+  }
+}
+
+// Generate formatted summary for system prompt
+export function generateSystemPromptContext() {
+  const { personal, education, experience, projects, skills } = professionalInfo
+
+  return `
+NAME & CONTACT:
+${personal.name}
+Email: ${personal.email}
+LinkedIn: ${personal.linkedIn}
+Location: ${personal.location}
+
+SUMMARY:
+${personal.summary}
+${personal.tagline}
+
+EDUCATION:
+${education.map(edu => `- ${edu.degree} from ${edu.shortName} (${edu.dates}, GPA: ${edu.gpa})`).join('\n')}
+
+CURRENT ROLE:
+${experience[0].title} at ${experience[0].company} (${experience[0].dates})
+${experience[0].description}
+Key highlights: ${experience[0].highlights.slice(0, 3).join('; ')}
+
+WORK EXPERIENCE:
+${experience.map(exp => `
+${exp.title} at ${exp.company} (${exp.dates})
+${exp.description}
+Technologies: ${exp.technologies.join(', ')}
+`).join('\n')}
+
+TECHNICAL SKILLS:
+Languages: ${skills.languages.join(', ')}
+Frameworks: ${skills.frameworks.join(', ')}
+Databases: ${skills.databases.join(', ')}
+Cloud: ${skills.cloud.join(', ')}
+AI/ML: ${skills.ai_ml.join(', ')}
+
+NOTABLE PROJECTS:
+${projects.slice(0, 4).map(proj => `- ${proj.name}: ${proj.description}`).join('\n')}
+`.trim()
+}

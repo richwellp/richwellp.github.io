@@ -2,6 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { ref } from 'vue'
 import { useTheme } from './composables/useTheme'
+import ChatAssistant from './components/ChatAssistant.vue'
 
 const mobileMenuOpen = ref(false)
 const { theme, toggleTheme } = useTheme()
@@ -93,6 +94,9 @@ const closeMobileMenu = () => {
         </div>
       </div>
     </footer>
+
+    <!-- Chat Assistant -->
+    <ChatAssistant />
   </div>
 </template>
 
