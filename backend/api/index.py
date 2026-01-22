@@ -27,7 +27,19 @@ def root():
 @app.route("/chat", methods=["OPTIONS"])
 def chat_preflight():
     """Handle preflight OPTIONS request for /chat endpoint"""
-    return "", 204
+    from flask import make_response
+    response = make_response("", 204)
+    origin = request.headers.get('Origin')
+    allowed_origins = [
+        'http://localhost:5173',
+        'https://richwellp.github.io'
+    ]
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
 
 @app.post("/chat")
 def chat():
