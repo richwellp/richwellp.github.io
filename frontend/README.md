@@ -186,3 +186,247 @@ Before deploying, ensure:
 3. View updates live at `http://localhost:5173`
 4. Build for production when ready: `npm run build`
 5. Test the production build: `npm run preview`
+
+---
+
+## Maintenance Guide
+
+### Project Structure Overview
+
+```
+frontend/
+├── public/              # Static assets served directly
+│   ├── assets/         # Images, PDFs, and other media
+│   │   ├── photos/     # Photo albums (travel, professional, sports)
+│   │   └── pdfs/       # Resume and other documents
+│   └── favicon.ico     # Site icon
+├── src/
+│   ├── assets/         # Build-time assets
+│   ├── components/     # Reusable Vue components
+│   │   ├── AlbumViewer.vue      # Photo album display
+│   │   ├── ChatAssistant.vue    # AI chat interface
+│   │   ├── CommandPalette.vue   # Keyboard shortcuts
+│   │   └── OptimizedImage.vue   # Image optimization wrapper
+│   ├── composables/    # Reusable Vue composition functions
+│   │   ├── useBlog.js          # Blog post management
+│   │   ├── useTheme.js         # Theme switching logic
+│   │   └── useStructuredData.js # SEO structured data
+│   ├── router/         # Vue Router configuration
+│   ├── views/          # Page components
+│   │   ├── AboutMe.vue         # Homepage
+│   │   ├── Experience.vue      # Work experience
+│   │   ├── Projects.vue        # Project showcase
+│   │   ├── CV.vue             # Resume viewer
+│   │   ├── Contact.vue        # Contact form
+│   │   ├── Misc.vue           # Miscellaneous content
+│   │   ├── BlogList.vue       # Blog listing
+│   │   ├── BlogPost.vue       # Individual blog posts
+│   │   └── album views/       # Photo album pages
+│   ├── data/           # Static data files
+│   │   ├── blogPosts.json     # Blog post metadata
+│   │   └── albums.json        # Photo album configurations
+│   ├── App.vue         # Root component
+│   └── main.js         # Application entry point
+├── README.md           # This file
+├── package.json        # Dependencies and scripts
+└── vite.config.js      # Build configuration
+```
+
+### Adding Blog Posts
+
+Blog posts are managed through `src/data/blogPosts.json` and markdown content.
+
+**Step 1: Create the blog post file**
+
+Create a new markdown file in `public/assets/blog/`:
+```
+public/assets/blog/my-new-post.md
+```
+
+**Step 2: Add metadata to blogPosts.json**
+
+Edit `src/data/blogPosts.json`:
+```json
+{
+  "slug": "my-new-post",
+  "title": "My New Blog Post",
+  "date": "2026-02-23",
+  "excerpt": "A brief description of the post (2-3 sentences)",
+  "tags": ["Vue.js", "WebDev", "Tutorial"],
+  "readingTime": 5,
+  "published": true
+}
+```
+
+**Step 3: Test locally**
+```bash
+npm run dev
+```
+Navigate to `/misc/blog` to see your new post.
+
+**Blog Post Markdown Tips:**
+- Use `#` for main heading (H1)
+- Use `##` for sections (H2)
+- Use `###` for subsections (H3)
+- Code blocks: triple backticks with language
+- Images: `![Alt text](/assets/blog/images/image.png)`
+- Links: `[Text](https://example.com)`
+
+### Updating Professional Information
+
+**Update About Me section:**
+- Edit `src/views/AboutMe.vue`
+- Modify the timeline in the `<script setup>` section for the animated subtitle
+- Update the text content in the `<template>` section
+
+**Update Experience page:**
+- Edit `src/views/Experience.vue`
+- Update the experiences array in the `<script setup>` section
+- Add new job entries with title, company, dates, and description
+
+**Update Projects:**
+- Edit `src/views/Projects.vue`
+- Update the projects array with new project details
+- Include title, description, technologies, links, and images
+
+**Update Resume/CV:**
+- Replace `public/assets/pdfs/resume.pdf` with your updated resume
+- Keep the same filename or update the path in `src/views/CV.vue`
+
+### Adding and Optimizing Images
+
+**Photo Album Images:**
+1. Place images in appropriate directories:
+   ```
+   public/assets/photos/travel/
+   public/assets/photos/professional/
+   public/assets/photos/sports/
+   ```
+
+2. Update album configurations in component data:
+   - Travel: `src/views/TravelAlbum.vue`
+   - Professional: `src/views/ProfessionalAlbum.vue`
+   - Sports: `src/views/SportsAlbum.vue`
+
+3. Add new photos to the `photos` array:
+   ```javascript
+   {
+     src: '/assets/photos/travel/new-photo.jpg',
+     caption: 'Photo description',
+     type: 'image' // or 'video'
+   }
+   ```
+
+**Using OptimizedImage Component:**
+
+The `OptimizedImage` component automatically handles:
+- Lazy loading
+- Responsive sizing
+- Loading states
+- Error handling
+
+Usage in templates:
+```vue
+<OptimizedImage
+  src="/assets/photos/path/to/image.jpg"
+  alt="Description"
+  size="md"           <!-- xs | sm | md | lg | full -->
+  loading="lazy"      <!-- eager | lazy -->
+  img-class="custom-class"
+/>
+```
+
+**Image Size Guidelines:**
+- **xs**: Small icons/thumbnails (< 100px)
+- **sm**: Card thumbnails (200-400px)
+- **md**: Standard content images (400-800px)
+- **lg**: Hero images (800-1200px)
+- **full**: Lightbox/fullscreen (original size)
+
+**Image Optimization Tips:**
+- Use WebP format when possible for better compression
+- Keep images under 500KB for web performance
+- Use descriptive filenames: `travel-tokyo-2024.jpg` not `IMG_1234.jpg`
+- Always provide meaningful `alt` text for accessibility
+
+### Quick Commands Reference
+
+```bash
+# Development
+npm run dev          # Start dev server (http://localhost:5173)
+npm run build        # Build for production
+npm run preview      # Preview production build locally
+
+# Deployment
+git push origin main # Auto-deploy via GitHub Actions
+
+# Testing
+npm run test         # Run tests (if configured)
+
+# Package Management
+npm install          # Install dependencies
+npm update           # Update dependencies
+npm outdated         # Check for outdated packages
+```
+
+### Features Guide
+
+**Theme Switching:**
+- Toggle between light, dark, and auto modes
+- Auto mode follows system preferences
+- Persisted in localStorage
+
+**Command Palette:**
+- Press `Ctrl+K` (or `Cmd+K` on Mac) to open
+- Quick navigation to any page
+- Search functionality
+
+**AI Chat Assistant:**
+- Click the chat icon in bottom-right corner
+- Ask questions about Richwell's experience, projects, or skills
+- Powered by Claude API (requires API key configuration)
+
+**SEO Features:**
+- Structured data for rich snippets
+- Dynamic meta tags per page
+- Sitemap generation
+- Social media preview tags
+
+**Performance Features:**
+- Lazy-loaded images
+- Code splitting by route
+- Optimized bundle size
+- Service worker for caching (if enabled)
+
+**Accessibility:**
+- Keyboard navigation support
+- ARIA labels and roles
+- Color contrast compliance
+- Screen reader friendly
+
+---
+
+## Troubleshooting
+
+**Build Errors:**
+- Clear node_modules: `rm -rf node_modules && npm install`
+- Clear npm cache: `npm cache clean --force`
+- Check Node.js version: `node --version`
+
+**Images Not Loading:**
+- Verify file paths start with `/assets/`
+- Check file exists in `public/assets/`
+- Clear browser cache
+- Check browser console for 404 errors
+
+**Styling Issues:**
+- Verify CSS scoped vs global styles
+- Check for conflicting CSS classes
+- Test in incognito mode (no extensions)
+- Use Vue DevTools to inspect components
+
+**Deployment Issues:**
+- Check GitHub Actions logs
+- Verify `base` in `vite.config.js` matches repo name
+- Ensure all files are committed
+- Check GitHub Pages settings

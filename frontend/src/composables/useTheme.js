@@ -1,8 +1,6 @@
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 
-const theme = ref('auto')
-const systemPreference = ref(getSystemPreference())
-let mediaQueryList = null
+const theme = ref('dark')
 
 /**
  * Detect the system's color scheme preference
@@ -13,83 +11,34 @@ function getSystemPreference() {
   return mediaQuery.matches ? 'dark' : 'light'
 }
 
-/**
- * Get the effective theme to apply (resolves 'auto' to actual preference)
- */
-function getEffectiveTheme(themeMode, systemPref) {
-  if (themeMode === 'auto') {
-    return systemPref
-  }
-  return themeMode
-}
-
 export function useTheme() {
   onMounted(() => {
-    // Load saved preference from localStorage
+    // Load saved preference from localStorage, or use system preference on first visit
     const savedTheme = localStorage.getItem('theme')
-    if (savedTheme && ['light', 'dark', 'auto'].includes(savedTheme)) {
+    if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
       theme.value = savedTheme
     } else {
-      theme.value = 'auto'
-    }
-
-    // Set up system preference listener
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)')
-
-      // Modern browsers
-      if (mediaQueryList.addEventListener) {
-        mediaQueryList.addEventListener('change', handleSystemPreferenceChange)
-      } else if (mediaQueryList.addListener) {
-        // Fallback for older browsers
-        mediaQueryList.addListener(handleSystemPreferenceChange)
-      }
+      // First visit - detect system preference
+      theme.value = getSystemPreference()
     }
 
     // Apply initial theme
     applyTheme()
   })
 
-  onUnmounted(() => {
-    // Clean up listener
-    if (mediaQueryList) {
-      if (mediaQueryList.removeEventListener) {
-        mediaQueryList.removeEventListener('change', handleSystemPreferenceChange)
-      } else if (mediaQueryList.removeListener) {
-        mediaQueryList.removeListener(handleSystemPreferenceChange)
-      }
-    }
-  })
-
-  const handleSystemPreferenceChange = (e) => {
-    systemPreference.value = e.matches ? 'dark' : 'light'
-    // Reapply theme if in auto mode
-    if (theme.value === 'auto') {
-      applyTheme()
-    }
-  }
-
   const applyTheme = () => {
-    const effectiveTheme = getEffectiveTheme(theme.value, systemPreference.value)
-    document.documentElement.setAttribute('data-theme', effectiveTheme)
+    document.documentElement.setAttribute('data-theme', theme.value)
   }
 
   const toggleTheme = () => {
-    // Cycle through: light -> auto -> dark -> light
-    const currentTheme = theme.value
-    if (currentTheme === 'light') {
-      theme.value = 'auto'
-    } else if (currentTheme === 'auto') {
-      theme.value = 'dark'
-    } else {
-      theme.value = 'light'
-    }
+    // Simple toggle: light <-> dark
+    theme.value = theme.value === 'light' ? 'dark' : 'light'
     applyTheme()
     localStorage.setItem('theme', theme.value)
   }
 
   const setTheme = (newTheme) => {
-    if (['light', 'dark', 'auto'].includes(newTheme)) {
+    if (['light', 'dark'].includes(newTheme)) {
       theme.value = newTheme
       applyTheme()
       localStorage.setItem('theme', newTheme)
@@ -102,9 +51,7 @@ export function useTheme() {
 
   return {
     theme,
-    systemPreference,
     toggleTheme,
-    setTheme,
-    getEffectiveTheme: () => getEffectiveTheme(theme.value, systemPreference.value)
+    setTheme
   }
 }

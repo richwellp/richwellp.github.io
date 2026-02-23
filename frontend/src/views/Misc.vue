@@ -325,14 +325,14 @@ h1 {
   overflow: hidden;
 }
 
-.album-image img {
+.album-image :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
 
-.album-card:hover .album-image img {
+.album-card:hover .album-image :deep(img) {
   transform: scale(1.1);
 }
 

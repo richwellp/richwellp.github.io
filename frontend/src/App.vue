@@ -7,7 +7,7 @@ import CommandPalette from './components/CommandPalette.vue'
 
 const mobileMenuOpen = ref(false)
 const miscDropdownOpen = ref(false)
-const { theme, systemPreference, toggleTheme } = useTheme()
+const { theme, toggleTheme } = useTheme()
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
@@ -92,12 +92,11 @@ const closeMiscDropdown = () => {
           </RouterLink>
 
           <!-- Theme Toggle -->
-          <button @click="toggleTheme" class="theme-toggle" :aria-label="`Theme: ${theme === 'auto' ? 'Auto' : theme.charAt(0).toUpperCase() + theme.slice(1)}`">
-            <div class="toggle-track" :class="{ 'auto-mode': theme === 'auto' }">
+          <button @click="toggleTheme" class="theme-toggle" :aria-label="`Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`">
+            <div class="toggle-track">
               <span class="toggle-icon sun">☀️</span>
-              <span class="toggle-icon auto" title="Auto (follows system)">🔄</span>
               <span class="toggle-icon moon">🌙</span>
-              <div class="toggle-slider" :class="{ 'light-mode': theme === 'light', 'auto-mode': theme === 'auto', 'dark-mode': theme === 'dark' }"></div>
+              <div class="toggle-slider" :class="{ 'light-mode': theme === 'light', 'dark-mode': theme === 'dark' }"></div>
             </div>
           </button>
         </div>
@@ -454,20 +453,16 @@ main {
 
 .toggle-track {
   position: relative;
-  width: 100px;
+  width: 64px;
   height: 32px;
   background: var(--bg-hover);
   border: 2px solid var(--border-color);
   border-radius: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
   padding: 0 6px;
   transition: all 0.3s ease;
-}
-
-.toggle-track.auto-mode {
-  border-color: var(--accent-primary);
 }
 
 .theme-toggle:hover .toggle-track {
@@ -479,25 +474,13 @@ main {
   z-index: 1;
   transition: all 0.3s ease;
   line-height: 1;
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.toggle-icon.sun {
   opacity: 0.4;
 }
 
-.toggle-icon.auto {
-  opacity: 0.4;
-}
-
-.toggle-icon.moon {
-  opacity: 0.4;
-}
-
-/* Highlight active icon based on actual theme */
+/* Highlight active icon based on theme */
 :root[data-theme='light'] .toggle-icon.sun {
   opacity: 1;
   transform: scale(1.1);
@@ -506,22 +489,6 @@ main {
 :root[data-theme='dark'] .toggle-icon.moon {
   opacity: 1;
   transform: scale(1.1);
-}
-
-/* Auto mode shows animated icon */
-.theme-toggle[aria-label*='Auto'] .toggle-icon.auto {
-  opacity: 1;
-  transform: scale(1.1);
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: scale(1.1) rotate(0deg);
-  }
-  to {
-    transform: scale(1.1) rotate(360deg);
-  }
 }
 
 .toggle-slider {
@@ -536,15 +503,11 @@ main {
 }
 
 .toggle-slider.light-mode {
-  transform: translateX(0);
-}
-
-.toggle-slider.auto-mode {
-  transform: translateX(34px);
+  transform: translateX(2px);
 }
 
 .toggle-slider.dark-mode {
-  transform: translateX(68px);
+  transform: translateX(34px);
 }
 
 /* Footer */

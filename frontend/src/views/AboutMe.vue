@@ -224,7 +224,7 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-.hero-image {
+:deep(.hero-image) {
   width: 200px;
   height: 200px;
   border-radius: 50%;
@@ -302,7 +302,7 @@ h2 {
   color: var(--text-secondary);
 }
 
-.story-photo {
+:deep(.story-photo) {
   width: 100%;
   border-radius: 12px;
   box-shadow: 0 4px 20px var(--shadow);

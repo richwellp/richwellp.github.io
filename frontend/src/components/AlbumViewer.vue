@@ -275,9 +275,9 @@ h1 {
   box-shadow: 0 4px 20px var(--shadow);
 }
 
-.photo-item img,
+.photo-item :deep(img),
 .photo-item video,
-.photo-image {
+:deep(.photo-image) {
   width: 100%;
   height: 300px;
   object-fit: cover;
@@ -345,9 +345,9 @@ h1 {
   transform: scale(1.2);
 }
 
-.lightbox-content img,
+.lightbox-content :deep(img),
 .lightbox-content video,
-.lightbox-image {
+:deep(.lightbox-image) {
   max-width: 100%;
   max-height: calc(90vh - 100px);
   object-fit: contain;
