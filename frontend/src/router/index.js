@@ -4,6 +4,7 @@ import Experience from '../views/Experience.vue'
 import Projects from '../views/Projects.vue'
 import CV from '../views/CV.vue'
 import Misc from '../views/Misc.vue'
+import Albums from '../views/Albums.vue'
 import Contact from '../views/Contact.vue'
 
 // Album views
@@ -54,6 +55,12 @@ const router = createRouter({
       path: '/contact',
       name: 'contact',
       component: Contact
+    },
+    // Albums landing page
+    {
+      path: '/misc/albums',
+      name: 'albums',
+      component: Albums
     },
     // Album routes
     {

@@ -369,7 +369,7 @@ const closeMiscDropdown = () => {
               <RouterLink to="/misc/blog" @click="closeMobileMenu" class="dropdown-item">
                 Blog
               </RouterLink>
-              <RouterLink to="/misc" @click="closeMobileMenu" class="dropdown-item">
+              <RouterLink to="/misc/albums" @click="closeMobileMenu" class="dropdown-item">
                 Albums
               </RouterLink>
             </div>
