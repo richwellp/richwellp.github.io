@@ -729,6 +729,10 @@ main {
   transform: translateY(-10px);
   transition: all 0.3s ease;
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem;
 }
 
 .dropdown-menu.show {
@@ -751,11 +755,11 @@ main {
 }
 
 .dropdown-item:first-child {
-  border-radius: 8px 8px 0 0;
+  border-radius: 6px;
 }
 
 .dropdown-item:last-child {
-  border-radius: 0 0 8px 8px;
+  border-radius: 6px;
 }
 
 .dropdown-item:hover {

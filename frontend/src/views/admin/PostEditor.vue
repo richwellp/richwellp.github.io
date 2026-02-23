@@ -101,6 +101,28 @@
               :disabled="isSaving"
             />
           </div>
+
+          <div class="form-group">
+            <label for="created_at">Created Date</label>
+            <input
+              type="datetime-local"
+              id="created_at"
+              v-model="formData.created_at"
+              :disabled="isSaving"
+            />
+            <small class="form-hint">When the post was created</small>
+          </div>
+
+          <div class="form-group">
+            <label for="published_at">Published Date</label>
+            <input
+              type="datetime-local"
+              id="published_at"
+              v-model="formData.published_at"
+              :disabled="isSaving"
+            />
+            <small class="form-hint">When the post was/will be published</small>
+          </div>
         </div>
 
         <!-- Content Editor -->
@@ -172,7 +194,9 @@ const formData = reactive({
   content: '',
   tags: [],
   author: 'Richwell Perez',
-  published: false
+  published: false,
+  created_at: '',
+  published_at: ''
 })
 
 // Check auth
@@ -225,6 +249,14 @@ const loadPost = async () => {
     formData.author = post.author || 'Richwell Perez'
     formData.published = post.published || false
 
+    // Convert ISO timestamps to datetime-local format (YYYY-MM-DDTHH:mm)
+    if (post.created_at) {
+      formData.created_at = new Date(post.created_at).toISOString().slice(0, 16)
+    }
+    if (post.published_at) {
+      formData.published_at = new Date(post.published_at).toISOString().slice(0, 16)
+    }
+
     // Set tags input
     tagsInput.value = (post.tags || []).join(', ')
   } catch (err) {
@@ -253,6 +285,14 @@ const handleSubmit = async () => {
       tags: formData.tags,
       author: formData.author.trim() || 'Richwell Perez',
       published: formData.published
+    }
+
+    // Add dates if provided (convert to ISO format)
+    if (formData.created_at) {
+      postData.created_at = new Date(formData.created_at).toISOString()
+    }
+    if (formData.published_at) {
+      postData.published_at = new Date(formData.published_at).toISOString()
     }
 
     if (isEditMode.value) {
