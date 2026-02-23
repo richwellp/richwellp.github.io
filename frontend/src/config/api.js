@@ -15,10 +15,17 @@ export const API_ENDPOINTS = {
   chat: `${API_BASE_URL}/chat`,
   chatStream: `${API_BASE_URL}/chat/stream`,
 
-  // Blog endpoints
+  // Blog endpoints (public)
   blogPosts: `${API_BASE_URL}/blog/posts`,
   blogPost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
   blogSearch: `${API_BASE_URL}/blog/search`,
+
+  // Admin blog endpoints (require authentication)
+  adminPosts: `${API_BASE_URL}/blog/admin/posts`,
+  adminPost: (slug) => `${API_BASE_URL}/blog/admin/posts/${slug}`,
+  adminCreatePost: `${API_BASE_URL}/blog/posts`,
+  adminUpdatePost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
+  adminDeletePost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
 }
 
 // API Configuration
