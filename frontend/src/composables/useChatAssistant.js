@@ -74,21 +74,33 @@ const loadMessages = () => {
 }
 
 // Helper function to simulate streaming for instant messages
-const simulateStreaming = async (messageId, fullContent, delay = 20) => {
-  const messageIndex = messages.value.findIndex(m => m.id === messageId)
-  if (messageIndex === -1) return
+const simulateStreaming = (messageId, fullContent, delay = 20) => {
+  return new Promise((resolve) => {
+    const messageIndex = messages.value.findIndex(m => m.id === messageId)
+    if (messageIndex === -1) {
+      resolve()
+      return
+    }
 
-  messages.value[messageIndex].isStreaming = true
-  messages.value[messageIndex].content = ''
+    messages.value[messageIndex].isStreaming = true
+    messages.value[messageIndex].content = ''
 
-  // Stream character by character
-  for (let i = 0; i < fullContent.length; i++) {
-    messages.value[messageIndex].content = fullContent.substring(0, i + 1)
-    await new Promise(r => setTimeout(r, delay))
-  }
+    let currentIndex = 0
 
-  messages.value[messageIndex].isStreaming = false
-  saveMessages()
+    const interval = setInterval(() => {
+      if (currentIndex >= fullContent.length) {
+        clearInterval(interval)
+        messages.value[messageIndex].isStreaming = false
+        saveMessages()
+        resolve()
+        return
+      }
+
+      // Add next character
+      currentIndex++
+      messages.value[messageIndex].content = fullContent.substring(0, currentIndex)
+    }, delay)
+  })
 }
 
 export function useChatAssistant() {
