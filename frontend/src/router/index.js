@@ -15,6 +15,10 @@ import SportsAlbum from '../views/albums/SportsAlbum.vue'
 import BlogList from '../views/blog/BlogList.vue'
 import BlogPost from '../views/blog/BlogPost.vue'
 
+// Admin views
+import AdminPanel from '../views/admin/AdminPanel.vue'
+import PostEditor from '../views/admin/PostEditor.vue'
+
 // Structured data utilities
 import { useStructuredDataOnRouteChange } from '../composables/useStructuredData'
 
@@ -77,6 +81,22 @@ const router = createRouter({
       path: '/misc/blog/:slug',
       name: 'blog-post',
       component: BlogPost
+    },
+    // Admin routes
+    {
+      path: '/admin',
+      name: 'admin-panel',
+      component: AdminPanel
+    },
+    {
+      path: '/admin/new',
+      name: 'admin-new-post',
+      component: PostEditor
+    },
+    {
+      path: '/admin/edit/:slug',
+      name: 'admin-edit-post',
+      component: PostEditor
     }
   ],
   scrollBehavior(to, from, savedPosition) {
