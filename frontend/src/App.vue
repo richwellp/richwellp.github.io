@@ -97,20 +97,20 @@ const closeMiscDropdown = () => {
           </RouterLink>
 
           <!-- Search Bar -->
-          <div class="search-bar" @click="openSearch">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div class="search-bar">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.35-4.35"></path>
             </svg>
             <input
               type="text"
               class="search-input"
-              placeholder="Search..."
+              placeholder="Search"
               readonly
+              @click="openSearch"
               @focus="openSearch"
               aria-label="Search"
             />
-            <kbd class="search-kbd">⌘K</kbd>
           </div>
 
           <!-- Theme Toggle -->
@@ -470,24 +470,27 @@ main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-secondary);
+  padding: 0.4rem 0.75rem;
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 200px;
-  max-width: 250px;
+  border-radius: 6px;
+  transition: border-color 0.2s ease;
+  width: 180px;
 }
 
 .search-bar:hover {
-  background: var(--bg-hover);
+  border-color: var(--text-tertiary);
+}
+
+.search-bar:focus-within {
   border-color: var(--accent-primary);
 }
 
 .search-icon {
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   flex-shrink: 0;
+  width: 18px;
+  height: 18px;
 }
 
 .search-input {
@@ -496,31 +499,15 @@ main {
   border: none;
   outline: none;
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-family: inherit;
   cursor: pointer;
+  padding: 0;
   min-width: 0;
 }
 
 .search-input::placeholder {
   color: var(--text-tertiary);
-}
-
-.search-kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 20px;
-  padding: 0 5px;
-  font-size: 0.7rem;
-  font-family: monospace;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  flex-shrink: 0;
 }
 
 /* Theme Toggle Button */
@@ -741,12 +728,7 @@ main {
 
   .search-bar {
     width: 100%;
-    max-width: 100%;
     margin: 0.5rem 0;
-  }
-
-  .search-kbd {
-    display: none;
   }
 
   .footer-content {
