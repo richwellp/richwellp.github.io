@@ -58,14 +58,24 @@ const closeMiscDropdown = () => {
             @mouseenter="miscDropdownOpen = true"
             @mouseleave="miscDropdownOpen = false"
           >
-            <button
-              class="dropdown-toggle"
-              @click="toggleMiscDropdown"
-              :class="{ 'active': miscDropdownOpen }"
-            >
-              Misc
-              <span class="dropdown-arrow" :class="{ 'open': miscDropdownOpen }">▼</span>
-            </button>
+            <div class="dropdown-toggle-wrapper">
+              <RouterLink
+                to="/misc"
+                @click="closeMobileMenu"
+                active-class="active"
+                class="dropdown-link"
+              >
+                Misc
+              </RouterLink>
+              <button
+                class="dropdown-arrow-btn"
+                @click="toggleMiscDropdown"
+                :class="{ 'active': miscDropdownOpen }"
+                aria-label="Toggle Misc menu"
+              >
+                <span class="dropdown-arrow" :class="{ 'open': miscDropdownOpen }">▼</span>
+              </button>
+            </div>
             <div class="dropdown-menu" :class="{ 'show': miscDropdownOpen }">
               <RouterLink to="/misc/blog" @click="closeMobileMenu" class="dropdown-item">
                 Blog
@@ -315,27 +325,48 @@ main {
   align-items: center;
 }
 
-.dropdown-toggle {
-  background: transparent;
-  border: none;
+.dropdown-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dropdown-link {
   color: var(--text-secondary);
+  text-decoration: none;
   font-weight: 500;
   font-size: 1rem;
   padding: 0.5rem 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   border-bottom: 2px solid transparent;
   transition: all 0.3s ease;
-  font-family: inherit;
 }
 
-.dropdown-toggle:hover {
+.dropdown-link:hover {
   color: var(--text-primary);
 }
 
-.dropdown-toggle.active {
+.dropdown-link.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+.dropdown-arrow-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.dropdown-arrow-btn:hover {
+  color: var(--text-primary);
+}
+
+.dropdown-arrow-btn.active {
   color: var(--text-primary);
 }
 
@@ -576,11 +607,20 @@ main {
     align-items: flex-start;
   }
 
-  .dropdown-toggle {
+  .dropdown-toggle-wrapper {
     width: 100%;
+    justify-content: space-between;
+  }
+
+  .dropdown-link {
+    flex: 1;
     font-size: 1.2rem;
     padding: 0.75rem 0;
-    justify-content: space-between;
+  }
+
+  .dropdown-arrow-btn {
+    font-size: 1.2rem;
+    padding: 0.75rem 0.5rem;
   }
 
   .dropdown-menu {
