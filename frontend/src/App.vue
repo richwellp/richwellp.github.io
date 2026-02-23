@@ -587,7 +587,7 @@ main {
 }
 
 .toggle-slider.dark-mode {
-  transform: translateX(34px);
+  transform: translateX(30px);
 }
 
 /* Footer */
