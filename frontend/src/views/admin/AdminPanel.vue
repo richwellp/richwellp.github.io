@@ -87,7 +87,7 @@
               class="action-btn"
               title="Edit"
             >
-              ✏️
+              Edit
             </button>
             <button
               @click="togglePublish(post)"
@@ -95,14 +95,14 @@
               :title="post.published ? 'Unpublish' : 'Publish'"
               :disabled="isTogglingPublish[post.slug]"
             >
-              {{ post.published ? '👁️' : '👁️‍🗨️' }}
+              {{ post.published ? 'Unpublish' : 'Publish' }}
             </button>
             <button
               @click="initiateDelete(post)"
               class="action-btn danger"
               title="Delete"
             >
-              🗑️
+              Delete
             </button>
           </div>
         </div>
@@ -498,18 +498,18 @@ onMounted(() => {
 }
 
 .action-btn {
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   transition: all 0.2s ease;
-  width: 40px;
-  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
 }
 
 .action-btn:hover {
