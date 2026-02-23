@@ -37,8 +37,8 @@
           class="post-card"
         >
           <div class="post-card-header">
-            <div class="post-date">{{ formatDate(post.date) }}</div>
-            <div v-if="post.readingTime" class="reading-time">{{ post.readingTime }} min</div>
+            <div class="post-date">{{ formatDate(post.published_at) }}</div>
+            <div v-if="post.reading_time" class="reading-time">{{ post.reading_time }} min</div>
           </div>
           <h2>{{ post.title }}</h2>
           <p class="post-excerpt">{{ post.excerpt }}</p>

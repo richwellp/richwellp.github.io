@@ -19,9 +19,9 @@
           <div class="post-header">
             <router-link to="/misc/blog" class="back-link">← Back to Blog</router-link>
             <div class="post-meta">
-              <span class="post-date">{{ formatDate(post.date) }}</span>
+              <span class="post-date">{{ formatDate(post.published_at) }}</span>
               <span v-if="post.author" class="post-author">by {{ post.author }}</span>
-              <span v-if="post.readingTime" class="reading-time">{{ post.readingTime }} min read</span>
+              <span v-if="post.reading_time" class="reading-time">{{ post.reading_time }} min read</span>
             </div>
             <h1>{{ post.title }}</h1>
             <div v-if="post.tags && post.tags.length > 0" class="post-tags">
