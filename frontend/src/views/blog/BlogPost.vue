@@ -19,7 +19,7 @@
           <div class="post-header">
             <router-link to="/misc/blog" class="back-link">← Back to Blog</router-link>
             <div class="post-meta">
-              <span class="post-date">{{ formatDate(post.published_at) }}</span>
+              <span class="post-date">{{ formatDate(post.published_at || post.created_at) }}</span>
               <span v-if="post.author" class="post-author">by {{ post.author }}</span>
               <span v-if="post.reading_time" class="reading-time">{{ post.reading_time }} min read</span>
             </div>
@@ -87,7 +87,9 @@ onMounted(async () => {
 })
 
 const formatDate = (date) => {
+  if (!date) return 'No date'
   const d = new Date(date)
+  if (isNaN(d.getTime())) return 'Invalid date'
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 </script>

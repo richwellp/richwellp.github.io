@@ -59,7 +59,7 @@ def list_posts():
 
     # Build query
     query = supabase.table('blog_posts').select(
-        'slug,title,excerpt,author,tags,published_at'
+        'slug,title,excerpt,author,tags,published_at,created_at'
     )
     query = query.eq('published', True).order('published_at', desc=True)
 

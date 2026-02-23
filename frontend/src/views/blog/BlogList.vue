@@ -37,7 +37,7 @@
           class="post-card"
         >
           <div class="post-card-header">
-            <div class="post-date">{{ formatDate(post.published_at) }}</div>
+            <div class="post-date">{{ formatDate(post.published_at || post.created_at) }}</div>
             <div v-if="post.reading_time" class="reading-time">{{ post.reading_time }} min</div>
           </div>
           <h2>{{ post.title }}</h2>
@@ -76,7 +76,9 @@ watch(
 )
 
 const formatDate = (date) => {
+  if (!date) return 'No date'
   const d = new Date(date)
+  if (isNaN(d.getTime())) return 'Invalid date'
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 </script>
