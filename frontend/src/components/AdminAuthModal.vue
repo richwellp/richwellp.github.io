@@ -115,7 +115,7 @@ const handleSubmit = async () => {
 
     if (success) {
       emit('authenticated')
-      emit('close')
+      // Don't emit 'close' - let parent handle modal visibility
     } else {
       error.value = 'Invalid admin key'
     }
