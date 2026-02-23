@@ -86,19 +86,22 @@ const simulateStreaming = (messageId, fullContent, delay = 20) => {
     messages.value[messageIndex].content = ''
 
     let currentIndex = 0
+    const cursor = '<span class="typing-cursor">▋</span>' // Cursor with wrapper
 
     const interval = setInterval(() => {
       if (currentIndex >= fullContent.length) {
         clearInterval(interval)
+        // Remove cursor and mark as not streaming
+        messages.value[messageIndex].content = fullContent
         messages.value[messageIndex].isStreaming = false
         saveMessages()
         resolve()
         return
       }
 
-      // Add next character
+      // Add next character with cursor at the end
       currentIndex++
-      messages.value[messageIndex].content = fullContent.substring(0, currentIndex)
+      messages.value[messageIndex].content = fullContent.substring(0, currentIndex) + cursor
     }, delay)
   })
 }

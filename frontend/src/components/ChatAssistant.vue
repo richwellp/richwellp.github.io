@@ -63,8 +63,9 @@
           <div class="message-wrapper">
             <div
               v-if="message.type === 'assistant'"
-              class="message-content markdown-body"
-              v-html="renderMarkdown(message.content)"
+              class="message-content"
+              :class="{ 'markdown-body': !message.isStreaming }"
+              v-html="message.isStreaming ? message.content : renderMarkdown(message.content)"
             ></div>
             <div v-else class="message-content">{{ message.content }}</div>
 
@@ -740,14 +741,14 @@ watch(isOpen, async (newValue) => {
 
 /* Streaming animation for assistant messages */
 .chat-message.assistant.streaming .message-content {
-  position: relative;
+  white-space: pre-wrap; /* Preserve formatting during streaming */
 }
 
-.chat-message.assistant.streaming .message-content::after {
-  content: '▋';
-  animation: cursor-blink 0.8s step-end infinite;
+/* Cursor animation */
+.chat-message.assistant .typing-cursor {
   color: var(--accent-primary);
-  margin-left: 2px;
+  animation: cursor-blink 0.8s step-end infinite;
+  font-weight: bold;
 }
 
 @keyframes cursor-blink {
