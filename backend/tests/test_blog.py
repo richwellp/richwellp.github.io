@@ -358,3 +358,169 @@ Final content
 
     assert headings[2]['level'] == 2
     assert headings[2]['text'] == 'Section 2'
+
+
+# Test 13: Admin list posts requires auth
+def test_admin_list_posts_requires_auth(blog_client):
+    """GET /blog/admin/posts without auth should return 401."""
+    response = blog_client.get('/blog/admin/posts')
+
+    assert response.status_code == 401
+    data = json.loads(response.data)
+    assert 'error' in data
+
+
+# Test 14: Admin list posts returns all posts including drafts
+def test_admin_list_posts_returns_all_posts(blog_client):
+    """GET /blog/admin/posts with auth should return published and draft posts."""
+    with patch('api.blog.supabase') as mock_sb:
+        mock_posts = [
+            {
+                'slug': 'published-post',
+                'title': 'Published Post',
+                'published': True,
+                'created_at': '2024-01-02T00:00:00Z'
+            },
+            {
+                'slug': 'draft-post',
+                'title': 'Draft Post',
+                'published': False,
+                'created_at': '2024-01-01T00:00:00Z'
+            }
+        ]
+
+        mock_result = Mock()
+        mock_result.data = mock_posts
+
+        mock_chain = Mock()
+        mock_chain.execute.return_value = mock_result
+        mock_chain.range.return_value = mock_chain
+        mock_chain.order.return_value = mock_chain
+
+        mock_table = Mock()
+        mock_table.select.return_value = mock_chain
+        mock_sb.table.return_value = mock_table
+
+        response = blog_client.get(
+            '/blog/admin/posts',
+            headers={'Authorization': 'Bearer test-admin-key'}
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert 'posts' in data
+        assert len(data['posts']) == 2
+        # Verify both published and draft posts are returned
+        slugs = [p['slug'] for p in data['posts']]
+        assert 'published-post' in slugs
+        assert 'draft-post' in slugs
+
+
+# Test 15: Admin list posts filters by published status
+def test_admin_list_posts_filters_by_status(blog_client):
+    """GET /blog/admin/posts?status=draft should filter by published status."""
+    with patch('api.blog.supabase') as mock_sb:
+        mock_posts = [
+            {'slug': 'draft-post', 'published': False}
+        ]
+
+        mock_result = Mock()
+        mock_result.data = mock_posts
+
+        mock_chain = Mock()
+        mock_chain.execute.return_value = mock_result
+        mock_chain.range.return_value = mock_chain
+        mock_chain.order.return_value = mock_chain
+        mock_chain.eq.return_value = mock_chain
+
+        mock_table = Mock()
+        mock_table.select.return_value = mock_chain
+        mock_sb.table.return_value = mock_table
+
+        response = blog_client.get(
+            '/blog/admin/posts?status=draft',
+            headers={'Authorization': 'Bearer test-admin-key'}
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert 'posts' in data
+
+        # Verify it filtered for published=False
+        mock_chain.eq.assert_any_call('published', False)
+
+
+# Test 16: Admin get post requires auth
+def test_admin_get_post_requires_auth(blog_client):
+    """GET /blog/admin/posts/<slug> without auth should return 401."""
+    response = blog_client.get('/blog/admin/posts/test-post')
+
+    assert response.status_code == 401
+    data = json.loads(response.data)
+    assert 'error' in data
+
+
+# Test 17: Admin get post returns draft post
+def test_admin_get_post_returns_draft(blog_client):
+    """GET /blog/admin/posts/<slug> with auth should return draft posts."""
+    with patch('api.blog.supabase') as mock_sb:
+        mock_post = {
+            'slug': 'draft-post',
+            'title': 'Draft Post',
+            'content': '# Test\n\n' + ('word ' * 200),
+            'excerpt': 'Test excerpt',
+            'author': 'Richwell Perez',
+            'tags': ['test'],
+            'published': False,
+            'created_at': '2024-01-01T00:00:00Z'
+        }
+
+        mock_result = Mock()
+        mock_result.data = mock_post
+
+        mock_chain = Mock()
+        mock_chain.execute.return_value = mock_result
+        mock_chain.single.return_value = mock_chain
+        mock_chain.eq.return_value = mock_chain
+
+        mock_table = Mock()
+        mock_table.select.return_value = mock_chain
+        mock_sb.table.return_value = mock_table
+
+        response = blog_client.get(
+            '/blog/admin/posts/draft-post',
+            headers={'Authorization': 'Bearer test-admin-key'}
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['slug'] == 'draft-post'
+        assert data['published'] == False
+        assert 'reading_time' in data
+        assert 'headings' in data
+
+
+# Test 18: Admin get post returns 404 for nonexistent
+def test_admin_get_post_not_found(blog_client):
+    """GET /blog/admin/posts/nonexistent with auth should return 404."""
+    with patch('api.blog.supabase') as mock_sb:
+        mock_result = Mock()
+        mock_result.data = None
+
+        mock_chain = Mock()
+        mock_chain.execute.return_value = mock_result
+        mock_chain.single.return_value = mock_chain
+        mock_chain.eq.return_value = mock_chain
+
+        mock_table = Mock()
+        mock_table.select.return_value = mock_chain
+        mock_sb.table.return_value = mock_table
+
+        response = blog_client.get(
+            '/blog/admin/posts/nonexistent',
+            headers={'Authorization': 'Bearer test-admin-key'}
+        )
+
+        assert response.status_code == 404
+        data = json.loads(response.data)
+        assert 'error' in data

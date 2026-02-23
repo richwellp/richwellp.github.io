@@ -73,6 +73,24 @@ const loadMessages = () => {
   }
 }
 
+// Helper function to simulate streaming for instant messages
+const simulateStreaming = async (messageId, fullContent, delay = 20) => {
+  const messageIndex = messages.value.findIndex(m => m.id === messageId)
+  if (messageIndex === -1) return
+
+  messages.value[messageIndex].isStreaming = true
+  messages.value[messageIndex].content = ''
+
+  // Stream character by character
+  for (let i = 0; i < fullContent.length; i++) {
+    messages.value[messageIndex].content = fullContent.substring(0, i + 1)
+    await new Promise(r => setTimeout(r, delay))
+  }
+
+  messages.value[messageIndex].isStreaming = false
+  saveMessages()
+}
+
 export function useChatAssistant() {
   const { trackChatInteraction } = useAnalytics()
 
@@ -84,12 +102,15 @@ export function useChatAssistant() {
 
     // Validate message length (prevent quota waste)
     if (userInput.length > 2000) {
+      const errorId = generateUUID()
       messages.value.push({
-        id: generateUUID(),
+        id: errorId,
         type: 'assistant',
-        content: 'Your message is too long. Please keep it under 2000 characters.',
-        timestamp: new Date()
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true
       })
+      await simulateStreaming(errorId, 'Your message is too long. Please keep it under 2000 characters.', 15)
       return
     }
 
@@ -124,13 +145,19 @@ export function useChatAssistant() {
         name: error.name
       })
 
-      // Add error message with contact fallback
+      // Add error message with streaming animation
+      const errorId = generateUUID()
+      const errorContent = `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for assistance.`
+
       messages.value.push({
-        id: generateUUID(),
+        id: errorId,
         type: 'assistant',
-        content: `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for assistance.`,
-        timestamp: new Date()
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true
       })
+
+      await simulateStreaming(errorId, errorContent, 15)
     } finally {
       isTyping.value = false
     }
@@ -296,12 +323,16 @@ export function useChatAssistant() {
           ? `I'm at my free API limit right now (resets daily at midnight Pacific time). Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for immediate assistance.`
           : `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()}.`)
 
+      const errorId = generateUUID()
       messages.value.push({
-        id: generateUUID(),
+        id: errorId,
         type: 'assistant',
-        content: errorMessage,
-        timestamp: new Date()
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true
       })
+
+      await simulateStreaming(errorId, errorMessage, 15)
       return
     }
 
@@ -318,16 +349,19 @@ export function useChatAssistant() {
       throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`)
     }
 
-    // Add successful assistant response
+    // Add successful assistant response with streaming animation
+    const responseId = generateUUID()
+    const responseContent = data.response || data.message || 'Sorry, I received an empty response.'
+
     messages.value.push({
-      id: generateUUID(),
+      id: responseId,
       type: 'assistant',
-      content: data.response || data.message || 'Sorry, I received an empty response.',
-      timestamp: new Date()
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true
     })
 
-    // Save to localStorage
-    saveMessages()
+    await simulateStreaming(responseId, responseContent, 20)
   }
 
   const toggleChat = async () => {
@@ -343,15 +377,20 @@ export function useChatAssistant() {
         loadMessages()
       }
 
-      // If still no messages, add welcome message
+      // If still no messages, add welcome message with streaming animation
       if (messages.value.length === 0) {
+        const welcomeId = generateUUID()
+        const welcomeContent = `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`
+
         messages.value.push({
-          id: generateUUID(),
+          id: welcomeId,
           type: 'assistant',
-          content: `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`,
-          timestamp: new Date()
+          content: '',
+          timestamp: new Date(),
+          isStreaming: true
         })
-        saveMessages()
+
+        await simulateStreaming(welcomeId, welcomeContent, 15)
       }
     } else {
       trackChatInteraction('chat_closed')

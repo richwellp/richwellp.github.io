@@ -55,7 +55,7 @@
           v-for="message in messages"
           :key="message.id"
           class="chat-message"
-          :class="message.type"
+          :class="[message.type, { streaming: message.isStreaming }]"
           role="article"
           :aria-label="`${message.type === 'user' ? 'You' : 'Assistant'} message`"
         >
@@ -736,6 +736,23 @@ watch(isOpen, async (newValue) => {
     transform: translateY(-10px);
     opacity: 1;
   }
+}
+
+/* Streaming animation for assistant messages */
+.chat-message.assistant.streaming .message-content {
+  position: relative;
+}
+
+.chat-message.assistant.streaming .message-content::after {
+  content: '▋';
+  animation: cursor-blink 0.8s step-end infinite;
+  color: var(--accent-primary);
+  margin-left: 2px;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 /* Quick Actions */

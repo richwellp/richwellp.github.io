@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useBlog } from './useBlog'
+import { useBlog } from '@/composables/useBlog'
 
 // Mock fetch globally
 global.fetch = vi.fn()

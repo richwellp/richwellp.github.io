@@ -155,3 +155,40 @@ def delete_post(slug):
     """Delete a blog post (admin only)."""
     supabase.table('blog_posts').delete().eq('slug', slug).execute()
     return '', 204
+
+
+@blog_bp.route('/admin/posts', methods=['GET'])
+@require_admin
+def admin_list_posts():
+    """List all posts including drafts (admin only)."""
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', DEFAULT_PAGE_SIZE))
+    status = request.args.get('status')  # 'published', 'draft', or None
+
+    query = supabase.table('blog_posts').select('*')
+
+    if status == 'published':
+        query = query.eq('published', True)
+    elif status == 'draft':
+        query = query.eq('published', False)
+
+    query = query.order('created_at', desc=True)
+    start = (page - 1) * per_page
+    result = query.range(start, start + per_page - 1).execute()
+
+    return jsonify(posts=result.data, page=page, per_page=per_page, total=len(result.data))
+
+
+@blog_bp.route('/admin/posts/<slug>', methods=['GET'])
+@require_admin
+def admin_get_post(slug):
+    """Get single post regardless of published status (admin only)."""
+    result = supabase.table('blog_posts').select('*').eq('slug', slug).single().execute()
+
+    if not result.data:
+        return jsonify(error='Post not found'), 404
+
+    post = result.data
+    post['reading_time'] = calculate_reading_time(post['content'])
+    post['headings'] = extract_headings(post['content'])
+    return jsonify(post)
