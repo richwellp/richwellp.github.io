@@ -97,20 +97,12 @@ const closeMiscDropdown = () => {
           </RouterLink>
 
           <!-- Search Bar -->
-          <div class="search-bar">
+          <div class="search-bar" @click="openSearch">
             <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.35-4.35"></path>
             </svg>
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Search"
-              readonly
-              @click="openSearch"
-              @focus="openSearch"
-              aria-label="Search"
-            />
+            <span class="search-text">Search</span>
           </div>
 
           <!-- Theme Toggle -->
@@ -470,20 +462,23 @@ main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.5rem 0.875rem;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  transition: border-color 0.2s ease;
-  width: 180px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 160px;
+  user-select: none;
 }
 
 .search-bar:hover {
-  border-color: var(--text-tertiary);
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
 }
 
-.search-bar:focus-within {
-  border-color: var(--accent-primary);
+.search-bar:active {
+  transform: scale(0.98);
 }
 
 .search-icon {
@@ -493,21 +488,11 @@ main {
   height: 18px;
 }
 
-.search-input {
+.search-text {
   flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text-primary);
+  color: var(--text-tertiary);
   font-size: 0.875rem;
   font-family: inherit;
-  cursor: pointer;
-  padding: 0;
-  min-width: 0;
-}
-
-.search-input::placeholder {
-  color: var(--text-tertiary);
 }
 
 /* Theme Toggle Button */
