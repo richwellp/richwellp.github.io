@@ -68,11 +68,9 @@ const closeMiscDropdown = () => {
             </button>
             <div class="dropdown-menu" :class="{ 'show': miscDropdownOpen }">
               <RouterLink to="/misc/blog" @click="closeMobileMenu" class="dropdown-item">
-                <span class="item-icon">📝</span>
                 Blog
               </RouterLink>
               <RouterLink to="/misc" @click="closeMobileMenu" class="dropdown-item">
-                <span class="item-icon">📸</span>
                 Albums
               </RouterLink>
             </div>
