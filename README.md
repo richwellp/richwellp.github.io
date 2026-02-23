@@ -10,7 +10,7 @@ Personal portfolio website showcasing professional experience, projects, and int
 
 - **Responsive Design** - Desktop, tablet, and mobile optimized
 - **Dark/Light Theme** - Persistent theme switching
-- **Blog System** - Markdown-based with admin panel
+- **Blog System** - Database-driven with markdown editor and admin panel
 - **Photo & Video Albums** - Travel, professional, and sports galleries
 - **AI Chat Assistant** - Context-aware chatbot with streaming responses
 - **PDF Resume Viewer** - Interactive embedded CV
@@ -154,13 +154,14 @@ cd frontend && npm test -- feature
 ## Adding Content
 
 ### Blog Posts
-1. Create markdown file: `public/blog/YYYY-MM-DD-post-slug.md`
-2. File is automatically discovered by Vite
-3. Access at: `/misc/blog/post-slug`
+Blog posts are stored in Supabase database and managed via the admin panel:
 
-**Or use Admin Panel:**
-- Visit `/admin` with admin key
-- Create, edit, publish posts via web UI
+1. Visit `/admin` and authenticate with admin key
+2. Create, edit, publish/unpublish posts via web UI
+3. Markdown editor with live preview
+4. Posts appear at `/misc/blog/:slug`
+
+**Database-driven:** No need to create files or rebuild - posts are served from API.
 
 ### Photos/Videos
 1. Add files to: `public/assets/photos/{category}/`
