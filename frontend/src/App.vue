@@ -5,6 +5,7 @@ import { useTheme } from './composables/useTheme'
 import ChatAssistant from './components/ChatAssistant.vue'
 
 const mobileMenuOpen = ref(false)
+const miscDropdownOpen = ref(false)
 const { theme, toggleTheme } = useTheme()
 
 const toggleMobileMenu = () => {
@@ -13,6 +14,15 @@ const toggleMobileMenu = () => {
 
 const closeMobileMenu = () => {
   mobileMenuOpen.value = false
+  miscDropdownOpen.value = false
+}
+
+const toggleMiscDropdown = () => {
+  miscDropdownOpen.value = !miscDropdownOpen.value
+}
+
+const closeMiscDropdown = () => {
+  miscDropdownOpen.value = false
 }
 </script>
 
@@ -38,15 +48,36 @@ const closeMobileMenu = () => {
           <RouterLink to="/projects" @click="closeMobileMenu" active-class="active">
             Projects
           </RouterLink>
-          <RouterLink to="/misc/blog" @click="closeMobileMenu" active-class="active">
-            Blog
-          </RouterLink>
           <RouterLink to="/cv" @click="closeMobileMenu" active-class="active">
             CV
           </RouterLink>
-          <RouterLink to="/misc" @click="closeMobileMenu" active-class="active">
-            Misc
-          </RouterLink>
+
+          <!-- Misc Dropdown -->
+          <div
+            class="nav-dropdown"
+            @mouseenter="miscDropdownOpen = true"
+            @mouseleave="miscDropdownOpen = false"
+          >
+            <button
+              class="dropdown-toggle"
+              @click="toggleMiscDropdown"
+              :class="{ 'active': miscDropdownOpen }"
+            >
+              Misc
+              <span class="dropdown-arrow" :class="{ 'open': miscDropdownOpen }">▼</span>
+            </button>
+            <div class="dropdown-menu" :class="{ 'show': miscDropdownOpen }">
+              <RouterLink to="/misc/blog" @click="closeMobileMenu" class="dropdown-item">
+                <span class="item-icon">📝</span>
+                Blog
+              </RouterLink>
+              <RouterLink to="/misc" @click="closeMobileMenu" class="dropdown-item">
+                <span class="item-icon">📸</span>
+                Albums
+              </RouterLink>
+            </div>
+          </div>
+
           <RouterLink to="/contact" @click="closeMobileMenu" active-class="active">
             Contact
           </RouterLink>
@@ -279,6 +310,106 @@ main {
   border-bottom-color: var(--accent-primary);
 }
 
+/* Dropdown Navigation */
+.nav-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.dropdown-toggle:hover {
+  color: var(--text-primary);
+}
+
+.dropdown-toggle.active {
+  color: var(--text-primary);
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--shadow);
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: none;
+  border-bottom: none;
+}
+
+.dropdown-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.dropdown-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.dropdown-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.dropdown-item.router-link-active {
+  background: var(--bg-hover);
+  color: var(--accent-primary);
+}
+
+.item-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
 /* Theme Toggle Button */
 .theme-toggle {
   background: transparent;
@@ -438,6 +569,52 @@ main {
     font-size: 1.2rem;
     width: 100%;
     padding: 0.75rem 0;
+  }
+
+  /* Mobile Dropdown Styles */
+  .nav-dropdown {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dropdown-toggle {
+    width: 100%;
+    font-size: 1.2rem;
+    padding: 0.75rem 0;
+    justify-content: space-between;
+  }
+
+  .dropdown-menu {
+    position: static;
+    width: 100%;
+    margin-top: 0;
+    margin-left: 1rem;
+    box-shadow: none;
+    border: none;
+    border-left: 2px solid var(--border-color);
+    border-radius: 0;
+    background: transparent;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .dropdown-menu.show {
+    max-height: 500px;
+  }
+
+  .dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+
+  .dropdown-item:first-child,
+  .dropdown-item:last-child {
+    border-radius: 0;
   }
 
   .footer-content {
