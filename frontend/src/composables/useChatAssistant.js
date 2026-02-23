@@ -116,14 +116,8 @@ export function useChatAssistant() {
           content: msg.content
         }))
 
-      // Try streaming first, fallback to regular if not supported
-      const useStreaming = true // Can be toggled or made a user preference
-
-      if (useStreaming) {
-        await sendMessageStreaming(userInput, conversationHistory)
-      } else {
-        await sendMessageRegular(userInput, conversationHistory)
-      }
+      // Use streaming with automatic fallback to regular mode if it fails
+      await sendMessageStreaming(userInput, conversationHistory)
 
     } catch (error) {
       console.error('Chat error details:', {

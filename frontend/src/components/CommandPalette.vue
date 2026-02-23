@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import Fuse from 'fuse.js'
 import { professionalInfo } from '../data/professionalInfo.js'
+import { useBlog } from '../composables/useBlog.js'
 
 const router = useRouter()
 const isOpen = ref(false)
@@ -17,35 +18,16 @@ const recentSearches = ref([])
 const blogPosts = ref([])
 const searchableContent = ref([])
 
-// Load blog posts
+// Load blog posts from API
+const { fetchPosts } = useBlog()
+
 async function loadBlogPosts() {
   try {
-    const posts = [
-      {
-        title: 'Building My Portfolio Website with Claude Code',
-        slug: '2025-12-11-building-my-portfolio-with-claude',
-        date: '2025-12-11',
-        excerpt: 'I used Claude Code as my AI pair programmer and generated this blog.',
-        tags: ['web development', 'vue', 'flask', 'AI', 'portfolio']
-      },
-      {
-        title: 'Happy New Year',
-        slug: '2026-01-06-happy-new-year',
-        date: '2026-01-06',
-        excerpt: 'Happy New Year 2026!',
-        tags: ['personal', 'new year']
-      },
-      {
-        title: 'New PR',
-        slug: '2026-01-10-new-pr',
-        date: '2026-01-10',
-        excerpt: 'New PR announcement',
-        tags: ['update']
-      }
-    ]
-    blogPosts.value = posts
+    const data = await fetchPosts()
+    blogPosts.value = data.posts || []
   } catch (error) {
     console.error('Error loading blog posts:', error)
+    blogPosts.value = []
   }
 }
 

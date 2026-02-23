@@ -8,14 +8,6 @@ export function useAnalytics() {
   // Custom events are logged to console in development for debugging
   const isDevelopment = import.meta.env.DEV
 
-  // Track page views (Cloudflare handles this automatically)
-  const trackPageView = (path) => {
-    if (isDevelopment) {
-      console.log('[Analytics] Page view:', path)
-    }
-    // Cloudflare automatically tracks all page views
-  }
-
   // Track custom events (logged for development, auto-tracked by Cloudflare)
   const trackEvent = (eventName, props = {}) => {
     if (isDevelopment) {
@@ -29,11 +21,6 @@ export function useAnalytics() {
     trackEvent('ChatBot', { action, ...details })
   }
 
-  // Track downloads (CV, resume)
-  const trackDownload = (fileName) => {
-    trackEvent('Download', { file: fileName })
-  }
-
   // Track external link clicks
   const trackExternalLink = (url) => {
     trackEvent('ExternalLink', { url })
@@ -44,19 +31,10 @@ export function useAnalytics() {
     trackEvent('ContactForm', { status })
   }
 
-  // Track project clicks
-  const trackProjectClick = (projectName) => {
-    trackEvent('ProjectClick', { project: projectName })
-  }
-
   return {
-    trackPageView,
-    trackEvent,
     trackChatInteraction,
-    trackDownload,
     trackExternalLink,
-    trackContactForm,
-    trackProjectClick
+    trackContactForm
   }
 }
 
