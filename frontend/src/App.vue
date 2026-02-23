@@ -8,6 +8,11 @@ import CommandPalette from './components/CommandPalette.vue'
 const mobileMenuOpen = ref(false)
 const miscDropdownOpen = ref(false)
 const { theme, toggleTheme } = useTheme()
+const commandPaletteRef = ref(null)
+
+const openSearch = () => {
+  commandPaletteRef.value?.openPalette()
+}
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
@@ -91,6 +96,23 @@ const closeMiscDropdown = () => {
             Contact
           </RouterLink>
 
+          <!-- Search Bar -->
+          <div class="search-bar" @click="openSearch">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search..."
+              readonly
+              @focus="openSearch"
+              aria-label="Search"
+            />
+            <kbd class="search-kbd">⌘K</kbd>
+          </div>
+
           <!-- Theme Toggle -->
           <button @click="toggleTheme" class="theme-toggle" :aria-label="`Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`">
             <div class="toggle-track">
@@ -144,7 +166,7 @@ const closeMiscDropdown = () => {
     <ChatAssistant />
 
     <!-- Command Palette -->
-    <CommandPalette />
+    <CommandPalette ref="commandPaletteRef" />
   </div>
 </template>
 
@@ -443,6 +465,64 @@ main {
   flex-shrink: 0;
 }
 
+/* Search Bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  max-width: 250px;
+}
+
+.search-bar:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+.search-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.search-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 0.7rem;
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
 /* Theme Toggle Button */
 .theme-toggle {
   background: transparent;
@@ -493,9 +573,9 @@ main {
 
 .toggle-slider {
   position: absolute;
-  left: 2px;
-  width: 24px;
-  height: 24px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
   background: var(--accent-primary);
   border-radius: 50%;
   transition: transform 0.3s ease;
@@ -503,11 +583,11 @@ main {
 }
 
 .toggle-slider.light-mode {
-  transform: translateX(2px);
+  transform: translateX(0);
 }
 
 .toggle-slider.dark-mode {
-  transform: translateX(34px);
+  transform: translateX(32px);
 }
 
 /* Footer */
@@ -657,6 +737,16 @@ main {
   .dropdown-item:first-child,
   .dropdown-item:last-child {
     border-radius: 0;
+  }
+
+  .search-bar {
+    width: 100%;
+    max-width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .search-kbd {
+    display: none;
   }
 
   .footer-content {

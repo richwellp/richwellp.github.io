@@ -214,6 +214,11 @@ function closePalette() {
   selectedIndex.value = 0
 }
 
+// Expose openPalette so parent components can trigger it
+defineExpose({
+  openPalette
+})
+
 // Handle keyboard shortcuts
 function handleKeyDown(event) {
   // Cmd/Ctrl + K to open
@@ -472,11 +477,6 @@ function getFlatIndex(item) {
       </div>
     </Transition>
 
-    <!-- Floating Hint Badge (optional) -->
-    <button class="command-palette-hint" @click="openPalette" title="Search (⌘K)">
-      <span class="hint-icon">🔍</span>
-      <kbd class="kbd-hint">⌘K</kbd>
-    </button>
   </div>
 </template>
 
@@ -765,39 +765,6 @@ function getFlatIndex(item) {
   gap: 0.375rem;
 }
 
-/* Floating Hint Badge */
-.command-palette-hint {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px var(--shadow);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 1000;
-}
-
-.command-palette-hint:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px var(--shadow);
-  border-color: var(--accent-primary);
-}
-
-.hint-icon {
-  font-size: 1.25rem;
-}
-
-.kbd-hint {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-}
-
 /* Animations */
 .fade-enter-active,
 .fade-leave-active {
@@ -835,16 +802,6 @@ function getFlatIndex(item) {
     max-height: 70vh;
   }
 
-  .command-palette-hint {
-    bottom: 1rem;
-    right: 1rem;
-    padding: 0.625rem 0.875rem;
-  }
-
-  .hint-icon {
-    font-size: 1.1rem;
-  }
-
   .result-item {
     padding: 0.875rem 1rem;
   }
@@ -855,16 +812,6 @@ function getFlatIndex(item) {
 
   .section-header {
     padding: 0.5rem 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .command-palette-hint {
-    padding: 0.5rem 0.75rem;
-  }
-
-  .kbd-hint {
-    display: none;
   }
 }
 </style>
