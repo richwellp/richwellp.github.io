@@ -47,10 +47,17 @@ const getSiteContext = () => ({
   }))
 })
 
+// Chat storage version (increment when making breaking changes)
+const CHAT_VERSION = 2
+
 // Save messages to localStorage
 const saveMessages = () => {
   try {
-    localStorage.setItem('chatMessages', JSON.stringify(messages.value))
+    const data = {
+      version: CHAT_VERSION,
+      messages: messages.value
+    }
+    localStorage.setItem('chatMessages', JSON.stringify(data))
   } catch (e) {
     console.error('Failed to save messages:', e)
   }
@@ -61,7 +68,17 @@ const loadMessages = () => {
   try {
     const saved = localStorage.getItem('chatMessages')
     if (saved) {
-      const loadedMessages = JSON.parse(saved)
+      const data = JSON.parse(saved)
+
+      // Check version - clear if outdated
+      if (!data.version || data.version < CHAT_VERSION) {
+        console.log('Clearing outdated chat cache')
+        localStorage.removeItem('chatMessages')
+        return
+      }
+
+      // Load messages
+      const loadedMessages = data.messages || data // Support old format temporarily
       // Clean up any streaming flags from interrupted sessions
       messages.value = loadedMessages.map(msg => ({
         ...msg,
@@ -70,6 +87,8 @@ const loadMessages = () => {
     }
   } catch (e) {
     console.error('Failed to load messages:', e)
+    // Clear corrupted data
+    localStorage.removeItem('chatMessages')
   }
 }
 
@@ -412,13 +431,25 @@ export function useChatAssistant() {
     }
   }
 
-  const clearChat = () => {
-    // Keep only welcome message
-    if (messages.value.length > 0) {
-      messages.value = [messages.value[0]]
-    }
+  const clearChat = async () => {
+    // Clear all messages
+    messages.value = []
     // Clear localStorage
-    saveMessages()
+    localStorage.removeItem('chatMessages')
+
+    // Re-add welcome message with streaming animation
+    const welcomeId = generateUUID()
+    const welcomeContent = `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`
+
+    messages.value.push({
+      id: welcomeId,
+      type: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true
+    })
+
+    await simulateStreaming(welcomeId, welcomeContent, 15)
   }
 
   const sendQuickMessage = async (topic) => {
