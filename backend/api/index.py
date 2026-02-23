@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 import os
 import json
+from config import RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW, MESSAGE_LENGTH_LIMIT, HISTORY_LIMIT, get_contact_message
 
 app = Flask(__name__)
 
@@ -17,8 +18,6 @@ CORS(app, origins=allowed_origins, methods=['GET', 'POST', 'OPTIONS'])
 
 # Simple in-memory rate limiter (per IP)
 rate_limit_storage = defaultdict(list)
-RATE_LIMIT_REQUESTS = 10  # requests
-RATE_LIMIT_WINDOW = 60    # seconds
 
 @app.route("/", methods=["GET"])
 def root():
@@ -76,9 +75,9 @@ def chat():
             ), 400
 
         # Validate message length
-        if len(user_message) > 2000:
+        if len(user_message) > MESSAGE_LENGTH_LIMIT:
             return jsonify(
-                error="Message is too long. Please keep it under 2000 characters.",
+                error=f"Message is too long. Please keep it under {MESSAGE_LENGTH_LIMIT} characters.",
                 error_type="validation_error"
             ), 400
 
@@ -89,7 +88,7 @@ def chat():
         if not isinstance(history, list):
             history = []
         # Limit to last 20 messages to prevent context overflow
-        history = history[-20:]
+        history = history[-HISTORY_LIMIT:]
 
         response_text = call_gemini(user_message, history, site_context)
 
@@ -116,7 +115,7 @@ def chat():
             error="An error occurred",
             error_type="server_error",
             error_details=str(e),
-            response="I'm having trouble right now. Please reach out directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez."
+            response=f"I'm having trouble right now. {get_contact_message()}"
         ), 500
 
 
@@ -153,9 +152,9 @@ def chat_stream():
             ), 400
 
         # Validate message length
-        if len(user_message) > 2000:
+        if len(user_message) > MESSAGE_LENGTH_LIMIT:
             return jsonify(
-                error="Message is too long. Please keep it under 2000 characters.",
+                error=f"Message is too long. Please keep it under {MESSAGE_LENGTH_LIMIT} characters.",
                 error_type="validation_error"
             ), 400
 
@@ -165,7 +164,7 @@ def chat_stream():
         # Validate and limit history size
         if not isinstance(history, list):
             history = []
-        history = history[-20:]
+        history = history[-HISTORY_LIMIT:]
 
         def generate():
             """Generator function for SSE"""
@@ -196,5 +195,5 @@ def chat_stream():
             error="Failed to start streaming",
             error_type="server_error",
             error_details=str(e),
-            response="I'm having trouble right now. Please reach out directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez."
+            response=f"I'm having trouble right now. {get_contact_message()}"
         ), 500

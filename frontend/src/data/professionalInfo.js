@@ -1,11 +1,12 @@
 // Professional information extracted from portfolio for AI assistant context
+import { CONTACT } from '../config/contact'
 
 export const professionalInfo = {
   personal: {
     name: 'Richwell Cyrille Santos Perez',
-    email: 'richwell.perez@gmail.com',
-    linkedIn: 'https://www.linkedin.com/in/richwell-perez',
-    github: 'https://github.com/richwellp',
+    email: CONTACT.email,
+    linkedIn: CONTACT.linkedin,
+    github: CONTACT.github,
     location: 'Laramie, WY / Brea, CA',
     summary: 'AI Engineer specializing in full-stack development, RAG systems, and applied machine learning',
     tagline: 'I build software, data, and AI systems that solve real-world problems'

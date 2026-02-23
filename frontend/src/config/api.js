@@ -1,0 +1,28 @@
+/**
+ * Centralized API configuration
+ */
+
+// API Base URL - from environment variable or error
+export const API_BASE_URL = import.meta.env.VITE_API_URL
+
+if (!API_BASE_URL) {
+  console.error('VITE_API_URL environment variable is not set. API calls will fail.')
+}
+
+// API Endpoints
+export const API_ENDPOINTS = {
+  // Chat endpoints
+  chat: `${API_BASE_URL}/chat`,
+  chatStream: `${API_BASE_URL}/chat/stream`,
+
+  // Blog endpoints
+  blogPosts: `${API_BASE_URL}/blog/posts`,
+  blogPost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
+  blogSearch: `${API_BASE_URL}/blog/search`,
+}
+
+// API Configuration
+export const API_CONFIG = {
+  messageLimit: 2000,  // Maximum message length
+  historyLimit: 10,    // Maximum messages to send in history
+}

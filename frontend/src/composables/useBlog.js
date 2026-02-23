@@ -1,6 +1,5 @@
 import { ref } from 'vue'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'https://richwellp-github-io.vercel.app'
+import { API_ENDPOINTS } from '../config/api'
 
 const posts = ref([])
 const loading = ref(false)
@@ -17,7 +16,7 @@ export function useBlog() {
       if (options.per_page) params.set('per_page', options.per_page)
       if (options.tag) params.set('tag', options.tag)
 
-      const response = await fetch(`${API_BASE}/blog/posts?${params}`)
+      const response = await fetch(`${API_ENDPOINTS.blogPosts}?${params}`)
       if (!response.ok) throw new Error('Failed to fetch posts')
 
       const data = await response.json()
@@ -32,7 +31,7 @@ export function useBlog() {
   }
 
   const getPostBySlug = async (slug) => {
-    const response = await fetch(`${API_BASE}/blog/posts/${slug}`)
+    const response = await fetch(API_ENDPOINTS.blogPost(slug))
     if (!response.ok) throw new Error('Post not found')
     return await response.json()
   }
@@ -43,7 +42,7 @@ export function useBlog() {
       return { posts: [], total: 0 }
     }
 
-    const response = await fetch(`${API_BASE}/blog/search?q=${encodeURIComponent(query)}`)
+    const response = await fetch(`${API_ENDPOINTS.blogSearch}?q=${encodeURIComponent(query)}`)
     if (!response.ok) throw new Error('Search failed')
     return await response.json()
   }

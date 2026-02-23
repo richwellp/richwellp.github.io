@@ -2,6 +2,8 @@ import { ref } from 'vue'
 import { professionalInfo } from '../data/professionalInfo'
 import { useBlog } from './useBlog'
 import { useAnalytics } from './useAnalytics'
+import { CONTACT } from '../config/contact'
+import { API_ENDPOINTS, API_CONFIG } from '../config/api'
 
 // Shared state across all instances
 const messages = ref([])
@@ -9,10 +11,6 @@ const isOpen = ref(false)
 const isTyping = ref(false)
 const blogPosts = ref([])
 const contextLoaded = ref(false)
-
-const API_BASE = import.meta.env.PROD
-  ? 'https://richwellp-github-io.vercel.app'
-  : 'http://localhost:5000'
 
 // UUID generator with fallback for older browsers
 const generateUUID = () => {
@@ -110,7 +108,7 @@ export function useChatAssistant() {
       // Get last 10 messages for context (5 exchanges) - EXCLUDING current message
       const conversationHistory = messages.value
         .slice(0, -1)  // Exclude the message we just added
-        .slice(-10)     // Get last 10 of previous messages
+        .slice(-API_CONFIG.historyLimit)     // Get last N previous messages
         .map(msg => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
           content: msg.content
@@ -130,7 +128,7 @@ export function useChatAssistant() {
       messages.value.push({
         id: generateUUID(),
         type: 'assistant',
-        content: `I'm having trouble right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for assistance.`,
+        content: `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for assistance.`,
         timestamp: new Date()
       })
     } finally {
@@ -143,7 +141,7 @@ export function useChatAssistant() {
     let assistantMessageId = null
 
     try {
-      const response = await fetch(`${API_BASE}/chat/stream`, {
+      const response = await fetch(`${API_ENDPOINTS.chatStream}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -233,7 +231,7 @@ export function useChatAssistant() {
 
         // If no content was received, add fallback message
         if (!messages.value[messageIndex].content || messages.value[messageIndex].content.trim() === '') {
-          messages.value[messageIndex].content = 'Sorry, I received an empty response. Please try again or contact Richwell at richwell.perez@gmail.com.'
+          messages.value[messageIndex].content = `Sorry, I received an empty response. Please try again or contact Richwell at ${CONTACT.email}.`
         }
       }
 
@@ -258,7 +256,7 @@ export function useChatAssistant() {
 
   // Regular (non-streaming) implementation
   const sendMessageRegular = async (userInput, conversationHistory) => {
-    const response = await fetch(`${API_BASE}/chat`, {
+    const response = await fetch(`${API_ENDPOINTS.chat}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -295,8 +293,8 @@ export function useChatAssistant() {
       // Use error message from backend, or provide default
       const errorMessage = data.message || data.error ||
         (data.error_type === 'rate_limit'
-          ? `I'm at my free API limit right now (resets daily at midnight Pacific time). Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for immediate assistance.`
-          : `I'm having trouble right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.`)
+          ? `I'm at my free API limit right now (resets daily at midnight Pacific time). Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for immediate assistance.`
+          : `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()}.`)
 
       messages.value.push({
         id: generateUUID(),

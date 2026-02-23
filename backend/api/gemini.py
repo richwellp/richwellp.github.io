@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 from api.resume_parser import get_resume_summary
+from config import GEMINI_MODEL, get_contact_message
 
 # Load environment variables from .env file
 load_dotenv()
@@ -115,15 +116,15 @@ Your role is to answer questions about Richwell's professional background, educa
                     prompt += f"  Tags: {', '.join(tags)}\n"
                 prompt += "\n"
 
-    prompt += """
+    prompt += f"""
 IMPORTANT INSTRUCTIONS:
 1. Answer questions using ONLY the information above
 2. PRIORITIZE the RESUME CONTENT as the most authoritative and up-to-date source
 3. If asked about something not covered, politely suggest contacting Richwell:
-   "For more details about that, please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez"
+   "For more details about that, {get_contact_message()}"
 4. Keep responses concise (2-3 sentences unless more detail is requested)
 5. Be conversational and friendly
-6. If asked about availability or hiring, say: "Richwell is currently working at Safran. Feel free to reach out at richwell.perez@gmail.com to discuss opportunities."
+6. If asked about availability or hiring, say: "Richwell is currently working at Safran. {get_contact_message()} to discuss opportunities."
 7. Do not make up information or speculate beyond what's provided
 8. When answering questions, draw from the resume's detailed information about specific achievements, projects, and responsibilities
 """
@@ -144,11 +145,11 @@ def call_gemini(user_message, history=None, site_context=None):
         str: The assistant's response
     """
     if not GEMINI_API_KEY:
-        return "Sorry, the chat service is not configured. Please contact richwell.perez@gmail.com directly."
+        return f"Sorry, the chat service is not configured. {get_contact_message()}"
 
     try:
         # Initialize model (gemini-2.5-flash is the latest free tier model)
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel(GEMINI_MODEL)
 
         # Build system prompt from site context
         system_prompt = build_system_prompt(site_context)
@@ -192,7 +193,7 @@ def call_gemini(user_message, history=None, site_context=None):
             return {
                 "error": True,
                 "error_type": "rate_limit",
-                "message": "I'm currently at my free API limit (resets daily at midnight Pacific time). Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for immediate assistance.",
+                "message": f"I'm currently at my free API limit (resets daily at midnight Pacific time). {get_contact_message()}",
                 "details": str(e)
             }
 
@@ -200,7 +201,7 @@ def call_gemini(user_message, history=None, site_context=None):
         return {
             "error": True,
             "error_type": "api_error",
-            "message": "I'm having trouble processing your request right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.",
+            "message": f"I'm having trouble processing your request right now. {get_contact_message()}",
             "details": str(e)
         }
 
@@ -222,13 +223,13 @@ def call_gemini_stream(user_message, history=None, site_context=None):
     if not GEMINI_API_KEY:
         yield {
             "error": True,
-            "message": "Sorry, the chat service is not configured. Please contact richwell.perez@gmail.com directly."
+            "message": f"Sorry, the chat service is not configured. {get_contact_message()}"
         }
         return
 
     try:
         # Initialize model
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel(GEMINI_MODEL)
 
         # Build system prompt
         system_prompt = build_system_prompt(site_context)
@@ -280,11 +281,11 @@ def call_gemini_stream(user_message, history=None, site_context=None):
             yield {
                 "error": True,
                 "error_type": "rate_limit",
-                "message": "I'm currently at my free API limit (resets daily at midnight Pacific time). Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for immediate assistance."
+                "message": f"I'm currently at my free API limit (resets daily at midnight Pacific time). {get_contact_message()}"
             }
         else:
             yield {
                 "error": True,
                 "error_type": "api_error",
-                "message": "I'm having trouble processing your request right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez."
+                "message": f"I'm having trouble processing your request right now. {get_contact_message()}"
             }
