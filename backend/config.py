@@ -18,8 +18,10 @@ HISTORY_LIMIT = 20  # maximum conversation history to send
 # Gemini Configuration
 GEMINI_MODEL = 'gemini-2.0-flash-exp'  # or 'gemini-2.5-flash'
 
-# Blog Pagination
+# Blog Configuration
 DEFAULT_PAGE_SIZE = 10
+WORDS_PER_MINUTE = 200  # Average reading speed
+DEFAULT_READING_TIME_ESTIMATE = 5  # Minutes (when content not available)
 
 def get_contact_message():
     """Get formatted contact message for error responses."""

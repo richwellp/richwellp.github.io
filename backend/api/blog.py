@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from functools import wraps
 import os
 import re
+from config import DEFAULT_PAGE_SIZE, WORDS_PER_MINUTE, DEFAULT_READING_TIME_ESTIMATE
 
 # Initialize Supabase client
 try:
@@ -34,7 +35,7 @@ def require_admin(f):
 def calculate_reading_time(content):
     """Calculate estimated reading time in minutes."""
     words = len(re.findall(r'\w+', content))
-    return max(1, round(words / 200))
+    return max(1, round(words / WORDS_PER_MINUTE))
 
 
 def extract_headings(content):
@@ -53,7 +54,7 @@ def extract_headings(content):
 def list_posts():
     """List published blog posts with pagination and filtering."""
     page = int(request.args.get('page', 1))
-    per_page = int(request.args.get('per_page', 10))
+    per_page = int(request.args.get('per_page', DEFAULT_PAGE_SIZE))
     tag = request.args.get('tag')
 
     # Build query
@@ -74,7 +75,7 @@ def list_posts():
     # Add reading_time estimate to each post
     posts = [{
         **post,
-        'reading_time': 5  # Estimated (actual calculation requires full content)
+        'reading_time': DEFAULT_READING_TIME_ESTIMATE  # Estimated (actual calculation requires full content)
     } for post in result.data]
 
     return jsonify(posts=posts, page=page, per_page=per_page)
