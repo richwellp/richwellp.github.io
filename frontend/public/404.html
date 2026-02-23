@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+      // GitHub Pages SPA redirect trick
+      // When GitHub Pages returns 404, this script captures the path and redirects to index.html
+      // The Vue Router will then handle the routing client-side
+
+      // Store the current path and query in sessionStorage
+      sessionStorage.setItem('redirect', location.pathname + location.search + location.hash);
+
+      // Redirect to index.html (which will load the Vue app)
+      location.replace(location.origin);
+    </script>
+  </head>
+  <body>
+    <!-- This page will only flash briefly before redirecting -->
+    <p>Redirecting...</p>
+  </body>
+</html>

@@ -120,10 +120,10 @@ IMPORTANT INSTRUCTIONS:
 1. Answer questions using ONLY the information above
 2. PRIORITIZE the RESUME CONTENT as the most authoritative and up-to-date source
 3. If asked about something not covered, politely suggest contacting Richwell:
-   "For more details about that, I'd recommend reaching out to Richwell directly at richwell.perez@gmail.com or connecting on LinkedIn at linkedin.com/in/richwell-perez"
+   "For more details about that, please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez"
 4. Keep responses concise (2-3 sentences unless more detail is requested)
 5. Be conversational and friendly
-6. If asked about availability or hiring, say: "Richwell is currently working at Safran, but you can reach out to discuss opportunities at richwell.perez@gmail.com"
+6. If asked about availability or hiring, say: "Richwell is currently working at Safran. Feel free to reach out at richwell.perez@gmail.com to discuss opportunities."
 7. Do not make up information or speculate beyond what's provided
 8. When answering questions, draw from the resume's detailed information about specific achievements, projects, and responsibilities
 """
@@ -192,7 +192,7 @@ def call_gemini(user_message, history=None, site_context=None):
             return {
                 "error": True,
                 "error_type": "rate_limit",
-                "message": "I'm currently experiencing high demand and have reached my request limit. I am using a free model (resets at midnight Pacific time). Please reach out directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.",
+                "message": "I'm currently at my free API limit (resets daily at midnight Pacific time). Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for immediate assistance.",
                 "details": str(e)
             }
 
@@ -200,6 +200,91 @@ def call_gemini(user_message, history=None, site_context=None):
         return {
             "error": True,
             "error_type": "api_error",
-            "message": "I'm having trouble processing your request. You can reach Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.",
+            "message": "I'm having trouble processing your request right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.",
             "details": str(e)
         }
+
+
+def call_gemini_stream(user_message, history=None, site_context=None):
+    """
+    Call Google Gemini API with streaming support.
+
+    Yields response chunks as they arrive.
+
+    Args:
+        user_message (str): The user's message
+        history (list): Optional conversation history
+        site_context (dict): Optional site context
+
+    Yields:
+        dict: Response chunks with 'text', 'sources', or 'error' keys
+    """
+    if not GEMINI_API_KEY:
+        yield {
+            "error": True,
+            "message": "Sorry, the chat service is not configured. Please contact richwell.perez@gmail.com directly."
+        }
+        return
+
+    try:
+        # Initialize model
+        model = genai.GenerativeModel('gemini-2.5-flash')
+
+        # Build system prompt
+        system_prompt = build_system_prompt(site_context)
+
+        # Build conversation history
+        full_history = [
+            {"role": "user", "parts": [system_prompt]},
+            {"role": "model", "parts": ["Understood. I'll answer questions about Richwell's professional background using only the information provided, keeping responses concise and friendly."]}
+        ]
+
+        if history:
+            for msg in history:
+                role = "model" if msg["role"] == "assistant" else "user"
+                full_history.append({
+                    "role": role,
+                    "parts": [msg["content"]]
+                })
+
+        # Start chat
+        chat = model.start_chat(history=full_history)
+
+        # Stream response
+        response = chat.send_message(user_message, stream=True)
+
+        # Determine sources based on context
+        sources = []
+        if site_context:
+            if site_context.get('professional'):
+                sources.append('resume')
+                sources.append('profile')
+            if site_context.get('blogs'):
+                sources.append('blog')
+
+        # Send sources first
+        yield {"sources": sources}
+
+        # Stream text chunks
+        for chunk in response:
+            if chunk.text:
+                yield {"text": chunk.text}
+
+    except Exception as e:
+        error_msg = str(e).lower()
+        print(f"Gemini streaming error: {str(e)}")
+        print(f"Error type: {type(e).__name__}")
+
+        # Check for rate limit errors
+        if 'quota' in error_msg or 'rate limit' in error_msg or '429' in error_msg or 'resource_exhausted' in error_msg:
+            yield {
+                "error": True,
+                "error_type": "rate_limit",
+                "message": "I'm currently at my free API limit (resets daily at midnight Pacific time). Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for immediate assistance."
+            }
+        else:
+            yield {
+                "error": True,
+                "error_type": "api_error",
+                "message": "I'm having trouble processing your request right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez."
+            }

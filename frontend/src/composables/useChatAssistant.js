@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { professionalInfo } from '../data/professionalInfo'
 import { useBlog } from './useBlog'
+import { useAnalytics } from './useAnalytics'
 
 // Shared state across all instances
 const messages = ref([])
@@ -12,6 +13,19 @@ const contextLoaded = ref(false)
 const API_BASE = import.meta.env.PROD
   ? 'https://richwellp-github-io.vercel.app'
   : 'http://localhost:5000'
+
+// UUID generator with fallback for older browsers
+const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+  // Fallback for older browsers
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
 
 // Load blog posts once on first chat open
 const loadContext = async () => {
@@ -35,13 +49,55 @@ const getSiteContext = () => ({
   }))
 })
 
+// Save messages to localStorage
+const saveMessages = () => {
+  try {
+    localStorage.setItem('chatMessages', JSON.stringify(messages.value))
+  } catch (e) {
+    console.error('Failed to save messages:', e)
+  }
+}
+
+// Load messages from localStorage
+const loadMessages = () => {
+  try {
+    const saved = localStorage.getItem('chatMessages')
+    if (saved) {
+      const loadedMessages = JSON.parse(saved)
+      // Clean up any streaming flags from interrupted sessions
+      messages.value = loadedMessages.map(msg => ({
+        ...msg,
+        isStreaming: false // Reset streaming state
+      }))
+    }
+  } catch (e) {
+    console.error('Failed to load messages:', e)
+  }
+}
+
 export function useChatAssistant() {
+  const { trackChatInteraction } = useAnalytics()
+
   const sendMessage = async (userInput) => {
     if (!userInput.trim()) return
 
+    // Track message sent
+    trackChatInteraction('message_sent', { messageLength: userInput.length })
+
+    // Validate message length (prevent quota waste)
+    if (userInput.length > 2000) {
+      messages.value.push({
+        id: generateUUID(),
+        type: 'assistant',
+        content: 'Your message is too long. Please keep it under 2000 characters.',
+        timestamp: new Date()
+      })
+      return
+    }
+
     // Add user message
     messages.value.push({
-      id: Date.now(),
+      id: generateUUID(),
       type: 'user',
       content: userInput,
       timestamp: new Date()
@@ -51,15 +107,49 @@ export function useChatAssistant() {
     isTyping.value = true
 
     try {
-      // Get last 10 messages for context (5 exchanges)
+      // Get last 10 messages for context (5 exchanges) - EXCLUDING current message
       const conversationHistory = messages.value
-        .slice(-10)
+        .slice(0, -1)  // Exclude the message we just added
+        .slice(-10)     // Get last 10 of previous messages
         .map(msg => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
           content: msg.content
         }))
 
-      const response = await fetch(`${API_BASE}/chat`, {
+      // Try streaming first, fallback to regular if not supported
+      const useStreaming = true // Can be toggled or made a user preference
+
+      if (useStreaming) {
+        await sendMessageStreaming(userInput, conversationHistory)
+      } else {
+        await sendMessageRegular(userInput, conversationHistory)
+      }
+
+    } catch (error) {
+      console.error('Chat error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+
+      // Add error message with contact fallback
+      messages.value.push({
+        id: generateUUID(),
+        type: 'assistant',
+        content: `I'm having trouble right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for assistance.`,
+        timestamp: new Date()
+      })
+    } finally {
+      isTyping.value = false
+    }
+  }
+
+  // Streaming implementation using fetch + SSE
+  const sendMessageStreaming = async (userInput, conversationHistory) => {
+    let assistantMessageId = null
+
+    try {
+      const response = await fetch(`${API_BASE}/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -71,94 +161,208 @@ export function useChatAssistant() {
         })
       })
 
-      // Parse response JSON first to get error details
-      let data
-      try {
-        data = await response.json()
-      } catch (parseError) {
-        console.error('Failed to parse response JSON:', {
-          status: response.status,
-          statusText: response.statusText,
-          parseError: parseError.message
-        })
-        throw new Error(`Server returned invalid response (${response.status})`)
-      }
-
-      // Check for rate limit or API errors
-      if (response.status === 429 || response.status === 500) {
-        console.error('Chat API error:', {
-          status: response.status,
-          error: data.error,
-          errorType: data.error_type,
-          details: data.error_details
-        })
-
-        // Use error message from backend, or provide default
-        const errorMessage = data.message || data.error ||
-          (data.error_type === 'rate_limit'
-            ? `I'm currently experiencing high demand and have reached my request limit. Please try again in a few moments, or reach Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.`
-            : `I'm having trouble connecting right now. You can reach Richwell directly at richwell.perez@gmail.com or via LinkedIn at linkedin.com/in/richwell-perez.`)
-
-        messages.value.push({
-          id: Date.now() + 1,
-          type: 'assistant',
-          content: errorMessage,
-          timestamp: new Date()
-        })
-        return
-      }
-
-      // Check for other HTTP errors
       if (!response.ok) {
-        console.error('Chat API error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: data.error,
-          errorType: data.error_type,
-          details: data.error_details
-        })
-
-        throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`)
+        // Try to get error details
+        try {
+          const data = await response.json()
+          throw new Error(data.error || data.message || 'Streaming failed')
+        } catch {
+          throw new Error('Streaming failed')
+        }
       }
 
-      // Add successful assistant response
+      // Create a placeholder message for streaming
+      assistantMessageId = generateUUID()
       messages.value.push({
-        id: Date.now() + 1,
+        id: assistantMessageId,
         type: 'assistant',
-        content: data.response || data.message || 'Sorry, I received an empty response.',
-        timestamp: new Date()
-      })
-    } catch (error) {
-      console.error('Chat error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
+        content: '',
+        sources: [],
+        timestamp: new Date(),
+        isStreaming: true
       })
 
-      // Add error message with email fallback
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+
+        if (done) break
+
+        // Decode chunk and add to buffer
+        buffer += decoder.decode(value, { stream: true })
+
+        // Process complete SSE messages
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || '' // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+
+              // Find the message we're streaming to
+              const messageIndex = messages.value.findIndex(m => m.id === assistantMessageId)
+              if (messageIndex === -1) continue
+
+              if (data.text) {
+                // Append text chunk
+                messages.value[messageIndex].content += data.text
+              } else if (data.sources) {
+                // Set sources
+                messages.value[messageIndex].sources = data.sources
+              } else if (data.error) {
+                // Handle streaming error - show error message
+                messages.value[messageIndex].content = data.message || 'An error occurred during streaming.'
+                messages.value[messageIndex].isStreaming = false
+                saveMessages()
+                return
+              } else if (data.done) {
+                // Streaming complete
+                messages.value[messageIndex].isStreaming = false
+              }
+            } catch (parseError) {
+              console.error('Failed to parse SSE data:', parseError)
+            }
+          }
+        }
+      }
+
+      // Mark streaming complete if not already marked
+      const messageIndex = messages.value.findIndex(m => m.id === assistantMessageId)
+      if (messageIndex !== -1) {
+        if (messages.value[messageIndex].isStreaming) {
+          messages.value[messageIndex].isStreaming = false
+        }
+
+        // If no content was received, add fallback message
+        if (!messages.value[messageIndex].content || messages.value[messageIndex].content.trim() === '') {
+          messages.value[messageIndex].content = 'Sorry, I received an empty response. Please try again or contact Richwell at richwell.perez@gmail.com.'
+        }
+      }
+
+      // Save to localStorage
+      saveMessages()
+
+    } catch (error) {
+      console.error('Streaming error:', error)
+
+      // Remove placeholder message if it was created
+      if (assistantMessageId) {
+        const index = messages.value.findIndex(m => m.id === assistantMessageId)
+        if (index !== -1) {
+          messages.value.splice(index, 1)
+        }
+      }
+
+      // Fallback to regular mode
+      await sendMessageRegular(userInput, conversationHistory)
+    }
+  }
+
+  // Regular (non-streaming) implementation
+  const sendMessageRegular = async (userInput, conversationHistory) => {
+    const response = await fetch(`${API_BASE}/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: userInput,
+        history: conversationHistory,
+        site_context: getSiteContext()
+      })
+    })
+
+    // Parse response JSON first to get error details
+    let data
+    try {
+      data = await response.json()
+    } catch (parseError) {
+      console.error('Failed to parse response JSON:', {
+        status: response.status,
+        statusText: response.statusText,
+        parseError: parseError.message
+      })
+      throw new Error(`Server returned invalid response (${response.status})`)
+    }
+
+    // Check for rate limit or API errors
+    if (response.status === 429 || response.status === 500) {
+      console.error('Chat API error:', {
+        status: response.status,
+        error: data.error,
+        errorType: data.error_type,
+        details: data.error_details
+      })
+
+      // Use error message from backend, or provide default
+      const errorMessage = data.message || data.error ||
+        (data.error_type === 'rate_limit'
+          ? `I'm at my free API limit right now (resets daily at midnight Pacific time). Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez for immediate assistance.`
+          : `I'm having trouble right now. Please reach out to Richwell directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez.`)
+
       messages.value.push({
-        id: Date.now() + 1,
+        id: generateUUID(),
         type: 'assistant',
-        content: `I'm having trouble connecting right now. You can reach Richwell directly at richwell.perez@gmail.com or via LinkedIn at linkedin.com/in/richwell-perez.`,
+        content: errorMessage,
         timestamp: new Date()
       })
-    } finally {
-      isTyping.value = false
+      return
     }
+
+    // Check for other HTTP errors
+    if (!response.ok) {
+      console.error('Chat API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: data.error,
+        errorType: data.error_type,
+        details: data.error_details
+      })
+
+      throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`)
+    }
+
+    // Add successful assistant response
+    messages.value.push({
+      id: generateUUID(),
+      type: 'assistant',
+      content: data.response || data.message || 'Sorry, I received an empty response.',
+      timestamp: new Date()
+    })
+
+    // Save to localStorage
+    saveMessages()
   }
 
   const toggleChat = async () => {
     isOpen.value = !isOpen.value
 
-    // Load context and add welcome message on first open
-    if (isOpen.value && messages.value.length === 0) {
+    // Track chat open/close
+    if (isOpen.value) {
+      trackChatInteraction('chat_opened')
       await loadContext()
-      messages.value.push({
-        id: Date.now(),
-        type: 'assistant',
-        content: `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`,
-        timestamp: new Date()
-      })
+
+      // Try loading saved messages first
+      if (messages.value.length === 0) {
+        loadMessages()
+      }
+
+      // If still no messages, add welcome message
+      if (messages.value.length === 0) {
+        messages.value.push({
+          id: generateUUID(),
+          type: 'assistant',
+          content: `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`,
+          timestamp: new Date()
+        })
+        saveMessages()
+      }
+    } else {
+      trackChatInteraction('chat_closed')
     }
   }
 
@@ -167,6 +371,8 @@ export function useChatAssistant() {
     if (messages.value.length > 0) {
       messages.value = [messages.value[0]]
     }
+    // Clear localStorage
+    saveMessages()
   }
 
   const sendQuickMessage = async (topic) => {

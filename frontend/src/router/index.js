@@ -1,9 +1,10 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import AboutMe from '../views/AboutMe.vue'
 import Experience from '../views/Experience.vue'
 import Projects from '../views/Projects.vue'
 import CV from '../views/CV.vue'
 import Misc from '../views/Misc.vue'
+import Contact from '../views/Contact.vue'
 
 // Album views
 import TravelAlbum from '../views/albums/TravelAlbum.vue'
@@ -15,7 +16,7 @@ import BlogList from '../views/blog/BlogList.vue'
 import BlogPost from '../views/blog/BlogPost.vue'
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -41,6 +42,11 @@ const router = createRouter({
       path: '/misc',
       name: 'misc',
       component: Misc
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: Contact
     },
     // Album routes
     {

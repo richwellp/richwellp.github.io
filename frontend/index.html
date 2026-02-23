@@ -4,12 +4,49 @@
     <meta charset="UTF-8">
     <link rel="icon" href="/uiuc_cs_logo.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- Primary Meta Tags -->
     <meta name="description" content="BS/MCS @ Illinois. AI Engineer at Safran specializing in RAG systems, predictive maintenance, and full-stack development.">
     <meta name="author" content="Richwell Perez">
-    <title>Richwell Perez</title>
+    <meta name="keywords" content="Richwell Perez, AI Engineer, Machine Learning, Full Stack Developer, UIUC, Illinois, RAG Systems, Vue.js, Python, Software Engineer">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://richwellp.github.io/">
+    <meta property="og:title" content="Richwell Perez - AI Engineer & Full Stack Developer">
+    <meta property="og:description" content="BS/MCS @ Illinois. AI Engineer at Safran specializing in RAG systems, predictive maintenance, and full-stack development.">
+    <meta property="og:image" content="https://richwellp.github.io/uiuc_cs_logo.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://richwellp.github.io/">
+    <meta property="twitter:title" content="Richwell Perez - AI Engineer & Full Stack Developer">
+    <meta property="twitter:description" content="BS/MCS @ Illinois. AI Engineer at Safran specializing in RAG systems, predictive maintenance, and full-stack development.">
+    <meta property="twitter:image" content="https://richwellp.github.io/uiuc_cs_logo.jpg">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://richwellp.github.io/">
+
+    <!-- Performance: Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+
+    <!-- Cloudflare Web Analytics - Free, Privacy-friendly, GDPR compliant -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "d479852be2894726be446540131874f3"}'></script>
+
+    <title>Richwell Perez - AI Engineer & Full Stack Developer</title>
   </head>
   <body>
     <div id="app"></div>
+    <!-- Handle GitHub Pages SPA redirect from 404.html -->
+    <script>
+      (function() {
+        var redirect = sessionStorage.getItem('redirect');
+        if (redirect) {
+          sessionStorage.removeItem('redirect');
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

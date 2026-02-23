@@ -59,7 +59,44 @@
           role="article"
           :aria-label="`${message.type === 'user' ? 'You' : 'Assistant'} message`"
         >
-          <div class="message-content">{{ message.content }}</div>
+          <!-- Message content with markdown rendering for assistant -->
+          <div class="message-wrapper">
+            <div
+              v-if="message.type === 'assistant'"
+              class="message-content markdown-body"
+              v-html="renderMarkdown(message.content)"
+            ></div>
+            <div v-else class="message-content">{{ message.content }}</div>
+
+            <!-- Copy button for assistant messages -->
+            <button
+              v-if="message.type === 'assistant' && message.content"
+              @click="copyMessage(message.id, message.content)"
+              class="copy-btn"
+              :class="{ 'copied': copiedMessageId === message.id }"
+              :aria-label="copiedMessageId === message.id ? 'Copied!' : 'Copy message'"
+              :title="copiedMessageId === message.id ? 'Copied!' : 'Copy to clipboard'"
+            >
+              <!-- Copy icon -->
+              <svg v-if="copiedMessageId !== message.id" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <!-- Checkmark icon -->
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Context indicators (sources) -->
+          <div v-if="message.sources && message.sources.length > 0" class="message-sources">
+            <span class="source-label">Sources:</span>
+            <span v-for="source in message.sources" :key="source" class="source-badge">
+              {{ source === 'resume' ? '📄 Resume' : source === 'profile' ? '👤 Profile' : '📝 Blog' }}
+            </span>
+          </div>
+
           <span class="message-time">{{ formatTime(message.timestamp) }}</span>
         </div>
 
@@ -119,8 +156,24 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import { useChatAssistant } from '../composables/useChatAssistant'
+import MarkdownIt from 'markdown-it'
+
+// Initialize markdown-it with safe defaults
+const md = new MarkdownIt({
+  html: false,        // Disable HTML tags for security (prevents XSS)
+  linkify: true,      // Auto-convert URLs to links
+  breaks: true,       // Convert \n to <br>
+  typographer: true   // Smart quotes, etc.
+})
+
+// Open links in new tab for security
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet('target', '_blank')
+  tokens[idx].attrSet('rel', 'noopener noreferrer')
+  return self.renderToken(tokens, idx, options)
+}
 
 const {
   messages,
@@ -136,6 +189,49 @@ const {
 const userInput = ref('')
 const messagesContainer = ref(null)
 const inputField = ref(null)
+const copiedMessageId = ref(null)
+
+// Render markdown content
+const renderMarkdown = (content) => {
+  return md.render(content || '')
+}
+
+// Copy message content to clipboard (with fallback for older browsers)
+const copyMessage = async (messageId, content) => {
+  try {
+    // Modern clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(content)
+      copiedMessageId.value = messageId
+      setTimeout(() => {
+        copiedMessageId.value = null
+      }, 2000)
+    } else {
+      // Fallback for older browsers/iOS
+      const textArea = document.createElement('textarea')
+      textArea.value = content
+      textArea.style.position = 'fixed'
+      textArea.style.left = '-999999px'
+      textArea.style.top = '-999999px'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      try {
+        document.execCommand('copy')
+        textArea.remove()
+        copiedMessageId.value = messageId
+        setTimeout(() => {
+          copiedMessageId.value = null
+        }, 2000)
+      } catch (err) {
+        console.error('Fallback copy failed:', err)
+        textArea.remove()
+      }
+    }
+  } catch (err) {
+    console.error('Failed to copy:', err)
+  }
+}
 
 const handleSend = async () => {
   if (!userInput.value.trim() || isTyping.value) return
@@ -394,6 +490,7 @@ watch(isOpen, async (newValue) => {
   flex-direction: column;
   max-width: 85%;
   animation: messageSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 @keyframes messageSlide {
@@ -413,6 +510,13 @@ watch(isOpen, async (newValue) => {
 
 .chat-message.assistant {
   align-self: flex-start;
+}
+
+.message-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 100%;
 }
 
 .message-content {
@@ -438,10 +542,149 @@ watch(isOpen, async (newValue) => {
   border-bottom-left-radius: 4px;
   border: 1px solid var(--border-color);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding-right: 2.5rem; /* Make room for copy button */
 }
 
-.message-content:hover {
+.message-wrapper:hover .message-content {
   transform: translateY(-1px);
+}
+
+/* Copy Button */
+.copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.375rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-wrapper:hover .copy-btn {
+  opacity: 1;
+}
+
+.copy-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.copy-btn.copied {
+  color: var(--accent-primary);
+  opacity: 1;
+}
+
+.copy-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+/* Markdown Rendering */
+.markdown-body {
+  font-size: inherit;
+}
+
+.markdown-body p {
+  margin: 0.5em 0;
+}
+
+.markdown-body p:first-child {
+  margin-top: 0;
+}
+
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.markdown-body li {
+  margin: 0.25em 0;
+}
+
+.markdown-body code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.markdown-body pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.75rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+  max-width: 100%;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.markdown-body pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.markdown-body a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+}
+
+.markdown-body a:hover {
+  color: var(--accent-hover);
+}
+
+.markdown-body strong {
+  font-weight: 600;
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+.markdown-body blockquote {
+  border-left: 3px solid var(--border-color);
+  padding-left: 1rem;
+  margin: 0.5em 0;
+  color: var(--text-secondary);
+}
+
+/* Context Source Badges */
+.message-sources {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.source-label {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.source-badge {
+  font-size: 0.7rem;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-weight: 500;
 }
 
 .message-time {
@@ -875,6 +1118,63 @@ watch(isOpen, async (newValue) => {
   .send-btn {
     min-width: 46px;
     min-height: 46px;
+  }
+}
+
+/* Mobile-specific adjustments for new features */
+@media (max-width: 768px) {
+  /* Make copy button more visible on mobile (no hover state) */
+  .copy-btn {
+    opacity: 0.6;
+  }
+
+  .copy-btn:active {
+    opacity: 1;
+    background: var(--bg-hover);
+  }
+
+  /* Adjust message wrapper for mobile */
+  .chat-message.assistant .message-content {
+    padding-right: 2.5rem;
+  }
+
+  /* Make source badges wrap better on small screens */
+  .message-sources {
+    font-size: 0.65rem;
+  }
+
+  .source-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  /* Adjust markdown code blocks for mobile */
+  .markdown-body code {
+    font-size: 0.8em;
+  }
+
+  .markdown-body pre {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Smaller padding for assistant messages on small phones */
+  .chat-message.assistant .message-content {
+    padding-right: 2.25rem;
+  }
+
+  /* Even smaller copy button on tiny screens */
+  .copy-btn {
+    padding: 0.25rem;
+    right: 0.375rem;
+    top: 0.375rem;
+  }
+
+  .copy-btn svg {
+    width: 12px;
+    height: 12px;
   }
 }
 

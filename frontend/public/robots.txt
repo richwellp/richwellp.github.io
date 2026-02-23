@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://richwellp.github.io/sitemap.xml
+
+# Disallow private or duplicate content
+Disallow: /api/
+Disallow: /*.json$

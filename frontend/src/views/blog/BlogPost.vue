@@ -47,7 +47,7 @@ const loading = ref(true)
 const error = ref(null)
 
 const md = new MarkdownIt({
-  html: true,
+  html: false,  // Prevent HTML injection - blog posts are pure markdown
   linkify: true,
   typographer: true
 })

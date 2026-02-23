@@ -32,18 +32,23 @@ const closeMobileMenu = () => {
 
         <!-- Navigation Links -->
         <div class="nav-links" :class="{ 'mobile-open': mobileMenuOpen }">
-          <RouterLink to="/" @click="closeMobileMenu" active-class="active">
-            About me
-          </RouterLink>
           <RouterLink to="/experience" @click="closeMobileMenu" active-class="active">
             Experience
           </RouterLink>
           <RouterLink to="/projects" @click="closeMobileMenu" active-class="active">
             Projects
           </RouterLink>
-          <RouterLink to="/cv" @click="closeMobileMenu" active-class="active"> CV </RouterLink>
+          <RouterLink to="/misc/blog" @click="closeMobileMenu" active-class="active">
+            Blog
+          </RouterLink>
+          <RouterLink to="/cv" @click="closeMobileMenu" active-class="active">
+            CV
+          </RouterLink>
           <RouterLink to="/misc" @click="closeMobileMenu" active-class="active">
             Misc
+          </RouterLink>
+          <RouterLink to="/contact" @click="closeMobileMenu" active-class="active">
+            Contact
           </RouterLink>
 
           <!-- Theme Toggle -->

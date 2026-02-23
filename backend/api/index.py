@@ -1,17 +1,58 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response, stream_with_context
 from flask_cors import CORS
+from collections import defaultdict
+from datetime import datetime, timedelta
+import os
+import json
 
 app = Flask(__name__)
-CORS(app)
+
+# Secure CORS configuration
+allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:*,https://richwellp.github.io,https://*.vercel.app').split(',')
+CORS(app, origins=allowed_origins, methods=['GET', 'POST', 'OPTIONS'])
+
+# Simple in-memory rate limiter (per IP)
+rate_limit_storage = defaultdict(list)
+RATE_LIMIT_REQUESTS = 10  # requests
+RATE_LIMIT_WINDOW = 60    # seconds
 
 @app.route("/", methods=["GET"])
 def root():
     return jsonify(message="Hello from Flask on Vercel!")
 
+def check_rate_limit(ip_address):
+    """Check if IP has exceeded rate limit."""
+    now = datetime.now()
+    cutoff = now - timedelta(seconds=RATE_LIMIT_WINDOW)
+
+    # Clean old entries
+    rate_limit_storage[ip_address] = [
+        timestamp for timestamp in rate_limit_storage[ip_address]
+        if timestamp > cutoff
+    ]
+
+    # Check if exceeded
+    if len(rate_limit_storage[ip_address]) >= RATE_LIMIT_REQUESTS:
+        return False
+
+    # Add current request
+    rate_limit_storage[ip_address].append(now)
+    return True
+
+
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
     if request.method == "OPTIONS":
         return "", 200
+
+    # Rate limiting
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if not check_rate_limit(client_ip):
+        return jsonify(
+            error="Too many requests. Please wait a moment before trying again.",
+            error_type="rate_limit",
+            message="Too many requests. Please wait a moment before trying again."
+        ), 429
 
     try:
         from api.gemini import call_gemini
@@ -30,8 +71,21 @@ def chat():
                 error_type="validation_error"
             ), 400
 
+        # Validate message length
+        if len(user_message) > 2000:
+            return jsonify(
+                error="Message is too long. Please keep it under 2000 characters.",
+                error_type="validation_error"
+            ), 400
+
         history = data.get('history', [])
         site_context = data.get('site_context', {})
+
+        # Validate and limit history size
+        if not isinstance(history, list):
+            history = []
+        # Limit to last 20 messages to prevent context overflow
+        history = history[-20:]
 
         response_text = call_gemini(user_message, history, site_context)
 
@@ -56,6 +110,86 @@ def chat():
         print(f"Error type: {type(e).__name__}")
         return jsonify(
             error="An error occurred",
+            error_type="server_error",
+            error_details=str(e),
+            response="I'm having trouble right now. Please reach out directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez."
+        ), 500
+
+
+@app.route("/chat/stream", methods=["POST", "OPTIONS"])
+def chat_stream():
+    """Streaming endpoint using Server-Sent Events (SSE)"""
+    if request.method == "OPTIONS":
+        return "", 200
+
+    # Rate limiting
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if not check_rate_limit(client_ip):
+        return jsonify(
+            error="Too many requests. Please wait a moment before trying again.",
+            error_type="rate_limit",
+            message="Too many requests. Please wait a moment, or contact Richwell directly at richwell.perez@gmail.com."
+        ), 429
+
+    try:
+        from api.gemini import call_gemini_stream
+
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify(
+                error="Message is required",
+                error_type="validation_error"
+            ), 400
+
+        user_message = data.get('message', '').strip()
+        if not user_message:
+            return jsonify(
+                error="Message cannot be empty",
+                error_type="validation_error"
+            ), 400
+
+        # Validate message length
+        if len(user_message) > 2000:
+            return jsonify(
+                error="Message is too long. Please keep it under 2000 characters.",
+                error_type="validation_error"
+            ), 400
+
+        history = data.get('history', [])
+        site_context = data.get('site_context', {})
+
+        # Validate and limit history size
+        if not isinstance(history, list):
+            history = []
+        history = history[-20:]
+
+        def generate():
+            """Generator function for SSE"""
+            try:
+                for chunk in call_gemini_stream(user_message, history, site_context):
+                    # Format as SSE
+                    yield f"data: {json.dumps(chunk)}\n\n"
+
+                # Send done signal
+                yield f"data: {json.dumps({'done': True})}\n\n"
+            except Exception as e:
+                print(f"Streaming error: {str(e)}")
+                yield f"data: {json.dumps({'error': True, 'message': 'Streaming interrupted. Please contact Richwell at richwell.perez@gmail.com.'})}\n\n"
+
+        return Response(
+            stream_with_context(generate()),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'X-Accel-Buffering': 'no',
+                'Connection': 'keep-alive'
+            }
+        )
+
+    except Exception as e:
+        print(f"Stream setup error: {str(e)}")
+        return jsonify(
+            error="Failed to start streaming",
             error_type="server_error",
             error_details=str(e),
             response="I'm having trouble right now. Please reach out directly at richwell.perez@gmail.com or linkedin.com/in/richwell-perez."
