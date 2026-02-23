@@ -14,7 +14,7 @@ app.register_blueprint(blog_bp, url_prefix='/blog')
 
 # Secure CORS configuration
 allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:*,https://richwellp.github.io,https://*.vercel.app').split(',')
-CORS(app, origins=allowed_origins, methods=['GET', 'POST', 'OPTIONS'])
+CORS(app, origins=allowed_origins, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 
 # Simple in-memory rate limiter (per IP)
 rate_limit_storage = defaultdict(list)
