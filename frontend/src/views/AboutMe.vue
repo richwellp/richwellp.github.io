@@ -88,7 +88,7 @@
               <span class="timeline-date">February 2025 - June 2025</span>
             </div>
             <p class="timeline-description">
-              Managed and optimized high-throughput DB2 databases on z/OS mainframe systems and supported statewide digital initiatives, including the creation of Apple mDL database tables.
+              Managed and optimized high-throughput DB2 databases on z/OS mainframe systems and supported statewide digital initiatives, including the database systems of Apple mobile driver's license.
             </p>
           </div>
 
