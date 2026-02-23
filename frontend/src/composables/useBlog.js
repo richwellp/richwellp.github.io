@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://richwellp-github-c3axc929i-richwell-perezs-projects.vercel.app'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://richwellp-github-io.vercel.app'
 
 const posts = ref([])
 const loading = ref(false)
