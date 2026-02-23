@@ -321,10 +321,29 @@ const goBack = () => {
   router.push('/admin')
 }
 
+// Auto-fill dates for new posts
+const initializeNewPost = () => {
+  // Set created_at to now
+  const now = new Date()
+  formData.created_at = now.toISOString().slice(0, 16)
+}
+
+// Watch published checkbox to auto-fill published_at
+watch(() => formData.published, (newValue, oldValue) => {
+  // When toggling from unpublished to published, auto-fill published_at if empty
+  if (newValue && !oldValue && !formData.published_at) {
+    const now = new Date()
+    formData.published_at = now.toISOString().slice(0, 16)
+  }
+})
+
 // Load post on mount if editing
 onMounted(() => {
   if (isEditMode.value) {
     loadPost()
+  } else {
+    // New post - auto-fill created_at
+    initializeNewPost()
   }
 })
 </script>
