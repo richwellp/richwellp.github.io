@@ -7,6 +7,10 @@ import json
 
 app = Flask(__name__)
 
+# Register blueprints
+from api.blog import blog_bp
+app.register_blueprint(blog_bp, url_prefix='/blog')
+
 # Secure CORS configuration
 allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:*,https://richwellp.github.io,https://*.vercel.app').split(',')
 CORS(app, origins=allowed_origins, methods=['GET', 'POST', 'OPTIONS'])
