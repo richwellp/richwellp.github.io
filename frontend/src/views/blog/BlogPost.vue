@@ -14,20 +14,29 @@
       </div>
 
       <!-- Post Content -->
-      <article v-if="post && !loading">
-        <div class="post-header">
-          <router-link to="/misc/blog" class="back-link">← Back to Blog</router-link>
-          <div class="post-meta">
-            <span class="post-date">{{ formatDate(post.date) }}</span>
-            <span v-if="post.author" class="post-author">by {{ post.author }}</span>
+      <article v-if="post && !loading" class="article-wrapper">
+        <div class="article-main">
+          <div class="post-header">
+            <router-link to="/misc/blog" class="back-link">← Back to Blog</router-link>
+            <div class="post-meta">
+              <span class="post-date">{{ formatDate(post.date) }}</span>
+              <span v-if="post.author" class="post-author">by {{ post.author }}</span>
+              <span v-if="post.readingTime" class="reading-time">{{ post.readingTime }} min read</span>
+            </div>
+            <h1>{{ post.title }}</h1>
+            <div v-if="post.tags && post.tags.length > 0" class="post-tags">
+              <span v-for="tag in post.tags" :key="tag" class="tag">{{ tag }}</span>
+            </div>
           </div>
-          <h1>{{ post.title }}</h1>
-          <div v-if="post.tags && post.tags.length > 0" class="post-tags">
-            <span v-for="tag in post.tags" :key="tag" class="tag">{{ tag }}</span>
-          </div>
-        </div>
 
-        <div class="post-content" v-html="renderedContent"></div>
+          <TableOfContents
+            v-if="post.headings && post.headings.length > 0"
+            :headings="post.headings"
+            :post-content="post.content"
+          />
+
+          <div class="post-content" v-html="renderedContent"></div>
+        </div>
       </article>
     </div>
   </div>
@@ -37,6 +46,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useBlog } from '../../composables/useBlog'
+import { injectStructuredData, generateBlogPostSchema } from '../../composables/useStructuredData'
+import TableOfContents from '../../components/TableOfContents.vue'
 import MarkdownIt from 'markdown-it'
 
 const route = useRoute()
@@ -61,6 +72,13 @@ onMounted(async () => {
   try {
     const slug = route.params.slug
     post.value = await getPostBySlug(slug)
+
+    // Inject BlogPosting schema when post is loaded
+    if (post.value) {
+      const blogPostSchema = generateBlogPostSchema(post.value)
+      injectStructuredData(blogPostSchema, 'blog-post-schema')
+    }
+
     loading.value = false
   } catch (err) {
     error.value = err.message
@@ -82,8 +100,20 @@ const formatDate = (date) => {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+.article-wrapper {
+  display: flex;
+  gap: 3rem;
+  position: relative;
+}
+
+.article-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 900px;
 }
 
 /* Loading & Error */
@@ -147,11 +177,12 @@ const formatDate = (date) => {
 
 .post-meta {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
   margin-bottom: 1rem;
   color: var(--text-secondary);
   font-size: 0.95rem;
+  flex-wrap: wrap;
 }
 
 .post-date {
@@ -161,6 +192,18 @@ const formatDate = (date) => {
 
 .post-author {
   color: var(--text-secondary);
+}
+
+.reading-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-tertiary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent-primary);
 }
 
 .post-header h1 {
@@ -284,9 +327,24 @@ const formatDate = (date) => {
 }
 
 /* Responsive */
+@media (max-width: 1400px) {
+  .article-wrapper {
+    gap: 2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .blog-post {
     padding: 2rem 1rem;
+  }
+
+  .article-wrapper {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .article-main {
+    max-width: 100%;
   }
 
   .post-header h1 {
@@ -307,6 +365,10 @@ const formatDate = (date) => {
 
   .post-content :deep(pre) {
     padding: 1rem;
+  }
+
+  .post-meta {
+    gap: 1rem;
   }
 }
 </style>

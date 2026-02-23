@@ -3,7 +3,13 @@
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-content">
-        <img src="/assets/photos/professional/professional_1.jpg" alt="Richwell Perez" class="hero-image" />
+        <OptimizedImage
+          src="/assets/photos/professional/professional_1.jpg"
+          alt="Richwell Perez"
+          loading="eager"
+          size="md"
+          img-class="hero-image"
+        />
         <h1>Richwell Cyrille Santos Perez</h1>
         <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | Currently an AI Engineer at <a href="https://www.safran-group.com/companies/safran-passenger-innovations" target="_blank" rel="noopener noreferrer">Safran</a></p>
 
@@ -49,7 +55,12 @@
             </p>
           </div>
           <div class="story-images">
-            <img src="/assets/photos/professional/professional_0.jpg" alt="Graduation" class="story-photo" />
+            <OptimizedImage
+              src="/assets/photos/professional/professional_0.jpg"
+              alt="Graduation"
+              size="md"
+              img-class="story-photo"
+            />
           </div>
         </div>
       </div>
@@ -105,6 +116,8 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import OptimizedImage from '../components/OptimizedImage.vue'
+import { injectMultipleStructuredData, generatePersonSchema, generateOrganizationSchema } from '../composables/useStructuredData'
 
 const timelineItems = [
   {
@@ -125,6 +138,12 @@ const currentIndex = ref(0)
 let intervalId = null
 
 onMounted(() => {
+  // Inject structured data for homepage
+  injectMultipleStructuredData([
+    { schema: generatePersonSchema(), id: 'person-schema' },
+    { schema: generateOrganizationSchema(), id: 'organization-schema' }
+  ])
+
   intervalId = setInterval(() => {
     currentIndex.value = (currentIndex.value + 1) % timelineItems.length
   }, 4000)

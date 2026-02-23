@@ -187,6 +187,40 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+import { injectStructuredData, generateProjectsListSchema } from '../composables/useStructuredData'
+
+const projects = [
+  {
+    title: 'UIUC Letter Grades',
+    description: 'Full-stack analytics platform for visualizing GPA data and predicting course outcomes'
+  },
+  {
+    title: 'Video Anomaly Detection Model',
+    description: 'AI pipeline for real-time crime detection in surveillance videos'
+  },
+  {
+    title: 'Deep Learning Aerosol Model',
+    description: 'Deep learning models to predict climate-relevant aerosol properties'
+  },
+  {
+    title: 'COVID Logging System',
+    description: 'COVID-19 tracking and logging system with database management'
+  },
+  {
+    title: 'AI-Powered Resume Generator',
+    description: 'LLM-based tool for generating tailored resumes from prompts'
+  },
+  {
+    title: 'Personal Portfolio Site',
+    description: 'Modern portfolio website built with Vue 3'
+  }
+]
+
+onMounted(() => {
+  const projectsSchema = generateProjectsListSchema(projects)
+  injectStructuredData(projectsSchema, 'projects-list-schema')
+})
 </script>
 
 <style scoped>

@@ -3,10 +3,11 @@ import { RouterLink, RouterView } from 'vue-router'
 import { ref } from 'vue'
 import { useTheme } from './composables/useTheme'
 import ChatAssistant from './components/ChatAssistant.vue'
+import CommandPalette from './components/CommandPalette.vue'
 
 const mobileMenuOpen = ref(false)
 const miscDropdownOpen = ref(false)
-const { theme, toggleTheme } = useTheme()
+const { theme, systemPreference, toggleTheme } = useTheme()
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
@@ -91,11 +92,12 @@ const closeMiscDropdown = () => {
           </RouterLink>
 
           <!-- Theme Toggle -->
-          <button @click="toggleTheme" class="theme-toggle" aria-label="Toggle theme">
-            <div class="toggle-track">
+          <button @click="toggleTheme" class="theme-toggle" :aria-label="`Theme: ${theme === 'auto' ? 'Auto' : theme.charAt(0).toUpperCase() + theme.slice(1)}`">
+            <div class="toggle-track" :class="{ 'auto-mode': theme === 'auto' }">
               <span class="toggle-icon sun">☀️</span>
+              <span class="toggle-icon auto" title="Auto (follows system)">🔄</span>
               <span class="toggle-icon moon">🌙</span>
-              <div class="toggle-slider" :class="{ 'dark-mode': theme === 'dark' }"></div>
+              <div class="toggle-slider" :class="{ 'light-mode': theme === 'light', 'auto-mode': theme === 'auto', 'dark-mode': theme === 'dark' }"></div>
             </div>
           </button>
         </div>
@@ -141,6 +143,9 @@ const closeMiscDropdown = () => {
 
     <!-- Chat Assistant -->
     <ChatAssistant />
+
+    <!-- Command Palette -->
+    <CommandPalette />
   </div>
 </template>
 
@@ -449,16 +454,20 @@ main {
 
 .toggle-track {
   position: relative;
-  width: 70px;
+  width: 100px;
   height: 32px;
   background: var(--bg-hover);
   border: 2px solid var(--border-color);
   border-radius: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-evenly;
   padding: 0 6px;
   transition: all 0.3s ease;
+}
+
+.toggle-track.auto-mode {
+  border-color: var(--accent-primary);
 }
 
 .theme-toggle:hover .toggle-track {
@@ -466,13 +475,21 @@ main {
 }
 
 .toggle-icon {
-  font-size: 1rem;
+  font-size: 0.9rem;
   z-index: 1;
   transition: all 0.3s ease;
   line-height: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toggle-icon.sun {
+  opacity: 0.4;
+}
+
+.toggle-icon.auto {
   opacity: 0.4;
 }
 
@@ -480,7 +497,7 @@ main {
   opacity: 0.4;
 }
 
-/* Highlight active icon */
+/* Highlight active icon based on actual theme */
 :root[data-theme='light'] .toggle-icon.sun {
   opacity: 1;
   transform: scale(1.1);
@@ -489,6 +506,22 @@ main {
 :root[data-theme='dark'] .toggle-icon.moon {
   opacity: 1;
   transform: scale(1.1);
+}
+
+/* Auto mode shows animated icon */
+.theme-toggle[aria-label*='Auto'] .toggle-icon.auto {
+  opacity: 1;
+  transform: scale(1.1);
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: scale(1.1) rotate(0deg);
+  }
+  to {
+    transform: scale(1.1) rotate(360deg);
+  }
 }
 
 .toggle-slider {
@@ -502,8 +535,16 @@ main {
   box-shadow: 0 2px 4px var(--shadow);
 }
 
+.toggle-slider.light-mode {
+  transform: translateX(0);
+}
+
+.toggle-slider.auto-mode {
+  transform: translateX(34px);
+}
+
 .toggle-slider.dark-mode {
-  transform: translateX(38px);
+  transform: translateX(68px);
 }
 
 /* Footer */

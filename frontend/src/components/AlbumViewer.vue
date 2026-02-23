@@ -32,10 +32,13 @@
         <!-- Photo Grid -->
         <div v-if="currentPhotos.length > 0" class="photos-grid">
           <div v-for="item in currentPhotos" :key="item.src" class="photo-item">
-            <img
+            <OptimizedImage
               v-if="!item.type || item.type === 'image'"
               :src="item.src"
               :alt="item.caption"
+              size="md"
+              loading="lazy"
+              img-class="photo-image"
               @click="openLightbox(item)"
             />
             <video
@@ -61,10 +64,13 @@
     <div v-if="lightboxPhoto" class="lightbox" @click="closeLightbox">
       <div class="lightbox-content" @click.stop>
         <button class="lightbox-close" @click="closeLightbox">×</button>
-        <img
+        <OptimizedImage
           v-if="!lightboxPhoto.type || lightboxPhoto.type === 'image'"
           :src="lightboxPhoto.src"
           :alt="lightboxPhoto.caption"
+          size="full"
+          loading="eager"
+          img-class="lightbox-image"
         />
         <video
           v-else-if="lightboxPhoto.type === 'video'"
@@ -83,6 +89,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import OptimizedImage from './OptimizedImage.vue'
 
 const props = defineProps({
   title: {
@@ -269,11 +276,13 @@ h1 {
 }
 
 .photo-item img,
-.photo-item video {
+.photo-item video,
+.photo-image {
   width: 100%;
   height: 300px;
   object-fit: cover;
   display: block;
+  cursor: pointer;
 }
 
 .photo-item video {
@@ -337,7 +346,8 @@ h1 {
 }
 
 .lightbox-content img,
-.lightbox-content video {
+.lightbox-content video,
+.lightbox-image {
   max-width: 100%;
   max-height: calc(90vh - 100px);
   object-fit: contain;

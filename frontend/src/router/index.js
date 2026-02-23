@@ -15,6 +15,9 @@ import SportsAlbum from '../views/albums/SportsAlbum.vue'
 import BlogList from '../views/blog/BlogList.vue'
 import BlogPost from '../views/blog/BlogPost.vue'
 
+// Structured data utilities
+import { useStructuredDataOnRouteChange } from '../composables/useStructuredData'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -79,6 +82,12 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { top: 0 }
   }
+})
+
+// Inject structured data on route change
+router.beforeEach((to, from, next) => {
+  useStructuredDataOnRouteChange(to)
+  next()
 })
 
 export default router

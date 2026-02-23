@@ -32,7 +32,10 @@
             class="blog-card"
           >
             <div class="blog-card-content">
-              <div class="blog-date">{{ new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</div>
+              <div class="blog-card-header">
+                <div class="blog-date">{{ new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</div>
+                <div v-if="post.readingTime" class="blog-reading-time">{{ post.readingTime }} min</div>
+              </div>
               <h3>{{ post.title }}</h3>
               <p class="blog-excerpt">{{ post.excerpt }}</p>
               <div v-if="post.tags && post.tags.length" class="blog-tags">
@@ -100,7 +103,11 @@
             <!-- Travel Album -->
             <router-link to="/misc/travel" class="album-card featured">
               <div class="album-image">
-                <img src="/assets/photos/travel/colorado/personal_emlake.jpg" alt="Travel Adventures" />
+                <OptimizedImage
+                  src="/assets/photos/travel/colorado/personal_emlake.jpg"
+                  alt="Travel Adventures"
+                  size="md"
+                />
                 <div class="album-overlay">
                   <div class="overlay-content">
                     <span class="album-icon">✈️</span>
@@ -115,7 +122,11 @@
             <!-- Professional Album -->
             <router-link to="/misc/professional" class="album-card">
               <div class="album-image">
-                <img src="/assets/photos/professional/professional_1.jpg" alt="Professional Milestones" />
+                <OptimizedImage
+                  src="/assets/photos/professional/professional_1.jpg"
+                  alt="Professional Milestones"
+                  size="md"
+                />
                 <div class="album-overlay">
                   <div class="overlay-content">
                     <span class="album-icon">💼</span>
@@ -163,6 +174,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { onMounted, computed } from 'vue'
+import OptimizedImage from '../components/OptimizedImage.vue'
 import { useBlog } from '../composables/useBlog'
 
 const { posts, loading, fetchPosts } = useBlog()
@@ -505,11 +517,31 @@ h1 {
   flex: 1;
 }
 
+.blog-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+}
+
 .blog-date {
   font-size: 0.9rem;
   color: var(--text-tertiary);
-  margin-bottom: 0.75rem;
   font-weight: 500;
+}
+
+.blog-reading-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .blog-card h3 {

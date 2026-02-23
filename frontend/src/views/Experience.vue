@@ -201,7 +201,8 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
+import { injectStructuredData, generateWorkExperienceSchema } from '../composables/useStructuredData'
 
 // Card expansion state - all cards start expanded
 const expandedCards = reactive({
@@ -214,6 +215,12 @@ const expandedCards = reactive({
 const toggleCard = (cardId) => {
   expandedCards[cardId] = !expandedCards[cardId]
 }
+
+onMounted(() => {
+  // Inject work experience schema
+  const workExperienceSchema = generateWorkExperienceSchema()
+  injectStructuredData(workExperienceSchema, 'work-experience-schema')
+})
 </script>
 
 <style scoped>

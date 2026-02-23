@@ -41,6 +41,48 @@ function parseFrontmatter(markdown) {
   return { data, content }
 }
 
+// Calculate reading time based on average reading speed (200 words/minute)
+function calculateReadingTime(content) {
+  if (!content) return 0
+
+  // Remove markdown syntax and HTML
+  const cleanText = content
+    .replace(/^#+\s+/gm, '') // Remove headings
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Remove links but keep text
+    .replace(/!\[([^\]]*)\]\([^\)]+\)/g, '') // Remove images
+    .replace(/[`*_~\-\[\](){}]/g, '') // Remove other markdown syntax
+    .replace(/\n\n+/g, ' ') // Replace multiple newlines with space
+
+  const words = cleanText.trim().split(/\s+/).length
+  return Math.max(1, Math.ceil(words / 200)) // At least 1 minute
+}
+
+// Extract headings from markdown content for table of contents
+function extractHeadings(content) {
+  if (!content) return []
+
+  const headings = []
+  const headingRegex = /^(#{2,3})\s+(.+)$/gm
+  let match
+
+  while ((match = headingRegex.exec(content)) !== null) {
+    const level = match[1].length // Number of # symbols
+    const text = match[2]
+    const id = text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+
+    headings.push({
+      level,
+      text,
+      id
+    })
+  }
+
+  return headings
+}
+
 export function useBlog() {
   const fetchPosts = async () => {
     loading.value = true
@@ -67,11 +109,12 @@ export function useBlog() {
           }
 
           const markdown = await response.text()
-          const { data } = parseFrontmatter(markdown)
+          const { data, content } = parseFrontmatter(markdown)
 
           const dateMatch = slug.match(/^(\d{4}-\d{2}-\d{2})/)
           const date = dateMatch ? dateMatch[1] : data.date
           const cleanSlug = slug.replace(/^\d{4}-\d{2}-\d{2}-/, '')
+          const readingTime = calculateReadingTime(content)
 
           return {
             slug: cleanSlug,
@@ -79,7 +122,8 @@ export function useBlog() {
             date: date,
             excerpt: data.excerpt,
             tags: data.tags || [],
-            author: data.author
+            author: data.author,
+            readingTime
           }
         } catch (err) {
           console.error(`Failed to load blog post ${slug}:`, err)
@@ -129,11 +173,15 @@ export function useBlog() {
 
       const markdown = await response.text()
       const { data, content } = parseFrontmatter(markdown)
+      const readingTime = calculateReadingTime(content)
+      const headings = extractHeadings(content)
 
       return {
         ...data,
         content,
-        slug
+        slug,
+        readingTime,
+        headings
       }
     } catch (err) {
       throw new Error(err.message)
@@ -157,6 +205,8 @@ export function useBlog() {
     fetchPosts,
     getPostBySlug,
     parseSlugFromFilename,
-    parseDateFromFilename
+    parseDateFromFilename,
+    calculateReadingTime,
+    extractHeadings
   }
 }

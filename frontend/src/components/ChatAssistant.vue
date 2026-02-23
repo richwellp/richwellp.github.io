@@ -241,9 +241,11 @@ const handleSend = async () => {
 
   await sendMessage(message)
 
-  // Focus input after sending
+  // Focus input after sending (desktop only)
   await nextTick()
-  inputField.value?.focus()
+  if (window.innerWidth > 768) {
+    inputField.value?.focus()
+  }
 }
 
 // Auto-scroll to bottom when new messages arrive
@@ -254,11 +256,14 @@ watch(messages, async () => {
   }
 }, { deep: true })
 
-// Focus input when chat opens
+// Focus input when chat opens (desktop only - avoid keyboard popup on mobile)
 watch(isOpen, async (newValue) => {
   if (newValue) {
     await nextTick()
-    inputField.value?.focus()
+    // Only auto-focus on desktop (viewport width > 768px)
+    if (window.innerWidth > 768) {
+      inputField.value?.focus()
+    }
   }
 })
 </script>

@@ -36,7 +36,10 @@
           :to="`/misc/blog/${post.slug}`"
           class="post-card"
         >
-          <div class="post-date">{{ formatDate(post.date) }}</div>
+          <div class="post-card-header">
+            <div class="post-date">{{ formatDate(post.date) }}</div>
+            <div v-if="post.readingTime" class="reading-time">{{ post.readingTime }} min</div>
+          </div>
           <h2>{{ post.title }}</h2>
           <p class="post-excerpt">{{ post.excerpt }}</p>
           <div v-if="post.tags && post.tags.length > 0" class="post-tags">
@@ -50,15 +53,27 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useBlog } from '../../composables/useBlog'
+import { injectStructuredData, generateBlogListSchema } from '../../composables/useStructuredData'
 
 const { posts, loading, error, fetchPosts } = useBlog()
 
 onMounted(() => {
   fetchPosts()
 })
+
+// Inject blog list schema when posts are loaded
+watch(
+  () => posts.value,
+  (newPosts) => {
+    if (newPosts && newPosts.length > 0) {
+      const blogListSchema = generateBlogListSchema(newPosts)
+      injectStructuredData(blogListSchema, 'blog-list-schema')
+    }
+  }
+)
 
 const formatDate = (date) => {
   const d = new Date(date)
@@ -214,11 +229,31 @@ h1 {
   border-color: var(--accent-primary);
 }
 
+.post-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+}
+
 .post-date {
   color: var(--accent-primary);
   font-size: 0.9rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+}
+
+.reading-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .post-card h2 {
