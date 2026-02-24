@@ -102,7 +102,7 @@ const loadMessages = () => {
 }
 
 // Helper function to simulate streaming for instant messages
-const simulateStreaming = (messageId, fullContent, delay = 20) => {
+const simulateStreaming = (messageId, fullContent, delay = 2) => {
   return new Promise((resolve) => {
     const messageIndex = messages.value.findIndex(m => m.id === messageId)
     if (messageIndex === -1) {
@@ -152,7 +152,7 @@ export function useChatAssistant() {
         timestamp: new Date(),
         isStreaming: true
       })
-      await simulateStreaming(errorId, 'Your message is too long. Please keep it under 2000 characters.', 15)
+      await simulateStreaming(errorId, 'Your message is too long. Please keep it under 2000 characters.', 2)
       return
     }
 
@@ -199,7 +199,7 @@ export function useChatAssistant() {
         isStreaming: true
       })
 
-      await simulateStreaming(errorId, errorContent, 15)
+      await simulateStreaming(errorId, errorContent, 2)
     } finally {
       isTyping.value = false
     }
@@ -374,7 +374,7 @@ export function useChatAssistant() {
         isStreaming: true
       })
 
-      await simulateStreaming(errorId, errorMessage, 15)
+      await simulateStreaming(errorId, errorMessage, 2)
       return
     }
 
@@ -403,7 +403,7 @@ export function useChatAssistant() {
       isStreaming: true
     })
 
-    await simulateStreaming(responseId, responseContent, 20)
+    await simulateStreaming(responseId, responseContent, 2)
   }
 
   const toggleChat = async () => {
@@ -432,7 +432,7 @@ export function useChatAssistant() {
         })
 
         // Start streaming immediately, don't wait for context loading
-        simulateStreaming(welcomeId, welcomeContent, 15)
+        simulateStreaming(welcomeId, welcomeContent, 2)
       }
 
       // Load context in background (don't await - this can happen in parallel)
@@ -460,7 +460,7 @@ export function useChatAssistant() {
       isStreaming: true
     })
 
-    await simulateStreaming(welcomeId, welcomeContent, 15)
+    await simulateStreaming(welcomeId, welcomeContent, 2)
   }
 
   const sendQuickMessage = async (topic) => {

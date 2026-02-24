@@ -24,10 +24,19 @@ def build_system_prompt(site_context=None):
     """
     Build system prompt from frontend-provided context with caching.
 
-    Caches prompts based on site_context hash to avoid rebuilding identical prompts.
+    Caches prompts based on site_context + resume modification time to avoid rebuilding identical prompts.
     """
-    # Create cache key from site_context
-    cache_key = hashlib.md5(json.dumps(site_context, sort_keys=True).encode()).hexdigest() if site_context else 'default'
+    # Include resume modification time in cache key to detect resume changes
+    from api.resume_parser import get_resume_path
+    resume_path = get_resume_path()
+    resume_mtime = resume_path.stat().st_mtime if resume_path and resume_path.exists() else None
+
+    # Create cache key from site_context + resume mtime
+    cache_data = {
+        'site_context': site_context,
+        'resume_mtime': resume_mtime
+    }
+    cache_key = hashlib.md5(json.dumps(cache_data, sort_keys=True).encode()).hexdigest()
 
     # Check cache
     if cache_key in _prompt_cache:
