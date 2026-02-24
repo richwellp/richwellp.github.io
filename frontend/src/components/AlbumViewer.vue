@@ -189,21 +189,9 @@ function sortPhotos(photos) {
 
 // Helper to check if item is a video
 function isVideo(item) {
-  console.log('[AlbumViewer] Checking media type for:', {
-    src: item.src,
-    type: item.type,
-    caption: item.caption
-  })
-
   // Check type field if available
-  if (item.type === 'video') {
-    console.log('[AlbumViewer] ✅ Video detected by type field')
-    return true
-  }
-  if (item.type === 'image') {
-    console.log('[AlbumViewer] Image detected by type field')
-    return false
-  }
+  if (item.type === 'video') return true
+  if (item.type === 'image') return false
 
   // Fallback: detect from URL extension if type field is missing
   if (item.src) {
@@ -211,19 +199,12 @@ function isVideo(item) {
 
     // Check for video extensions
     const hasVideoExt = /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower)
-    if (hasVideoExt) {
-      console.log('[AlbumViewer] ✅ Video detected by extension (.mp4, .mov, etc)')
-      return true
-    }
+    if (hasVideoExt) return true
 
     // Check Content-Type in URL (Supabase includes it)
-    if (urlLower.includes('video/')) {
-      console.log('[AlbumViewer] ✅ Video detected by Content-Type in URL')
-      return true
-    }
+    if (urlLower.includes('video/')) return true
   }
 
-  console.log('[AlbumViewer] ❌ No video indicators found, treating as image')
   return false
 }
 
@@ -246,11 +227,6 @@ const currentPhotos = computed(() => {
     photos = props.photos[activeTab.value] || []
   } else {
     photos = Array.isArray(props.photos) ? props.photos : []
-  }
-
-  console.log('[AlbumViewer] Raw photos received:', photos.length, 'items')
-  if (photos.length > 0) {
-    console.log('[AlbumViewer] First photo sample:', photos[0])
   }
 
   // Apply search filter
