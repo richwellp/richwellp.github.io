@@ -11,6 +11,8 @@ const isOpen = ref(false)
 const isTyping = ref(false)
 const blogPosts = ref([])
 const contextLoaded = ref(false)
+// Global abort controller for canceling requests
+let currentAbortController = null
 
 // UUID generator with fallback for older browsers
 const generateUUID = () => {
@@ -139,6 +141,11 @@ export function useChatAssistant() {
   const sendMessage = async (userInput) => {
     if (!userInput.trim()) return
 
+    // Defensive: Clear any stuck typing state from previous errors
+    isTyping.value = false
+
+    console.log('[Chat] Sending message:', userInput.substring(0, 50) + '...')
+
     // Track message sent
     trackChatInteraction('message_sent', { messageLength: userInput.length })
 
@@ -166,6 +173,7 @@ export function useChatAssistant() {
 
     // Show typing indicator
     isTyping.value = true
+    console.log('[Chat] Typing indicator ON')
 
     try {
       // Get last 10 messages for context (5 exchanges) - EXCLUDING current message
@@ -177,11 +185,13 @@ export function useChatAssistant() {
           content: msg.content
         }))
 
+      console.log('[Chat] Attempting streaming...')
       // Use streaming with automatic fallback to regular mode if it fails
       await sendMessageStreaming(userInput, conversationHistory)
+      console.log('[Chat] Streaming complete')
 
     } catch (error) {
-      console.error('Chat error details:', {
+      console.error('[Chat] ERROR in sendMessage:', {
         message: error.message,
         stack: error.stack,
         name: error.name
@@ -189,7 +199,17 @@ export function useChatAssistant() {
 
       // Add error message with streaming animation
       const errorId = generateUUID()
-      const errorContent = `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for assistance.`
+      let errorContent
+
+      // Specific message for timeouts and cancellations
+      const wasCanceled = error.message.includes('cancel')
+      if (error.name === 'AbortError' || error.message.includes('timeout')) {
+        errorContent = wasCanceled
+          ? `Request canceled. Feel free to ask another question.`
+          : `The request timed out after 60 seconds. The AI service may be experiencing high load or rate limits.\n\nPlease try again in a moment, or contact Richwell directly at ${CONTACT.email} for immediate assistance.`
+      } else {
+        errorContent = `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for assistance.`
+      }
 
       messages.value.push({
         id: errorId,
@@ -201,15 +221,25 @@ export function useChatAssistant() {
 
       await simulateStreaming(errorId, errorContent, 2)
     } finally {
+      console.log('[Chat] Typing indicator OFF')
       isTyping.value = false
     }
   }
 
-  // Streaming implementation using fetch + SSE
+  // Streaming implementation using fetch + SSE with timeout
   const sendMessageStreaming = async (userInput, conversationHistory) => {
     let assistantMessageId = null
 
     try {
+      console.log('[Chat] Creating fetch request with 30s timeout')
+
+      // Create abort controller for timeout and manual cancel
+      currentAbortController = new AbortController()
+      const timeoutId = setTimeout(() => {
+        console.log('[Chat] Request timeout after 60s, aborting...')
+        currentAbortController.abort()
+      }, 60000) // 60 second timeout (generous for slow AI responses)
+
       const response = await fetch(`${API_ENDPOINTS.chatStream}`, {
         method: 'POST',
         headers: {
@@ -219,8 +249,13 @@ export function useChatAssistant() {
           message: userInput,
           history: conversationHistory,
           site_context: getSiteContext()
-        })
+        }),
+        signal: currentAbortController.signal
       })
+
+      clearTimeout(timeoutId)
+      currentAbortController = null // Clear after successful request
+      console.log('[Chat] Got response:', response.status)
 
       if (!response.ok) {
         // Try to get error details
@@ -304,11 +339,15 @@ export function useChatAssistant() {
         }
       }
 
+      // Defensive: Explicitly clear typing state here too
+      isTyping.value = false
+      console.log('[Chat] Streaming completed, typing cleared')
+
       // Save to localStorage
       saveMessages()
 
     } catch (error) {
-      console.error('Streaming error:', error)
+      console.error('[Chat] Streaming error:', error.name, error.message)
 
       // Remove placeholder message if it was created
       if (assistantMessageId) {
@@ -318,13 +357,45 @@ export function useChatAssistant() {
         }
       }
 
-      // Fallback to regular mode
+      // If timeout/abort, show error instead of retrying
+      if (error.name === 'AbortError' || error.message.includes('timeout')) {
+        const wasCanceled = error.message.includes('cancel')
+        console.error('[Chat] Request ' + (wasCanceled ? 'canceled' : 'timed out'))
+
+        const errorId = generateUUID()
+        const errorContent = wasCanceled
+          ? `Request canceled. Feel free to ask another question or contact Richwell at ${CONTACT.email}.`
+          : `The request timed out after 60 seconds. The AI service may be experiencing high load.\n\nPlease try again in a moment, or contact Richwell directly at ${CONTACT.email}.`
+
+        messages.value.push({
+          id: errorId,
+          type: 'assistant',
+          content: '',
+          timestamp: new Date(),
+          isStreaming: true
+        })
+
+        await simulateStreaming(errorId, errorContent, 2)
+        return
+      }
+
+      // For other errors, fallback to regular mode
+      console.log('[Chat] Using fallback regular mode')
       await sendMessageRegular(userInput, conversationHistory)
     }
   }
 
-  // Regular (non-streaming) implementation
+  // Regular (non-streaming) implementation with timeout
   const sendMessageRegular = async (userInput, conversationHistory) => {
+    console.log('[Chat] Regular mode: Sending request to', API_ENDPOINTS.chat)
+
+    // Create abort controller for timeout and manual cancel
+    currentAbortController = new AbortController()
+    const timeoutId = setTimeout(() => {
+      console.log('[Chat] Regular mode timeout after 60s, aborting...')
+      currentAbortController.abort()
+    }, 60000) // 60 second timeout
+
     const response = await fetch(`${API_ENDPOINTS.chat}`, {
       method: 'POST',
       headers: {
@@ -334,8 +405,13 @@ export function useChatAssistant() {
         message: userInput,
         history: conversationHistory,
         site_context: getSiteContext()
-      })
+      }),
+      signal: currentAbortController.signal
     })
+
+    clearTimeout(timeoutId)
+    currentAbortController = null // Clear after successful request
+    console.log('[Chat] Regular mode: Got response', response.status)
 
     // Parse response JSON first to get error details
     let data
@@ -404,6 +480,10 @@ export function useChatAssistant() {
     })
 
     await simulateStreaming(responseId, responseContent, 2)
+
+    // Defensive: Explicitly clear typing state
+    isTyping.value = false
+    console.log('[Chat] Regular mode completed, typing cleared')
   }
 
   const toggleChat = async () => {
@@ -486,6 +566,26 @@ export function useChatAssistant() {
     })
   }
 
+  const cancelRequest = () => {
+    console.log('[Chat] User canceled request')
+    if (currentAbortController) {
+      currentAbortController.abort('User canceled request')
+      currentAbortController = null
+    }
+    isTyping.value = false
+
+    // Add cancelation message
+    const cancelId = generateUUID()
+    messages.value.push({
+      id: cancelId,
+      type: 'assistant',
+      content: 'Request canceled.',
+      timestamp: new Date(),
+      isStreaming: false
+    })
+    saveMessages()
+  }
+
   return {
     messages,
     isOpen,
@@ -495,6 +595,7 @@ export function useChatAssistant() {
     clearChat,
     sendQuickMessage,
     formatTime,
+    cancelRequest,
     preloadContext: loadContext  // Expose for preloading
   }
 }

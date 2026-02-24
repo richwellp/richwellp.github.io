@@ -141,6 +141,11 @@ const closeMiscDropdown = () => {
             </div>
             <!-- Search Results Dropdown -->
             <div v-if="showSearchResults" class="search-results">
+              <!-- Loading indicator for blog content -->
+              <div v-if="isLoadingBlogContent" class="results-header">
+                <span>Loading blog content...</span>
+              </div>
+
               <div v-if="searchResults.length > 0" class="results-header">
                 Found {{ searchResults.length }} result{{ searchResults.length === 1 ? '' : 's' }}
               </div>
@@ -157,7 +162,7 @@ const closeMiscDropdown = () => {
                   <div v-if="result.subtitle" class="result-subtitle">{{ result.subtitle }}</div>
                 </div>
               </router-link>
-              <div v-if="searchResults.length === 0 && searchQuery.length > 0" class="no-results">
+              <div v-if="searchResults.length === 0 && searchQuery.length > 0 && !isLoadingBlogContent" class="no-results">
                 <span>No results found for "{{ searchQuery }}"</span>
               </div>
             </div>
@@ -235,8 +240,8 @@ const closeMiscDropdown = () => {
   --accent-primary: #238636;
   --accent-hover: #2ea043;
   --accent-muted: #1a7f37;
-  --link-color: #58a6ff;
-  --link-hover: #79c0ff;
+  --link-color: #79c0ff; /* Brighter blue for better dark mode contrast */
+  --link-hover: #a5d6ff; /* Even lighter on hover */
   --shadow: rgba(0, 0, 0, 0.3);
 }
 
@@ -581,6 +586,8 @@ main {
   max-height: 400px;
   z-index: 1000;
   min-width: 250px;
+  /* DEBUG: Temporary bright border to confirm visibility */
+  border: 2px solid var(--accent-primary);
 }
 
 .search-results::-webkit-scrollbar {

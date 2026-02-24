@@ -155,9 +155,27 @@
           autocomplete="off"
         />
         <span id="chat-input-hint" class="visually-hidden">Press Enter to send</span>
+
+        <!-- Cancel button when typing/waiting -->
         <button
+          v-if="isTyping"
+          @click="cancelRequest"
+          class="cancel-btn"
+          aria-label="Cancel request"
+          title="Cancel current request"
+        >
+          <!-- X icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <!-- Send button when not typing -->
+        <button
+          v-else
           @click="handleSend"
-          :disabled="!userInput.trim() || isTyping"
+          :disabled="!userInput.trim()"
           class="send-btn"
           aria-label="Send message"
         >
@@ -202,7 +220,8 @@ const {
   toggleChat,
   clearChat,
   sendQuickMessage,
-  formatTime
+  formatTime,
+  cancelRequest
 } = useChatAssistant()
 
 const userInput = ref('')
@@ -684,14 +703,15 @@ watch(isOpen, async (newValue) => {
 }
 
 .markdown-body a {
-  color: #3b82f6; /* Bright blue that works in both light and dark modes */
+  color: var(--link-color); /* Uses theme-specific link color */
   text-decoration: underline;
   font-weight: 500;
 }
 
 .markdown-body a:hover {
-  color: #60a5fa; /* Lighter blue on hover */
-  text-decoration: none;
+  color: var(--link-hover); /* Uses theme-specific hover color */
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 .markdown-body strong {
@@ -936,6 +956,37 @@ watch(isOpen, async (newValue) => {
 .send-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* Cancel Button */
+.cancel-btn {
+  padding: 0.875rem 1.125rem;
+  background: var(--error-color, #dc3545);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 48px;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.cancel-btn:active {
+  transform: translateY(0);
+}
+
+.cancel-btn:focus-visible {
+  outline: 3px solid var(--error-color, #dc3545);
+  outline-offset: 2px;
 }
 
 /* ========================================

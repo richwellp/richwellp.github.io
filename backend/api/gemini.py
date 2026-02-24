@@ -7,6 +7,8 @@ from config import GEMINI_MODEL, get_contact_message
 import hashlib
 import json
 from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,6 +26,12 @@ _prompt_cache = {}
 
 # Cache for Gemini context caching (stores CachedContent objects)
 _context_cache = {}
+
+# Global thread pool for timeout handling
+_executor = ThreadPoolExecutor(max_workers=10)
+
+# API timeout configuration (30 seconds max for Gemini to respond)
+API_TIMEOUT = 30
 
 def build_system_prompt(site_context=None):
     """
@@ -286,10 +294,28 @@ def call_gemini(user_message, history=None, site_context=None):
         # Start chat with history
         chat = model.start_chat(history=full_history[:-1])  # Exclude last message
 
-        # Send message and get response
-        response = chat.send_message(user_message)
+        # Send message with timeout
+        print(f"[Gemini] Sending message with {API_TIMEOUT}s timeout...")
+        start_time = time.time()
 
-        return response.text
+        def _send_message():
+            return chat.send_message(user_message)
+
+        try:
+            future = _executor.submit(_send_message)
+            response = future.result(timeout=API_TIMEOUT)
+            elapsed = time.time() - start_time
+            print(f"[Gemini] Response received in {elapsed:.2f}s")
+            return response.text
+        except FutureTimeoutError:
+            elapsed = time.time() - start_time
+            print(f"[Gemini] TIMEOUT after {elapsed:.2f}s")
+            return {
+                "error": True,
+                "error_type": "timeout",
+                "message": f"The AI service took too long to respond ({API_TIMEOUT}s timeout). This usually means high API load or rate limits. {get_contact_message()}",
+                "details": f"Request timed out after {API_TIMEOUT} seconds"
+            }
 
     except Exception as e:
         error_msg = str(e).lower()
@@ -457,7 +483,11 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         # Start chat
         chat = model.start_chat(history=full_history)
 
-        # Stream response
+        # Stream response with timeout tracking
+        print(f"[Gemini] Streaming message with {API_TIMEOUT}s timeout...")
+        start_time = time.time()
+
+        # Send message (this returns immediately, but we track time during streaming)
         response = chat.send_message(user_message, stream=True)
 
         # Use keyword matching for instant source display (better UX than waiting for AI)
@@ -467,9 +497,21 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         # Track response for source verification
         response_buffer = ""
         sources_verified = False
+        last_chunk_time = time.time()
 
-        # Stream text chunks
+        # Stream text chunks with timeout
         for chunk in response:
+            # Check if we've exceeded timeout
+            elapsed = time.time() - start_time
+            if elapsed > API_TIMEOUT:
+                print(f"[Gemini] STREAMING TIMEOUT after {elapsed:.2f}s")
+                yield {
+                    "error": True,
+                    "message": f"Streaming timed out after {API_TIMEOUT}s. {get_contact_message()}"
+                }
+                return
+
+            last_chunk_time = time.time()
             if chunk.text:
                 response_buffer += chunk.text
 
@@ -516,6 +558,10 @@ def call_gemini_stream(user_message, history=None, site_context=None):
                             yield {"text": chunk_text}
                     else:
                         yield {"text": chunk.text}
+
+        # Log successful completion
+        total_elapsed = time.time() - start_time
+        print(f"[Gemini] Streaming completed successfully in {total_elapsed:.2f}s")
 
     except Exception as e:
         error_msg = str(e).lower()

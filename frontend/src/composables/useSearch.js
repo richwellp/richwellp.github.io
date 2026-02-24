@@ -117,9 +117,12 @@ function extractSnippet(text, query, maxLength = 100) {
  * Perform comprehensive site-wide search
  */
 async function searchPages() {
+  console.log('[Search] Called with query:', searchQuery.value)
+
   if (!searchQuery.value.trim()) {
     searchResults.value = []
     showSearchResults.value = false
+    console.log('[Search] Empty query, clearing results')
     return
   }
 
@@ -127,6 +130,13 @@ async function searchPages() {
   const results = []
   const { posts } = useBlog()
   const { projects, skills } = useProfessionalInfo()
+
+  console.log('[Search] Searching in:', {
+    posts: posts.value.length,
+    projects: projects.value.length,
+    skills: skills.value.length,
+    blogContentLoaded: blogContentLoaded.value
+  })
 
   // Lazy load blog content on first search
   if (posts.value.length > 0 && !blogContentLoaded.value && !isLoadingBlogContent.value) {
@@ -215,6 +225,12 @@ async function searchPages() {
   // Sort by relevance
   searchResults.value = results.sort((a, b) => b.relevance - a.relevance).slice(0, 20)
   showSearchResults.value = true
+
+  console.log('[Search] Results:', {
+    found: searchResults.value.length,
+    showResults: showSearchResults.value,
+    results: searchResults.value.map(r => ({ title: r.title, type: r.type }))
+  })
 }
 
 /**
