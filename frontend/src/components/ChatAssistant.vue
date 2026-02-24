@@ -749,16 +749,13 @@ watch(isOpen, async (newValue) => {
   white-space: pre-wrap; /* Preserve formatting during streaming */
 }
 
-/* Cursor animation */
+/* Typing cursor - solid while streaming, no blinking */
 .chat-message.assistant .typing-cursor {
   color: var(--accent-primary);
-  animation: cursor-blink 0.8s step-end infinite;
   font-weight: bold;
-}
-
-@keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  opacity: 1;
+  margin-left: 2px;
+  display: inline-block;
 }
 
 /* Quick Actions */
