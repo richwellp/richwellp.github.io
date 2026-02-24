@@ -323,17 +323,20 @@ export function getBreadcrumbs(routeName) {
     'travel-album': [
       { name: 'Home', path: '/' },
       { name: 'Misc', path: '/misc' },
-      { name: 'Travel Album', path: '/misc/travel' }
+      { name: 'Albums', path: '/misc/albums' },
+      { name: 'Travel', path: '/misc/albums/travel' }
     ],
-    'professional-album': [
+    'me-album': [
       { name: 'Home', path: '/' },
       { name: 'Misc', path: '/misc' },
-      { name: 'Professional Album', path: '/misc/professional' }
+      { name: 'Albums', path: '/misc/albums' },
+      { name: 'Me', path: '/misc/albums/me' }
     ],
     'sports-album': [
       { name: 'Home', path: '/' },
       { name: 'Misc', path: '/misc' },
-      { name: 'Sports Album', path: '/misc/sports' }
+      { name: 'Albums', path: '/misc/albums' },
+      { name: 'Sports', path: '/misc/albums/sports' }
     ]
   }
 
