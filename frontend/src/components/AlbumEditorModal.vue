@@ -34,18 +34,6 @@
             </div>
 
             <div class="form-group">
-              <label for="icon">Icon *</label>
-              <input
-                id="icon"
-                v-model="form.icon"
-                type="text"
-                required
-                placeholder="✈️"
-              />
-              <small>Emoji to display for this album</small>
-            </div>
-
-            <div class="form-group">
               <label for="subtitle">Subtitle</label>
               <input
                 id="subtitle"
@@ -116,7 +104,6 @@ const isEditing = computed(() => !!props.album)
 const form = ref({
   slug: '',
   name: '',
-  icon: '📷',
   subtitle: '',
   categories: null,
   order_index: 0,
@@ -131,7 +118,6 @@ watch(() => props.album, (newAlbum) => {
     form.value = {
       slug: newAlbum.slug || '',
       name: newAlbum.name || '',
-      icon: newAlbum.icon || '📷',
       subtitle: newAlbum.subtitle || '',
       categories: newAlbum.categories || null,
       order_index: newAlbum.order_index || 0,
@@ -143,7 +129,6 @@ watch(() => props.album, (newAlbum) => {
     form.value = {
       slug: '',
       name: '',
-      icon: '📷',
       subtitle: '',
       categories: null,
       order_index: 0,
