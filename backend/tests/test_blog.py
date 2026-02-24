@@ -3,6 +3,11 @@ import json
 from unittest.mock import patch, Mock
 import os
 
+# Set environment variables before any imports
+os.environ.setdefault('SUPABASE_URL', 'https://test.supabase.co')
+os.environ.setdefault('SUPABASE_KEY', 'test-key')
+os.environ.setdefault('BLOG_ADMIN_KEY', 'test-admin-key')
+
 
 # Mock environment variables before importing blog module
 @pytest.fixture(autouse=True)

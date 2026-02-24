@@ -4,8 +4,8 @@ Endpoints for fetching albums and photos from Supabase
 """
 from flask import Blueprint, jsonify, request
 from supabase import create_client
-from functools import wraps
 import os
+from auth import require_admin
 
 albums_bp = Blueprint('albums', __name__)
 
@@ -13,20 +13,6 @@ albums_bp = Blueprint('albums', __name__)
 SUPABASE_URL = os.environ.get('SUPABASE_URL')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
-
-# Admin authentication (same as blog)
-ADMIN_KEY = os.environ.get('BLOG_ADMIN_KEY', '')
-
-
-def require_admin(f):
-    """Decorator to require admin authentication."""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.headers.get('Authorization', '')
-        if not auth.startswith('Bearer ') or auth[7:] != ADMIN_KEY:
-            return jsonify(error='Unauthorized'), 401
-        return f(*args, **kwargs)
-    return decorated
 
 
 @albums_bp.route('/albums', methods=['GET'])

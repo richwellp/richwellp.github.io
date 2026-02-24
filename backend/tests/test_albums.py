@@ -3,6 +3,11 @@ from api.albums import albums_bp
 from unittest.mock import patch, MagicMock
 import os
 
+# Set environment variables before any imports
+os.environ.setdefault('SUPABASE_URL', 'https://test.supabase.co')
+os.environ.setdefault('SUPABASE_KEY', 'test-key')
+os.environ.setdefault('BLOG_ADMIN_KEY', 'test-admin-key')
+
 
 @pytest.fixture
 def client():
@@ -18,9 +23,9 @@ def client():
 @pytest.fixture
 def admin_headers(monkeypatch):
     """Admin authentication headers for testing"""
-    # Patch the ADMIN_KEY in the albums module
-    from api import albums
-    monkeypatch.setattr(albums, 'ADMIN_KEY', 'test-admin-key')
+    # Patch the ADMIN_KEY in the auth module
+    import auth
+    monkeypatch.setattr(auth, 'ADMIN_KEY', 'test-admin-key')
     return {'Authorization': 'Bearer test-admin-key'}
 
 

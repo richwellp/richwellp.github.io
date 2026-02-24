@@ -8,7 +8,7 @@ const loading = ref(false)
 const error = ref(null)
 
 export function useAdminBlog() {
-  const { getAuthHeaders } = useAdminAuth()
+  const { getAuthFetchOptions } = useAdminAuth()
 
   const fetchAdminPosts = async (options = {}) => {
     loading.value = true
@@ -20,11 +20,9 @@ export function useAdminBlog() {
       if (options.per_page) params.set('per_page', options.per_page)
       if (options.status) params.set('status', options.status)
 
-      const response = await fetch(`${API_ENDPOINTS.adminPosts}?${params}`, {
-        headers: {
-          ...getAuthHeaders()
-        }
-      })
+      const response = await fetch(`${API_ENDPOINTS.adminPosts}?${params}`,
+        getAuthFetchOptions('GET')
+      )
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -45,11 +43,9 @@ export function useAdminBlog() {
   }
 
   const getAdminPost = async (slug) => {
-    const response = await fetch(API_ENDPOINTS.adminPost(slug), {
-      headers: {
-        ...getAuthHeaders()
-      }
-    })
+    const response = await fetch(API_ENDPOINTS.adminPost(slug),
+      getAuthFetchOptions('GET')
+    )
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -65,14 +61,9 @@ export function useAdminBlog() {
   }
 
   const createPost = async (postData) => {
-    const response = await fetch(API_ENDPOINTS.adminCreatePost, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders()
-      },
-      body: JSON.stringify(postData)
-    })
+    const response = await fetch(API_ENDPOINTS.adminCreatePost,
+      getAuthFetchOptions('POST', postData)
+    )
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -86,14 +77,9 @@ export function useAdminBlog() {
   }
 
   const updatePost = async (slug, postData) => {
-    const response = await fetch(API_ENDPOINTS.adminUpdatePost(slug), {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders()
-      },
-      body: JSON.stringify(postData)
-    })
+    const response = await fetch(API_ENDPOINTS.adminUpdatePost(slug),
+      getAuthFetchOptions('PUT', postData)
+    )
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -110,12 +96,9 @@ export function useAdminBlog() {
   }
 
   const deletePost = async (slug) => {
-    const response = await fetch(API_ENDPOINTS.adminDeletePost(slug), {
-      method: 'DELETE',
-      headers: {
-        ...getAuthHeaders()
-      }
-    })
+    const response = await fetch(API_ENDPOINTS.adminDeletePost(slug),
+      getAuthFetchOptions('DELETE')
+    )
 
     if (!response.ok) {
       if (response.status === 401) {

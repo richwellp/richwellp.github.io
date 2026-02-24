@@ -11,6 +11,12 @@ if (!API_BASE_URL) {
 
 // API Endpoints
 export const API_ENDPOINTS = {
+  // Authentication endpoints
+  authLogin: `${API_BASE_URL}/auth/login`,
+  authLogout: `${API_BASE_URL}/auth/logout`,
+  authStatus: `${API_BASE_URL}/auth/status`,
+  authVerify: `${API_BASE_URL}/auth/verify`,
+
   // Chat endpoints
   chat: `${API_BASE_URL}/chat`,
   chatStream: `${API_BASE_URL}/chat/stream`,

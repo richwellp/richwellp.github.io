@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
-from functools import wraps
 import os
 import re
 from config import DEFAULT_PAGE_SIZE, WORDS_PER_MINUTE, DEFAULT_READING_TIME_ESTIMATE
+from auth import require_admin
 
 # Initialize Supabase client
 try:
@@ -16,20 +16,6 @@ except Exception as e:
     supabase = None
 
 blog_bp = Blueprint('blog', __name__)
-
-# Admin authentication
-ADMIN_KEY = os.environ.get('BLOG_ADMIN_KEY', '')
-
-
-def require_admin(f):
-    """Decorator to require admin authentication."""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.headers.get('Authorization', '')
-        if not auth.startswith('Bearer ') or auth[7:] != ADMIN_KEY:
-            return jsonify(error='Unauthorized'), 401
-        return f(*args, **kwargs)
-    return decorated
 
 
 def calculate_reading_time(content):

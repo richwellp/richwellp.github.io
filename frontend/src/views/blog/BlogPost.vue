@@ -47,6 +47,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useBlog } from '../../composables/useBlog'
 import { injectStructuredData, generateBlogPostSchema } from '../../composables/useStructuredData'
+import { sanitizeMarkdown } from '../../composables/useSanitizer'
 import TableOfContents from '../../components/TableOfContents.vue'
 import MarkdownIt from 'markdown-it'
 
@@ -65,7 +66,9 @@ const md = new MarkdownIt({
 
 const renderedContent = computed(() => {
   if (!post.value || !post.value.content) return ''
-  return md.render(post.value.content)
+  const rendered = md.render(post.value.content)
+  // Sanitize markdown output to prevent XSS attacks
+  return sanitizeMarkdown(rendered)
 })
 
 onMounted(async () => {
