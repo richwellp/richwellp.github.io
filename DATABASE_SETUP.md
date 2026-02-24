@@ -1,155 +1,150 @@
 # Database Setup Guide
 
-## Quick Setup
+## Quick Setup (2 Steps)
 
-Run these SQL commands in your Supabase SQL Editor in this exact order:
+Run these SQL files in your Supabase SQL Editor **in order**:
 
 ### Step 1: Create Albums Schema
 
-Copy and run the **entire contents** of `backend/database/albums_schema.sql` in Supabase SQL Editor.
+Copy and paste the **entire contents** of `backend/database/albums_schema.sql` into Supabase SQL Editor and click "Run".
 
-Or use this simplified version:
-
-```sql
--- Albums table
-CREATE TABLE IF NOT EXISTS albums (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    slug TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    icon TEXT NOT NULL,
-    subtitle TEXT,
-    categories TEXT[] DEFAULT NULL,
-    order_index INTEGER DEFAULT 0,
-    published BOOLEAN DEFAULT true,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Photos table
-CREATE TABLE IF NOT EXISTS photos (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    album_id UUID NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
-    url TEXT NOT NULL,
-    caption TEXT,
-    location TEXT,
-    date_taken DATE,
-    category TEXT,
-    order_index INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Indexes
-CREATE INDEX IF NOT EXISTS idx_photos_album_id ON photos(album_id);
-CREATE INDEX IF NOT EXISTS idx_photos_category ON photos(category);
-CREATE INDEX IF NOT EXISTS idx_photos_date_taken ON photos(date_taken);
-CREATE INDEX IF NOT EXISTS idx_albums_slug ON albums(slug);
-
--- RLS Policies (Read-only public access)
-ALTER TABLE albums ENABLE ROW LEVEL SECURITY;
-ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Allow public read access to albums" ON albums;
-CREATE POLICY "Allow public read access to albums" ON albums FOR SELECT USING (true);
-
-DROP POLICY IF EXISTS "Allow public read access to photos" ON photos;
-CREATE POLICY "Allow public read access to photos" ON photos FOR SELECT USING (true);
-```
+This creates:
+- `albums` table with categories support
+- `photos` table with all metadata fields
+- Indexes for performance
+- Row Level Security policies for public read access
+- Updated_at triggers
 
 ### Step 2: Seed Albums and Photos
 
-Copy and run the **entire contents** of `backend/database/seed_photos.sql` in Supabase SQL Editor.
+Copy and paste the **entire contents** of `backend/database/seed_photos.sql` into Supabase SQL Editor and click "Run".
 
-This will:
-- Create 3 albums (Travel, Sports, Me)
-- Add sample photos for Travel (USA, Philippines, Japan)
-- Add sample photos for Me (Professional photos)
-- Add placeholder for Sports photos (add your own later via /admin)
+This seeds:
+- 3 albums (Travel with categories, Sports, Me)
+- Sample travel photos (USA, Philippines, Japan)
+- Sample personal photos
+- Uses `ON CONFLICT` so it's safe to run multiple times
 
-**Note:** The file uses `ON CONFLICT` so it's safe to run multiple times.
+### Step 3: Create Blog Schema (If Needed)
 
-### Step 3: Create Blog Schema (if not exists)
-
-```sql
--- From backend/database/blog_schema.sql
-
-CREATE TABLE IF NOT EXISTS blog_posts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    slug TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
-    excerpt TEXT NOT NULL,
-    content TEXT NOT NULL,
-    author TEXT DEFAULT 'Richwell Perez',
-    published BOOLEAN DEFAULT false,
-    published_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Auto-set published_at trigger
-CREATE OR REPLACE FUNCTION set_published_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.published = TRUE AND (OLD.published = FALSE OR OLD.published IS NULL) AND NEW.published_at IS NULL THEN
-        NEW.published_at = NOW();
-    END IF;
-    IF NEW.published = FALSE AND OLD.published = TRUE THEN
-        NEW.published_at = NULL;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS blog_posts_published_trigger ON blog_posts;
-CREATE TRIGGER blog_posts_published_trigger
-    BEFORE INSERT OR UPDATE ON blog_posts
-    FOR EACH ROW
-    EXECUTE FUNCTION set_published_at();
-
--- RLS Policies
-ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Allow public read access to published posts" ON blog_posts;
-CREATE POLICY "Allow public read access to published posts"
-    ON blog_posts FOR SELECT
-    USING (published = true);
-```
+If your `blog_posts` table doesn't exist yet, copy and paste `backend/database/blog_schema.sql` into Supabase SQL Editor and click "Run".
 
 ## Verification
 
-After running the migrations, verify the tables exist:
+After running the migrations, verify everything is set up correctly:
 
 ```sql
-SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;
+-- Check tables exist
+SELECT tablename FROM pg_tables
+WHERE schemaname = 'public'
+AND tablename IN ('albums', 'photos', 'blog_posts')
+ORDER BY tablename;
+
+-- Check albums were created
+SELECT slug, name, icon, categories FROM albums ORDER BY order_index;
+
+-- Check photos were created
+SELECT
+  a.name as album,
+  COUNT(p.id) as photo_count
+FROM albums a
+LEFT JOIN photos p ON p.album_id = a.id
+GROUP BY a.name
+ORDER BY a.name;
 ```
 
-You should see:
-- albums
-- blog_posts
-- photos
+Expected results:
+- 3 tables: albums, blog_posts, photos
+- 3 albums: Travel, Sports, Me
+- Travel should have ~11 photos
+- Me should have 2 photos
+- Sports should have 0 photos (add via admin later)
 
 ## Environment Variables
 
-Make sure your `.env` files have:
+Make sure your `.env` files have the correct Supabase credentials:
 
-**Backend (.env)**
-```
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-BLOG_ADMIN_KEY=your_admin_key
+**Backend (`backend/.env` or Vercel Environment Variables)**
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your_supabase_service_role_key
+BLOG_ADMIN_KEY=your_secure_admin_password
 ```
 
-**Frontend (.env)**
-```
+**Frontend (`frontend/.env` or Vercel Environment Variables)**
+```env
 VITE_API_URL=http://localhost:5000
-VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
+**Important:**
+- Backend uses the **service_role** key for admin operations (bypasses RLS)
+- Frontend uses the **anon** key for public read access
+- Never expose service_role key in frontend code
+
 ## Testing
 
-1. Start backend: `cd backend && flask run`
-2. Start frontend: `cd frontend && npm run dev`
-3. Visit: `http://localhost:5173`
-4. Albums page should load without errors
-5. Visit `/admin` to test admin panel
+Start the servers and test:
+
+```bash
+# Terminal 1 - Backend
+cd backend
+flask run
+
+# Terminal 2 - Frontend
+cd frontend
+npm run dev
+```
+
+Visit http://localhost:5173 and test:
+- Albums page (`/misc/albums`) should show 3 albums
+- Click Travel album - should show photos grouped by category
+- Click Me album - should show 2 photos
+- Visit `/admin` and test CRUD operations
+
+## Troubleshooting
+
+**"relation 'albums' does not exist"**
+→ Run `backend/database/albums_schema.sql` in Supabase SQL Editor
+
+**"column 'categories' does not exist"**
+→ Drop and recreate albums table, or add column manually:
+```sql
+ALTER TABLE albums ADD COLUMN IF NOT EXISTS categories TEXT[] DEFAULT NULL;
+```
+
+**"No photos showing"**
+→ Run `backend/database/seed_photos.sql` in Supabase SQL Editor
+→ Check that photo URLs point to valid images
+
+**"Admin operations fail"**
+→ Verify backend uses SUPABASE_KEY (service_role, not anon key)
+→ Check BLOG_ADMIN_KEY is set correctly
+
+**"UUID errors"**
+→ Ensure you're using gen_random_uuid() for IDs, not BIGSERIAL
+
+## Schema Reference
+
+**Albums Table:**
+- id (UUID, primary key)
+- slug (text, unique)
+- name (text)
+- icon (text)
+- subtitle (text)
+- categories (text[], nullable)
+- order_index (integer)
+- published (boolean)
+- created_at, updated_at (timestamptz)
+
+**Photos Table:**
+- id (UUID, primary key)
+- album_id (UUID, foreign key)
+- url (text, image URL)
+- caption (text, nullable)
+- location (text, nullable)
+- date_taken (date, nullable)
+- category (text, nullable)
+- order_index (integer)
+- created_at, updated_at (timestamptz)
