@@ -138,10 +138,12 @@ npm test -- --run
 Access at `/admin` with your admin key.
 
 **Features:**
-- **Blog Admin** (`/admin/blogs`) - Create, edit, publish, delete posts
-- **Albums Admin** (`/admin/albums`) - Manage albums and categories
-- **Photo Manager** (`/admin/albums/:slug/photos`) - Add, edit, delete photos
+- **Blog Admin** (`/admin/blogs`) - Create, edit, publish, delete posts with markdown editor
+- **Albums Admin** (`/admin/albums`) - Manage albums, categories, and metadata
+- **Photo Manager** (`/admin/albums/:slug/photos`) - Upload, edit, delete photos (uses Supabase Storage)
 - **Dashboard** (`/admin`) - View stats and quick links
+
+**Note:** All album photos are managed through the admin panel and stored in Supabase Storage. The `frontend/public/assets/photos` folder only contains the two professional photos used in the About section.
 
 ---
 
