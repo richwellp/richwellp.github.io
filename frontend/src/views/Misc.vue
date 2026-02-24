@@ -56,44 +56,14 @@
     <section class="beyond-cs">
       <div class="container">
         <h2 class="section-title">Beyond Computer Science</h2>
-        <p class="section-intro">When I'm not coding, you'll find me staying active by lifting or playing volleyball, playing games for fun, or exploring the world.</p>
-        
-        <!-- Interests - Compact Grid -->
-        <div class="interests-section">
-          <h3 class="subsection-title">What I Love</h3>
-          <div class="interests-grid">
-            <div class="interest-item">
-              <span class="interest-icon">🏐</span>
-              <div class="interest-text">
-                <h4>Volleyball</h4>
-                <p>Strategy and teamwork on the court</p>
-              </div>
-            </div>
+        <p class="section-intro">When I'm not coding, you'll find me staying active, gaming, or exploring the world.</p>
 
-            <div class="interest-item">
-              <span class="interest-icon">💪</span>
-              <div class="interest-text">
-                <h4>Powerlifting</h4>
-                <p>Building strength, one rep at a time</p>
-              </div>
-            </div>
-
-            <div class="interest-item">
-              <span class="interest-icon">🎮</span>
-              <div class="interest-text">
-                <h4>Gaming</h4>
-                <p>Dota 2, Valorant, and anime games</p>
-              </div>
-            </div>
-
-            <div class="interest-item">
-              <span class="interest-icon">📚</span>
-              <div class="interest-text">
-                <h4>Learning</h4>
-                <p>Always exploring new technologies</p>
-              </div>
-            </div>
-          </div>
+        <!-- Interests - Simple Tags -->
+        <div class="interests-tags">
+          <span class="interest-tag">🏐 Volleyball</span>
+          <span class="interest-tag">💪 Powerlifting</span>
+          <span class="interest-tag">🎮 Gaming</span>
+          <span class="interest-tag">📚 Learning</span>
         </div>
 
         <!-- Photo Albums - Featured Section -->
@@ -167,12 +137,7 @@
       <div class="container">
         <h2 class="section-title">Visitors</h2>
         <div class="map-container">
-          <a href="https://clustrmaps.com/site/1c8ov" title="ClustrMaps" target="_blank" rel="noopener noreferrer">
-            <img
-              src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff"
-              alt="Visitor Map"
-            />
-          </a>
+          <script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a"></script>
         </div>
       </div>
     </section>
@@ -457,58 +422,34 @@ h1 {
 }
 
 /* Interests Section */
-.interests-section {
-  margin-top: 3rem;
-}
-
-.interests-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.interest-item {
+.interests-tags {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: var(--bg-card);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 2px 8px var(--shadow);
-  transition: all 0.3s ease;
-}
-
-.interest-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 15px var(--shadow);
-  border-color: var(--accent-primary);
-}
-
-.interest-icon {
-  font-size: 2.5rem;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  background: var(--bg-tertiary);
-  border-radius: 12px;
 }
 
-.interest-text h4 {
-  font-size: 1.2rem;
+.interest-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-card);
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
-  font-weight: 600;
+  border-radius: 50px;
+  border: 1px solid var(--border-color);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px var(--shadow);
 }
 
-.interest-text p {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin: 0;
+.interest-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 /* Blog Section */
@@ -630,8 +571,9 @@ h1 {
 .map-container {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
-  max-width: 300px;
+  margin-top: 2rem;
+  max-width: 700px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -692,28 +634,13 @@ h1 {
     font-size: 0.85rem;
   }
 
-  .interests-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .interests-tags {
+    gap: 0.75rem;
   }
 
-  .interest-item {
-    padding: 1.25rem;
-    gap: 1rem;
-  }
-
-  .interest-icon {
-    font-size: 2rem;
-    width: 50px;
-    height: 50px;
-  }
-
-  .interest-text h4 {
-    font-size: 1.1rem;
-  }
-
-  .interest-text p {
-    font-size: 0.9rem;
+  .interest-tag {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
   }
 
   .blog-grid {

@@ -50,8 +50,8 @@ const getSiteContext = () => {
     blogs: blogPosts.value.map(post => ({
       title: post.title,
       date: post.date,
-      excerpt: post.excerpt,
       tags: post.tags
+      // Removed excerpt to reduce payload size (not critical for chatbot)
     }))
   }
 }

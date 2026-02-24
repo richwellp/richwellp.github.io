@@ -696,11 +696,12 @@ main {
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.5rem 0.25rem;
+  padding: 0.5rem 0.25rem 0.5rem 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
-  border-bottom: 2px solid transparent;
+  height: 100%;
 }
 
 .dropdown-arrow-btn:hover {
@@ -1009,7 +1010,7 @@ main {
   border-top: 1px solid var(--border-color);
   color: var(--text-secondary);
   padding: 2rem;
-  margin-top: 4rem;
+  margin-top: 0;
   transition: background-color 0.3s ease;
 }
 

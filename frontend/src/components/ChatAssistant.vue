@@ -96,9 +96,22 @@
           <!-- Context indicators (sources) -->
           <div v-if="message.sources && message.sources.length > 0" class="message-sources">
             <span class="source-label">Sources:</span>
-            <span v-for="source in message.sources" :key="source" class="source-badge">
-              {{ source === 'resume' ? '📄 Resume' : source === 'profile' ? '👤 Profile' : '📝 Blog' }}
-            </span>
+            <router-link
+              v-for="source in message.sources"
+              :key="source"
+              :to="getSourceLink(source)"
+              class="source-badge"
+              @click="toggleChat"
+            >
+              {{
+                source === 'resume' ? '📄 Resume' :
+                source === 'profile' ? '👤 Profile' :
+                source === 'experience' ? '💼 Experience' :
+                source === 'projects' ? '🚀 Projects' :
+                source === 'blog' ? '📝 Blog' :
+                source
+              }}
+            </router-link>
           </div>
 
           <span class="message-time">{{ formatTime(message.timestamp) }}</span>
@@ -161,6 +174,7 @@
 
 <script setup>
 import { ref, watch, nextTick, computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useChatAssistant } from '../composables/useChatAssistant'
 import MarkdownIt from 'markdown-it'
 
@@ -249,6 +263,24 @@ const handleSend = async () => {
   await nextTick()
   if (window.innerWidth > 768) {
     inputField.value?.focus()
+  }
+}
+
+// Get link for source badges
+const getSourceLink = (source) => {
+  switch (source) {
+    case 'resume':
+      return '/cv'
+    case 'profile':
+      return '/'
+    case 'experience':
+      return '/experience'
+    case 'projects':
+      return '/projects'
+    case 'blog':
+      return '/misc/blog'
+    default:
+      return '/'
   }
 }
 
@@ -696,6 +728,16 @@ watch(isOpen, async (newValue) => {
   border-radius: 6px;
   border: 1px solid var(--border-color);
   font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.source-badge:hover {
+  background: var(--accent-primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px var(--shadow);
 }
 
 .message-time {
