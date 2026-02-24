@@ -262,8 +262,22 @@ const handleSubmit = async () => {
     return
   }
 
+  // Detect type from URL or selected file
+  let mediaType = 'image' // default
+  if (selectedFile.value) {
+    // Detect from file type
+    mediaType = selectedFile.value.type.startsWith('video') ? 'video' : 'image'
+  } else if (form.value.url) {
+    // Detect from URL extension
+    const urlLower = form.value.url.toLowerCase()
+    if (urlLower.match(/\.(mp4|mov|webm|avi|mkv)(\?|$)/)) {
+      mediaType = 'video'
+    }
+  }
+
   const photoData = {
     ...form.value,
+    type: mediaType,
     category: form.value.category?.trim() || null,
     date_taken: form.value.date_taken || null
   }

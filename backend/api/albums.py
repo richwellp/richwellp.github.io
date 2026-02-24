@@ -387,6 +387,7 @@ def admin_create_photo(slug):
         result = supabase.table('photos').insert({
             'album_id': album_id,
             'url': data['url'],
+            'type': data.get('type', 'image'),
             'caption': data.get('caption', ''),
             'location': data.get('location'),
             'date_taken': data.get('date_taken'),

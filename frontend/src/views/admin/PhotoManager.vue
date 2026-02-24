@@ -64,7 +64,11 @@
       <div v-else-if="photos.length > 0" class="photos-grid">
         <div v-for="photo in photos" :key="photo.id" class="photo-card">
           <div class="photo-image">
-            <img :src="photo.url" :alt="photo.caption || 'Photo'" />
+            <img v-if="photo.type !== 'video'" :src="photo.url" :alt="photo.caption || 'Photo'" />
+            <video v-else :src="photo.url" controls playsinline>
+              <source :src="photo.url" type="video/mp4">
+              Your browser doesn't support videos.
+            </video>
           </div>
           <div class="photo-info">
             <div class="photo-details">
@@ -336,7 +340,8 @@ onMounted(() => {
   background: var(--bg-tertiary);
 }
 
-.photo-image img {
+.photo-image img,
+.photo-image video {
   width: 100%;
   height: 100%;
   object-fit: cover;
