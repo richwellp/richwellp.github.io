@@ -90,6 +90,19 @@ class TestSingleTopicQuestions:
             sources = determine_relevant_sources(question, FULL_CONTEXT)
             assert sources == ['resume'], f"Failed for: {question}"
 
+    def test_skills_questions_only(self):
+        """Skills questions should show profile."""
+        questions = [
+            "What are your skills?",
+            "What technologies do you know?",
+            "Tell me your tech stack",
+            "What programming languages do you use?"
+        ]
+
+        for question in questions:
+            sources = determine_relevant_sources(question, FULL_CONTEXT)
+            assert sources == ['profile'], f"Failed for: {question}"
+
 
 class TestMixedTopicQuestions:
     """Test multi-topic and generic questions."""

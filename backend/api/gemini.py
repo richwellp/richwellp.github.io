@@ -165,7 +165,7 @@ At the START of your response, include a special indicator line showing which so
 
 Only include sources you actually referenced:
 - Use "resume" if you cited the PDF resume content
-- Use "profile" if you used personal info (name, summary, education)
+- Use "profile" if you used personal info (name, email, location, summary, education, skills)
 - Use "experience" if you mentioned work experience or job history
 - Use "projects" if you referenced specific projects or portfolio work
 - Use "blog" if you mentioned or referenced blog posts
@@ -342,16 +342,26 @@ def determine_relevant_sources(user_message, site_context):
             'blog', 'post', 'article', 'wrote', 'written', 'published'
         ]),
         'projects': any(kw in message_lower for kw in [
-            'project', 'built', 'created', 'developed', 'portfolio', 'github', 'code'
+            'project', 'projects', 'built', 'build', 'building',
+            'created', 'create', 'creating', 'developed', 'develop', 'developing',
+            'portfolio', 'github', 'code', 'coding',
+            'app', 'application', 'software', 'system'
         ]),
         'experience': any(kw in message_lower for kw in [
-            'work', 'experience', 'job', 'company', 'employer', 'role', 'position', 'career'
+            'work', 'worked', 'working', 'experience', 'experienced',
+            'job', 'jobs', 'company', 'companies', 'employer', 'employment', 'employed',
+            'role', 'roles', 'position', 'positions', 'career'
         ]),
         'education': any(kw in message_lower for kw in [
             'education', 'degree', 'school', 'university', 'studied', 'study', 'major', 'college'
         ]),
         'resume': any(kw in message_lower for kw in [
             'resume', 'cv', 'qualification', 'certification'
+        ]),
+        'skills': any(kw in message_lower for kw in [
+            'skill', 'skills', 'technology', 'technologies', 'tech stack',
+            'programming language', 'language', 'languages', 'framework', 'frameworks',
+            'tool', 'tools', 'proficient', 'expertise', 'technical'
         ])
     }
 
@@ -374,6 +384,9 @@ def determine_relevant_sources(user_message, site_context):
     elif question_types['resume'] and sum(question_types.values()) == 1:
         if has_professional:
             sources = ['resume']
+    elif question_types['skills'] and sum(question_types.values()) == 1:
+        if has_professional:
+            sources = ['profile']  # Skills are part of profile/personal info
     # Multi-topic or generic questions (show all relevant)
     else:
         if has_professional:

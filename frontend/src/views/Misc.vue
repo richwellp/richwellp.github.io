@@ -137,7 +137,13 @@
       <div class="container">
         <h2 class="section-title">Visitors</h2>
         <div class="map-container">
-          <script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a"></script>
+          <a href="https://clustrmaps.com/site/1c8ov" title="Visit tracker" target="_blank" rel="noopener noreferrer">
+            <img
+              src="//www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff"
+              alt="Visitor Map - Locations of site visitors"
+              loading="lazy"
+            />
+          </a>
         </div>
       </div>
     </section>
