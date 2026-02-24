@@ -3,6 +3,7 @@
     <!-- Hero Section -->
     <div class="hero-section">
       <div class="container">
+        <router-link to="/misc" class="back-link">← Back to Misc</router-link>
         <h1>📸 Photo Albums</h1>
         <p class="page-intro">
           Moments captured through my lens—adventures, milestones, and memories from around the world.
@@ -83,6 +84,19 @@ import OptimizedImage from '../components/OptimizedImage.vue'
   background: var(--bg-secondary);
   padding: 4rem 2rem;
   text-align: center;
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: var(--link-hover);
 }
 
 .container {

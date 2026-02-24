@@ -993,7 +993,7 @@ main {
 }
 
 .toggle-slider.dark-mode {
-  transform: translateX(30px);
+  transform: translateX(28px);
 }
 
 /* Footer */
