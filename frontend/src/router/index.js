@@ -21,6 +21,7 @@ import AdminDashboard from '../views/admin/AdminDashboard.vue'
 import AdminPanel from '../views/admin/AdminPanel.vue'
 import PostEditor from '../views/admin/PostEditor.vue'
 import AlbumsAdmin from '../views/admin/AlbumsAdmin.vue'
+import PhotoManager from '../views/admin/PhotoManager.vue'
 
 // Structured data utilities
 import { useStructuredDataOnRouteChange } from '../composables/useStructuredData'
@@ -106,6 +107,11 @@ const router = createRouter({
       path: '/admin/albums',
       name: 'admin-albums',
       component: AlbumsAdmin
+    },
+    {
+      path: '/admin/albums/:slug/photos',
+      name: 'admin-album-photos',
+      component: PhotoManager
     },
     {
       path: '/admin/new',

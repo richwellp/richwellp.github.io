@@ -83,6 +83,9 @@
                 </span>
               </td>
               <td class="actions-cell">
+                <router-link :to="`/admin/albums/${album.slug}/photos`" class="action-btn">
+                  Manage Photos
+                </router-link>
                 <button @click="editAlbum(album)" class="action-btn" title="Edit">Edit</button>
                 <button @click="togglePublish(album)" class="action-btn" :disabled="isTogglingPublish[album.slug]">
                   {{ album.published ? 'Unpublish' : 'Publish' }}
