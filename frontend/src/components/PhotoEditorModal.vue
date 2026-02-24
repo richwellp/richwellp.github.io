@@ -263,7 +263,6 @@ const handleSubmit = async () => {
   }
 
   const photoData = {
-  const photoData = {
     ...form.value,
     category: form.value.category?.trim() || null,
     date_taken: form.value.date_taken || null

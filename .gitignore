@@ -1,0 +1,31 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Documentation/planning files (except README)
+*_SETUP.md
+*_VERIFICATION.md
+*_GUIDE.md
+PLAN*.md
+TODO*.md
+
+# Keep README files
+!README.md
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
