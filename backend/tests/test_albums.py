@@ -36,7 +36,6 @@ class TestListAlbums:
                 'id': 1,
                 'slug': 'travel',
                 'name': 'Travel',
-                'icon': '✈️',
                 'subtitle': 'Travel adventures',
                 'order_index': 1,
                 'published': True
@@ -45,7 +44,6 @@ class TestListAlbums:
                 'id': 2,
                 'slug': 'me',
                 'name': 'Me',
-                'icon': '📷',
                 'subtitle': 'Personal moments',
                 'order_index': 2,
                 'published': True
@@ -198,7 +196,7 @@ class TestGetAlbum:
     def test_get_album_with_categories(self, mock_supabase, client):
         """Should group photos by category for albums with categories (like Travel)"""
         # Arrange
-        mock_album_data = [{'id': 1, 'slug': 'travel', 'name': 'Travel', 'icon': '✈️', 'subtitle': 'Travel', 'published': True}]
+        mock_album_data = [{'id': 1, 'slug': 'travel', 'name': 'Travel', 'subtitle': 'Travel', 'published': True}]
         mock_photos_data = [
             {'url': '/1.jpg', 'caption': 'Photo 1', 'category': 'usa', 'order_index': 1},
             {'url': '/2.jpg', 'caption': 'Photo 2', 'category': 'usa', 'order_index': 2},
@@ -236,7 +234,7 @@ class TestGetAlbum:
     def test_get_album_without_categories(self, mock_supabase, client):
         """Should return flat photo array for albums without categories (like Me)"""
         # Arrange
-        mock_album_data = [{'id': 2, 'slug': 'me', 'name': 'Me', 'icon': '📷', 'subtitle': 'Personal', 'published': True}]
+        mock_album_data = [{'id': 2, 'slug': 'me', 'name': 'Me', 'subtitle': 'Personal', 'published': True}]
         mock_photos_data = [
             {'url': '/1.jpg', 'caption': 'Photo 1', 'category': None, 'order_index': 1},
             {'url': '/2.jpg', 'caption': 'Photo 2', 'category': None, 'order_index': 2}
@@ -287,7 +285,6 @@ class TestAdminListAlbums:
                 'id': 1,
                 'slug': 'travel',
                 'name': 'Travel',
-                'icon': '✈️',
                 'subtitle': 'Travel photos',
                 'categories': ['usa', 'philippines', 'japan'],
                 'published': True,
@@ -297,7 +294,6 @@ class TestAdminListAlbums:
                 'id': 3,
                 'slug': 'sports',
                 'name': 'Sports',
-                'icon': '🏐',
                 'subtitle': 'Sports photos',
                 'categories': None,
                 'published': False,  # Unpublished
@@ -355,7 +351,6 @@ class TestAdminCreateAlbum:
         response = client.post('/admin/albums', json={
             'slug': 'food',
             'name': 'Food',
-            'icon': '🍜'
         })
         assert response.status_code == 401
 

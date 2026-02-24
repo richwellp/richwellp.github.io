@@ -52,7 +52,7 @@ def list_albums():
     try:
         # Query published albums ordered by order_index
         response = supabase.table('albums') \
-            .select('id,slug,name,icon,subtitle,order_index') \
+            .select('id,slug,name,subtitle,order_index') \
             .eq('published', True) \
             .order('order_index') \
             .execute()
@@ -148,7 +148,6 @@ def get_album(slug):
                     'id': album['id'],
                     'slug': album['slug'],
                     'name': album['name'],
-                    'icon': album['icon'],
                     'subtitle': album['subtitle']
                 },
                 'photos': photos_by_category,
@@ -168,7 +167,6 @@ def get_album(slug):
                     'id': album['id'],
                     'slug': album['slug'],
                     'name': album['name'],
-                    'icon': album['icon'],
                     'subtitle': album['subtitle']
                 },
                 'photos': photos_array,
@@ -238,7 +236,6 @@ def admin_create_album():
         result = supabase.table('albums').insert({
             'slug': data['slug'],
             'name': data['name'],
-            'icon': data.get('icon', '📷'),
             'subtitle': data.get('subtitle', ''),
             'categories': data.get('categories'),
             'published': data.get('published', True),
