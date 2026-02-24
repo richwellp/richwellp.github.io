@@ -1,0 +1,82 @@
+# Root .gitignore for portfolio website
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+
+# Node/JavaScript
+node_modules/
+.npm
+.eslintcache
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+dist/
+dist-ssr/
+.DS_Store
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Coverage
+coverage/
+*.cover
+.coverage
+.coverage.*
+htmlcov/
+
+# Build artifacts
+build/
+*.egg
+*.egg-info
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Editor backups
+*~
+.*.sw[a-p]
