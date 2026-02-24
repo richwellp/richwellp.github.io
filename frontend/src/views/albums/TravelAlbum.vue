@@ -1,15 +1,62 @@
 <template>
   <AlbumViewer
-    title="Travel"
-    icon="✈️"
-    subtitle="Adventures around the world"
-    :photos="travelPhotos"
-    :categories="travelCategories"
-    default-category="usa"
+    v-if="!loading && albumData"
+    :title="albumData.album.name"
+    :icon="albumData.album.icon"
+    :subtitle="albumData.album.subtitle"
+    :photos="albumData.photos"
+    :categories="categoryList"
+    :defaultCategory="categoryList[0]?.id"
   />
+  <div v-else-if="loading" class="loading-state">
+    <p>Loading album...</p>
+  </div>
+  <div v-else-if="error" class="error-state">
+    <p>Error: {{ error }}</p>
+  </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
 import AlbumViewer from '../../components/AlbumViewer.vue'
-import { travelPhotos, travelCategories } from '../../data/travelPhotos'
+import { useAlbums } from '../../composables/useAlbums'
+
+const { loading, error, fetchAlbumBySlug } = useAlbums()
+const albumData = ref(null)
+
+// Transform API categories to the format AlbumViewer expects
+const categoryList = computed(() => {
+  if (!albumData.value || !albumData.value.categories) return []
+
+  return albumData.value.categories.map(category => ({
+    id: category,
+    name: category.charAt(0).toUpperCase() + category.slice(1)
+  }))
+})
+
+onMounted(async () => {
+  try {
+    albumData.value = await fetchAlbumBySlug('travel')
+  } catch (err) {
+    console.error('Failed to load travel album:', err)
+  }
+})
 </script>
+
+<style scoped>
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-state {
+  color: #ef4444;
+}
+</style>

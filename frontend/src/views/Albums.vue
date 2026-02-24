@@ -10,68 +10,89 @@
         </p>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="loading" class="loading">
+        <p>Loading albums...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-if="error" class="error">
+        <p>Error loading albums: {{ error }}</p>
+      </div>
+
       <!-- Albums Grid -->
-      <div class="albums-grid">
-        <!-- Travel Album -->
-        <router-link to="/misc/travel" class="album-card">
-          <div class="album-image">
+      <div v-if="!loading && !error && albums.length > 0" class="albums-grid">
+        <router-link
+          v-for="album in albums"
+          :key="album.id"
+          :to="getAlbumRoute(album.slug)"
+          :class="['album-card', { 'coming-soon': !album.published }]"
+        >
+          <div v-if="album.coverPhoto" class="album-image">
             <OptimizedImage
-              src="/assets/photos/travel/colorado/personal_emlake.jpg"
-              alt="Travel Adventures"
+              :src="album.coverPhoto"
+              :alt="`${album.name} Album`"
               size="md"
             />
           </div>
+          <div v-else class="album-image placeholder">
+            <div class="placeholder-icon">{{ album.icon }}</div>
+          </div>
           <div class="album-content">
             <div class="album-header">
-              <span class="album-icon">✈️</span>
-              <h2>Travel</h2>
+              <span class="album-icon">{{ album.icon }}</span>
+              <h2>{{ album.name }}</h2>
             </div>
-            <p class="album-description">Exploring Philippines, USA, Japan, and many more</p>
-            <span class="view-more">View Album →</span>
+            <p class="album-description">{{ album.subtitle }}</p>
+            <span v-if="album.published" class="view-more">View Album →</span>
+            <span v-else class="coming-soon-badge">Coming Soon</span>
           </div>
         </router-link>
+      </div>
 
-        <!-- Me Album (renamed from Professional) -->
-        <router-link to="/misc/professional" class="album-card">
-          <div class="album-image">
-            <OptimizedImage
-              src="/assets/photos/professional/professional_1.jpg"
-              alt="Personal Milestones"
-              size="md"
-            />
-          </div>
-          <div class="album-content">
-            <div class="album-header">
-              <span class="album-icon">📷</span>
-              <h2>Me</h2>
-            </div>
-            <p class="album-description">Graduation, school events, and career milestones</p>
-            <span class="view-more">View Album →</span>
-          </div>
-        </router-link>
-
-        <!-- Sports Album -->
-        <router-link to="/misc/sports" class="album-card coming-soon">
-          <div class="album-image placeholder">
-            <div class="placeholder-icon">🏐</div>
-          </div>
-          <div class="album-content">
-            <div class="album-header">
-              <span class="album-icon">🏐</span>
-              <h2>Sports</h2>
-            </div>
-            <p class="album-description">Volleyball and athletic achievements</p>
-            <span class="coming-soon-badge">Coming Soon</span>
-          </div>
-        </router-link>
+      <!-- Empty State -->
+      <div v-if="!loading && !error && albums.length === 0" class="empty-state">
+        <p>No albums available yet.</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import OptimizedImage from '../components/OptimizedImage.vue'
+import { useAlbums } from '../composables/useAlbums'
+
+const { albums, loading, error, fetchAlbums } = useAlbums()
+
+// Map album slugs to routes
+const albumRouteMap = {
+  'travel': '/misc/travel',
+  'me': '/misc/professional',
+  'sports': '/misc/sports'
+}
+
+function getAlbumRoute(slug) {
+  return albumRouteMap[slug] || `/misc/${slug}`
+}
+
+onMounted(async () => {
+  try {
+    const fetchedAlbums = await fetchAlbums()
+
+    // Add cover photos for albums (hardcoded for now since photos are still in static files)
+    fetchedAlbums.forEach(album => {
+      if (album.slug === 'travel') {
+        album.coverPhoto = '/assets/photos/travel/colorado/personal_emlake.jpg'
+      } else if (album.slug === 'me') {
+        album.coverPhoto = '/assets/photos/professional/professional_1.jpg'
+      }
+    })
+  } catch (err) {
+    console.error('Failed to load albums:', err)
+  }
+})
 </script>
 
 <style scoped>
@@ -114,6 +135,20 @@ h1 {
   font-size: 1.1rem;
   color: var(--text-secondary);
   max-width: 800px;
+}
+
+/* Loading & Error States */
+.loading,
+.error,
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #ef4444;
 }
 
 /* Albums Grid */
