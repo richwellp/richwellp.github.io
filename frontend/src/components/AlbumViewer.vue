@@ -4,13 +4,12 @@
       <!-- Header -->
       <div class="album-header">
         <router-link to="/misc" class="back-link">← Back to Misc</router-link>
-        <h1>{{ icon }} {{ title }}</h1>
+        <h1>{{ title }}</h1>
         <p class="album-subtitle">{{ subtitle }}</p>
       </div>
 
       <!-- Coming Soon State -->
       <div v-if="comingSoon" class="coming-soon">
-        <div class="icon">{{ icon }}</div>
         <h2>Coming Soon</h2>
         <p>{{ comingSoonMessage || 'Photos will be added here soon!' }}</p>
       </div>

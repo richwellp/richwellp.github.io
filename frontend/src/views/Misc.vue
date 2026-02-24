@@ -102,44 +102,49 @@
             <h3 class="subsection-title">Photo Albums</h3>
             <router-link to="/misc/albums" class="view-all-link">View All →</router-link>
           </div>
-          <div class="albums-grid">
-            <!-- Travel Album -->
-            <router-link to="/misc/travel" class="album-card featured">
-              <div class="album-image placeholder">
-                <div class="placeholder-content">
-                  <span class="album-title">Travel</span>
-                  <span class="album-subtitle">Coming Soon</span>
-                </div>
-              </div>
-            </router-link>
 
-            <!-- Me Album -->
-            <router-link to="/misc/professional" class="album-card">
-              <div class="album-image">
+          <!-- Loading State -->
+          <div v-if="albumsLoading" class="loading-state">
+            <p>Loading albums...</p>
+          </div>
+
+          <!-- Albums Grid -->
+          <div v-else-if="featuredAlbums.length > 0" class="albums-grid">
+            <router-link
+              v-for="album in featuredAlbums"
+              :key="album.id"
+              :to="`/misc/albums/${album.slug}`"
+              class="album-card"
+            >
+              <!-- Album with cover photo -->
+              <div v-if="album.cover_photo" class="album-image">
                 <img
-                  src="/assets/photos/professional_1.jpg"
-                  alt="Personal Moments"
+                  :src="album.cover_photo"
+                  :alt="`${album.name} Album`"
                   loading="lazy"
                 />
                 <div class="album-overlay">
                   <div class="overlay-content">
-                    <span class="album-title">Me</span>
-                    <span class="album-subtitle">Personal moments</span>
+                    <span class="album-title">{{ album.name }}</span>
+                    <span class="album-subtitle">{{ album.subtitle }}</span>
                     <span class="view-link">View Album →</span>
                   </div>
                 </div>
               </div>
-            </router-link>
 
-            <!-- Sports Album -->
-            <router-link to="/misc/sports" class="album-card">
-              <div class="album-image placeholder">
+              <!-- Album without cover photo (placeholder) -->
+              <div v-else class="album-image placeholder">
                 <div class="placeholder-content">
-                  <span class="album-title">Sports</span>
-                  <span class="album-subtitle">Coming Soon</span>
+                  <span class="album-title">{{ album.name }}</span>
+                  <span class="album-subtitle">{{ album.subtitle || 'Coming Soon' }}</span>
                 </div>
               </div>
             </router-link>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else class="empty-albums">
+            <p>No albums yet</p>
           </div>
         </div>
 
@@ -168,10 +173,13 @@ import { RouterLink } from 'vue-router'
 import { onMounted, computed } from 'vue'
 import OptimizedImage from '../components/OptimizedImage.vue'
 import { useBlog } from '../composables/useBlog'
+import { useAlbums } from '../composables/useAlbums'
 
 const { posts, loading, fetchPosts } = useBlog()
+const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
+const featuredAlbums = computed(() => albums.value.slice(0, 3))
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -186,6 +194,7 @@ const formatDate = (date) => {
 
 onMounted(() => {
   fetchPosts()
+  fetchAlbums()
 })
 </script>
 
@@ -321,8 +330,11 @@ h1 {
   box-shadow: 0 8px 25px var(--shadow);
 }
 
-.album-card.featured {
-  grid-column: span 1;
+.empty-albums {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
 }
 
 .album-image {
@@ -641,10 +653,6 @@ h1 {
   .albums-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
-  }
-
-  .album-card.featured {
-    grid-column: span 1;
   }
 
   .album-overlay {

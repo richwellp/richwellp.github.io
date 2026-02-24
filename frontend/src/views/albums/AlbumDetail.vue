@@ -2,11 +2,12 @@
   <AlbumViewer
     v-if="!loading && albumData"
     :title="albumData.album.name"
-    icon="✈️"
     :subtitle="albumData.album.subtitle"
     :photos="albumData.photos"
     :categories="categoryList"
     :defaultCategory="categoryList[0]?.id"
+    :coming-soon="!albumData.photos || albumData.photos.length === 0"
+    :coming-soon-message="getComingSoonMessage()"
   />
   <div v-else-if="loading" class="loading-state">
     <p>Loading album...</p>
@@ -18,9 +19,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import AlbumViewer from '../../components/AlbumViewer.vue'
 import { useAlbums } from '../../composables/useAlbums'
 
+const route = useRoute()
 const { loading, error, fetchAlbumBySlug } = useAlbums()
 const albumData = ref(null)
 
@@ -34,11 +37,20 @@ const categoryList = computed(() => {
   }))
 })
 
+function getComingSoonMessage() {
+  const slug = route.params.slug
+  if (slug === 'sports') {
+    return 'Photos from volleyball matches and powerlifting sessions will be added here!'
+  }
+  return `Photos will be added to this album soon!`
+}
+
 onMounted(async () => {
   try {
-    albumData.value = await fetchAlbumBySlug('travel')
+    const slug = route.params.slug
+    albumData.value = await fetchAlbumBySlug(slug)
   } catch (err) {
-    console.error('Failed to load travel album:', err)
+    console.error('Failed to load album:', err)
   }
 })
 </script>

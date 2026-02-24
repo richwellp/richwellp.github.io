@@ -8,9 +8,7 @@ import Albums from '../views/Albums.vue'
 import Contact from '../views/Contact.vue'
 
 // Album views
-import TravelAlbum from '../views/albums/TravelAlbum.vue'
-import ProfessionalAlbum from '../views/albums/ProfessionalAlbum.vue'
-import SportsAlbum from '../views/albums/SportsAlbum.vue'
+import AlbumDetail from '../views/albums/AlbumDetail.vue'
 
 // Blog views
 import BlogList from '../views/blog/BlogList.vue'
@@ -65,21 +63,11 @@ const router = createRouter({
       name: 'albums',
       component: Albums
     },
-    // Album routes
+    // Dynamic album route
     {
-      path: '/misc/travel',
-      name: 'travel-album',
-      component: TravelAlbum
-    },
-    {
-      path: '/misc/professional',
-      name: 'professional-album',
-      component: ProfessionalAlbum
-    },
-    {
-      path: '/misc/sports',
-      name: 'sports-album',
-      component: SportsAlbum
+      path: '/misc/albums/:slug',
+      name: 'album-detail',
+      component: AlbumDetail
     },
     // Blog routes
     {
