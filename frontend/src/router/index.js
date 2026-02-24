@@ -17,8 +17,10 @@ import BlogList from '../views/blog/BlogList.vue'
 import BlogPost from '../views/blog/BlogPost.vue'
 
 // Admin views
+import AdminDashboard from '../views/admin/AdminDashboard.vue'
 import AdminPanel from '../views/admin/AdminPanel.vue'
 import PostEditor from '../views/admin/PostEditor.vue'
+import AlbumsAdmin from '../views/admin/AlbumsAdmin.vue'
 
 // Structured data utilities
 import { useStructuredDataOnRouteChange } from '../composables/useStructuredData'
@@ -92,8 +94,18 @@ const router = createRouter({
     // Admin routes
     {
       path: '/admin',
-      name: 'admin-panel',
+      name: 'admin-dashboard',
+      component: AdminDashboard
+    },
+    {
+      path: '/admin/blogs',
+      name: 'admin-blogs',
       component: AdminPanel
+    },
+    {
+      path: '/admin/albums',
+      name: 'admin-albums',
+      component: AlbumsAdmin
     },
     {
       path: '/admin/new',
