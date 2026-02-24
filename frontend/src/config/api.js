@@ -26,6 +26,18 @@ export const API_ENDPOINTS = {
   adminCreatePost: `${API_BASE_URL}/blog/posts`,
   adminUpdatePost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
   adminDeletePost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
+
+  // Albums endpoints (public)
+  albums: `${API_BASE_URL}/albums`,
+  album: (slug) => `${API_BASE_URL}/albums/${slug}`,
+
+  // Admin albums endpoints (require authentication)
+  adminAlbums: `${API_BASE_URL}/admin/albums`,
+  adminAlbum: (slug) => `${API_BASE_URL}/admin/albums/${slug}`,
+  adminAlbumPhotos: (slug) => `${API_BASE_URL}/admin/albums/${slug}/photos`,
+  adminAlbumPhotosBatch: (slug) => `${API_BASE_URL}/admin/albums/${slug}/photos/batch`,
+  adminPhoto: (photoId) => `${API_BASE_URL}/admin/photos/${photoId}`,
+  adminPhotoReorder: (photoId) => `${API_BASE_URL}/admin/photos/${photoId}/reorder`,
 }
 
 // API Configuration
