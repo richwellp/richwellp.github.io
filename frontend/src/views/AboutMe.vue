@@ -35,7 +35,7 @@
         <div class="story-content">
           <div class="story-text">
             <p>
-              Hello and welcome! I am Richwell Perez, and I have earned a BS and MCS in Computer Science from UIUC, specializing in Data and Artificial Intelligence.
+              Hello and welcome! I am Richwell Perez, and I earned a BS and MCS in Computer Science from UIUC, specializing in Data and Artificial Intelligence.
               My background includes teaching assistantships, software engineering, database systems, data science, and AI engineering. 
             </p>
             <p>
