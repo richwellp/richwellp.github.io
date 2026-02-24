@@ -4,11 +4,13 @@
 
 Run these SQL commands in your Supabase SQL Editor in this exact order:
 
-### 1. Create Albums Schema
+### Step 1: Create Albums Schema
+
+Copy and run the **entire contents** of `backend/database/albums_schema.sql` in Supabase SQL Editor.
+
+Or use this simplified version:
 
 ```sql
--- From backend/database/albums_schema.sql
-
 -- Albums table
 CREATE TABLE IF NOT EXISTS albums (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -54,29 +56,19 @@ DROP POLICY IF EXISTS "Allow public read access to photos" ON photos;
 CREATE POLICY "Allow public read access to photos" ON photos FOR SELECT USING (true);
 ```
 
-### 2. Seed Albums Data
+### Step 2: Seed Albums and Photos
 
-```sql
--- From backend/database/seed_photos.sql (albums part)
+Copy and run the **entire contents** of `backend/database/seed_photos.sql` in Supabase SQL Editor.
 
-INSERT INTO albums (slug, name, icon, subtitle, categories, order_index, published) VALUES
-('travel', 'Travel', '✈️', 'Exploring the world', ARRAY['usa', 'philippines', 'japan']::TEXT[], 0, true),
-('sports', 'Sports', '⚽', 'Athletic moments', NULL, 1, true),
-('me', 'Me', '👤', 'Personal moments', NULL, 2, true)
-ON CONFLICT (slug) DO UPDATE SET
-    name = EXCLUDED.name,
-    icon = EXCLUDED.icon,
-    subtitle = EXCLUDED.subtitle,
-    categories = EXCLUDED.categories,
-    order_index = EXCLUDED.order_index,
-    published = EXCLUDED.published;
-```
+This will:
+- Create 3 albums (Travel, Sports, Me)
+- Add sample photos for Travel (USA, Philippines, Japan)
+- Add sample photos for Me (Professional photos)
+- Add placeholder for Sports photos (add your own later via /admin)
 
-### 3. Seed Photos Data (Optional)
+**Note:** The file uses `ON CONFLICT` so it's safe to run multiple times.
 
-If you want sample photos, run the INSERT statements from `backend/database/seed_photos.sql`
-
-### 4. Create Blog Schema (if not exists)
+### Step 3: Create Blog Schema (if not exists)
 
 ```sql
 -- From backend/database/blog_schema.sql
