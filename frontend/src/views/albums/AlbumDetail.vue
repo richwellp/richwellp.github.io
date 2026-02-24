@@ -3,10 +3,10 @@
     v-if="!loading && albumData"
     :title="albumData.album.name"
     :subtitle="albumData.album.subtitle"
-    :photos="albumData.photos"
+    :photos="transformedPhotos"
     :categories="categoryList"
     :defaultCategory="categoryList[0]?.id"
-    :coming-soon="!albumData.photos || albumData.photos.length === 0"
+    :coming-soon="!transformedPhotos || (Array.isArray(transformedPhotos) && transformedPhotos.length === 0)"
     :coming-soon-message="getComingSoonMessage()"
   />
   <div v-else-if="loading" class="loading-state">
@@ -35,6 +35,29 @@ const categoryList = computed(() => {
     id: category,
     name: category.charAt(0).toUpperCase() + category.slice(1)
   }))
+})
+
+// Transform photos from API format to AlbumViewer format
+const transformedPhotos = computed(() => {
+  if (!albumData.value || !albumData.value.photos) return []
+
+  const transformPhoto = (photo) => ({
+    src: photo.url,
+    caption: photo.caption || '',
+    type: photo.url?.match(/\.(mp4|mov|webm)$/i) ? 'video' : 'image'
+  })
+
+  // If photos is an object (categorized), transform each category
+  if (typeof albumData.value.photos === 'object' && !Array.isArray(albumData.value.photos)) {
+    const transformed = {}
+    for (const [category, photos] of Object.entries(albumData.value.photos)) {
+      transformed[category] = photos.map(transformPhoto)
+    }
+    return transformed
+  }
+
+  // If photos is an array (uncategorized), transform the array
+  return albumData.value.photos.map(transformPhoto)
 })
 
 function getComingSoonMessage() {
