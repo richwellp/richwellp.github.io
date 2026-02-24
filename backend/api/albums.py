@@ -42,9 +42,9 @@ def list_albums():
                 "id": 1,
                 "slug": "travel",
                 "name": "Travel",
-                "icon": "✈️",
                 "subtitle": "Description",
-                "order_index": 1
+                "order_index": 1,
+                "cover_photo": "https://..."
             }
         ]
     }
@@ -57,8 +57,24 @@ def list_albums():
             .order('order_index') \
             .execute()
 
+        albums = response.data
+
+        # For each album, get the first photo as cover photo
+        for album in albums:
+            photos_response = supabase.table('photos') \
+                .select('url') \
+                .eq('album_id', album['id']) \
+                .order('order_index') \
+                .limit(1) \
+                .execute()
+
+            if photos_response.data and len(photos_response.data) > 0:
+                album['cover_photo'] = photos_response.data[0]['url']
+            else:
+                album['cover_photo'] = None
+
         return jsonify({
-            'albums': response.data
+            'albums': albums
         }), 200
 
     except Exception as e:

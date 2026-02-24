@@ -105,19 +105,10 @@
           <div class="albums-grid">
             <!-- Travel Album -->
             <router-link to="/misc/travel" class="album-card featured">
-              <div class="album-image">
-                <OptimizedImage
-                  src="/assets/photos/travel/colorado/personal_emlake.jpg"
-                  alt="Travel Adventures"
-                  size="md"
-                />
-                <div class="album-overlay">
-                  <div class="overlay-content">
-                    <span class="album-icon">✈️</span>
-                    <span class="album-title">Travel</span>
-                    <span class="album-subtitle">Some photos from Philippines, USA, Japan, and many more</span>
-                    <span class="view-link">View Album →</span>
-                  </div>
+              <div class="album-image placeholder">
+                <div class="placeholder-content">
+                  <span class="album-title">Travel</span>
+                  <span class="album-subtitle">Coming Soon</span>
                 </div>
               </div>
             </router-link>
@@ -132,7 +123,6 @@
                 />
                 <div class="album-overlay">
                   <div class="overlay-content">
-                    <span class="album-icon">👤</span>
                     <span class="album-title">Me</span>
                     <span class="album-subtitle">Personal moments</span>
                     <span class="view-link">View Album →</span>
@@ -145,7 +135,6 @@
             <router-link to="/misc/sports" class="album-card">
               <div class="album-image placeholder">
                 <div class="placeholder-content">
-                  <span class="album-icon">🏐</span>
                   <span class="album-title">Sports</span>
                   <span class="album-subtitle">Coming Soon</span>
                 </div>
@@ -379,11 +368,6 @@ h1 {
   color: white;
 }
 
-.album-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-
 .album-title {
   font-size: 1.8rem;
   font-weight: 700;
@@ -422,11 +406,6 @@ h1 {
   flex-direction: column;
   gap: 1rem;
   color: var(--text-secondary);
-}
-
-.placeholder-content .album-icon {
-  font-size: 4rem;
-  margin: 0;
 }
 
 .placeholder-content .album-title {

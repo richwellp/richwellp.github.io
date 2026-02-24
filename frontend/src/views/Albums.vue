@@ -28,15 +28,15 @@
           :to="getAlbumRoute(album.slug)"
           :class="['album-card', { 'coming-soon': !album.published }]"
         >
-          <div v-if="album.coverPhoto" class="album-image">
-            <OptimizedImage
-              :src="album.coverPhoto"
+          <div v-if="album.cover_photo" class="album-image">
+            <img
+              :src="album.cover_photo"
               :alt="`${album.name} Album`"
-              size="md"
+              loading="lazy"
             />
           </div>
           <div v-else class="album-image placeholder">
-            <div class="placeholder-icon">📷</div>
+            <div class="placeholder-text">No cover photo</div>
           </div>
           <div class="album-content">
             <div class="album-header">
@@ -60,7 +60,6 @@
 <script setup>
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import OptimizedImage from '../components/OptimizedImage.vue'
 import { useAlbums } from '../composables/useAlbums'
 
 const { albums, loading, error, fetchAlbums } = useAlbums()
@@ -78,16 +77,7 @@ function getAlbumRoute(slug) {
 
 onMounted(async () => {
   try {
-    const fetchedAlbums = await fetchAlbums()
-
-    // Add cover photos for albums (hardcoded for now since photos are still in static files)
-    fetchedAlbums.forEach(album => {
-      if (album.slug === 'travel') {
-        album.coverPhoto = '/assets/photos/travel/colorado/personal_emlake.jpg'
-      } else if (album.slug === 'me') {
-        album.coverPhoto = '/assets/photos/professional_1.jpg'
-      }
-    })
+    await fetchAlbums()
   } catch (err) {
     console.error('Failed to load albums:', err)
   }
@@ -200,9 +190,10 @@ h1 {
   justify-content: center;
 }
 
-.placeholder-icon {
-  font-size: 4rem;
-  opacity: 0.5;
+.placeholder-text {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 .album-content {
@@ -217,11 +208,6 @@ h1 {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
-}
-
-.album-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
 }
 
 .album-content h2 {
