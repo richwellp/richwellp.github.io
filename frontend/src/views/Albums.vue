@@ -14,10 +14,12 @@
       <div v-if="!loading && !error && albums.length > 0" class="filter-controls">
         <div class="search-box">
           <input
+            id="album-search"
             v-model="searchQuery"
             type="text"
             placeholder="Search albums..."
             class="search-input"
+            aria-label="Search albums"
           />
         </div>
         <div class="filter-stats">
