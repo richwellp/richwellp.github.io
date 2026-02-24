@@ -1,8 +1,8 @@
 <template>
   <AlbumViewer
-    title="Professional"
-    icon="💼"
-    subtitle="Work events and milestones"
+    title="Me"
+    icon="📷"
+    subtitle="Personal moments, graduation, and career milestones"
     :photos="professionalPhotos"
   />
 </template>

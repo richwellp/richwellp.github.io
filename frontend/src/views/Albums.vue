@@ -1,71 +1,71 @@
 <template>
   <div class="albums-page">
-    <!-- Hero Section -->
-    <div class="hero-section">
-      <div class="container">
+    <div class="container">
+      <!-- Header -->
+      <div class="albums-header">
         <router-link to="/misc" class="back-link">← Back to Misc</router-link>
         <h1>📸 Photo Albums</h1>
-        <p class="page-intro">
-          Moments captured through my lens—adventures, milestones, and memories from around the world.
+        <p class="albums-subtitle">
+          Moments captured through my lens—adventures, milestones, and memories from around the world
         </p>
       </div>
-    </div>
 
-    <!-- Albums Grid -->
-    <section class="albums-section">
-      <div class="container">
-        <div class="albums-grid">
-          <!-- Travel Album -->
-          <router-link to="/misc/travel" class="album-card featured">
-            <div class="album-image">
-              <OptimizedImage
-                src="/assets/photos/travel/colorado/personal_emlake.jpg"
-                alt="Travel Adventures"
-                size="md"
-              />
-              <div class="album-overlay">
-                <div class="overlay-content">
-                  <span class="album-icon">✈️</span>
-                  <span class="album-title">Travel</span>
-                  <span class="album-subtitle">Exploring Philippines, USA, Japan, and many more</span>
-                  <span class="view-link">View Album →</span>
-                </div>
-              </div>
+      <!-- Albums Grid -->
+      <div class="albums-grid">
+        <!-- Travel Album -->
+        <router-link to="/misc/travel" class="album-card">
+          <div class="album-image">
+            <OptimizedImage
+              src="/assets/photos/travel/colorado/personal_emlake.jpg"
+              alt="Travel Adventures"
+              size="md"
+            />
+          </div>
+          <div class="album-content">
+            <div class="album-header">
+              <span class="album-icon">✈️</span>
+              <h2>Travel</h2>
             </div>
-          </router-link>
+            <p class="album-description">Exploring Philippines, USA, Japan, and many more</p>
+            <span class="view-more">View Album →</span>
+          </div>
+        </router-link>
 
-          <!-- Professional Album -->
-          <router-link to="/misc/professional" class="album-card">
-            <div class="album-image">
-              <OptimizedImage
-                src="/assets/photos/professional/professional_1.jpg"
-                alt="Professional Milestones"
-                size="md"
-              />
-              <div class="album-overlay">
-                <div class="overlay-content">
-                  <span class="album-icon">💼</span>
-                  <span class="album-title">Professional</span>
-                  <span class="album-subtitle">Graduation • School/Work Events</span>
-                  <span class="view-link">View Album →</span>
-                </div>
-              </div>
+        <!-- Me Album (renamed from Professional) -->
+        <router-link to="/misc/professional" class="album-card">
+          <div class="album-image">
+            <OptimizedImage
+              src="/assets/photos/professional/professional_1.jpg"
+              alt="Personal Milestones"
+              size="md"
+            />
+          </div>
+          <div class="album-content">
+            <div class="album-header">
+              <span class="album-icon">📷</span>
+              <h2>Me</h2>
             </div>
-          </router-link>
+            <p class="album-description">Graduation, school events, and career milestones</p>
+            <span class="view-more">View Album →</span>
+          </div>
+        </router-link>
 
-          <!-- Sports Album -->
-          <router-link to="/misc/sports" class="album-card">
-            <div class="album-image placeholder">
-              <div class="placeholder-content">
-                <span class="album-icon">🏐</span>
-                <span class="album-title">Sports</span>
-                <span class="album-subtitle">Coming Soon</span>
-              </div>
+        <!-- Sports Album -->
+        <router-link to="/misc/sports" class="album-card coming-soon">
+          <div class="album-image placeholder">
+            <div class="placeholder-icon">🏐</div>
+          </div>
+          <div class="album-content">
+            <div class="album-header">
+              <span class="album-icon">🏐</span>
+              <h2>Sports</h2>
             </div>
-          </router-link>
-        </div>
+            <p class="album-description">Volleyball and athletic achievements</p>
+            <span class="coming-soon-badge">Coming Soon</span>
+          </div>
+        </router-link>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -76,14 +76,19 @@ import OptimizedImage from '../components/OptimizedImage.vue'
 
 <style scoped>
 .albums-page {
+  padding: 4rem 2rem;
+  background: var(--bg-primary);
   min-height: 100vh;
 }
 
-/* Hero Section */
-.hero-section {
-  background: var(--bg-secondary);
-  padding: 4rem 2rem;
-  text-align: center;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.albums-header {
+  margin-bottom: 3rem;
 }
 
 .back-link {
@@ -99,131 +104,59 @@ import OptimizedImage from '../components/OptimizedImage.vue'
   color: var(--link-hover);
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
 h1 {
   font-size: 2.5rem;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-.page-intro {
+.albums-subtitle {
   font-size: 1.1rem;
   color: var(--text-secondary);
-  max-width: 700px;
-  margin: 0 auto;
-  line-height: 1.6;
+  max-width: 800px;
 }
 
-/* Albums Section */
-.albums-section {
-  background: var(--bg-primary);
-  padding: 4rem 2rem;
-}
-
+/* Albums Grid */
 .albums-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 .album-card {
-  position: relative;
+  background: var(--bg-card);
   border-radius: 12px;
   overflow: hidden;
-  text-decoration: none;
-  display: block;
-  box-shadow: 0 4px 15px var(--shadow);
+  box-shadow: 0 2px 10px var(--shadow);
   border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-  aspect-ratio: 4 / 3;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .album-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 25px var(--shadow);
-}
-
-.album-card.featured {
-  grid-column: span 1;
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px var(--shadow);
+  border-color: var(--accent-primary);
 }
 
 .album-image {
-  position: relative;
   width: 100%;
-  height: 100%;
+  height: 240px;
   overflow: hidden;
+  background: var(--bg-secondary);
 }
 
 .album-image :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.3s ease;
 }
 
 .album-card:hover .album-image :deep(img) {
-  transform: scale(1.1);
-}
-
-.album-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8));
-  display: flex;
-  align-items: flex-end;
-  padding: 2rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.album-card:hover .album-overlay {
-  opacity: 1;
-}
-
-.overlay-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: white;
-}
-
-.album-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.album-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.album-subtitle {
-  font-size: 0.95rem;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
-}
-
-.view-link {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--accent-primary);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease 0.1s;
-}
-
-.album-card:hover .view-link {
-  opacity: 1;
-  transform: translateY(0);
+  transform: scale(1.05);
 }
 
 .album-image.placeholder {
@@ -233,34 +166,78 @@ h1 {
   justify-content: center;
 }
 
-.placeholder-content {
-  text-align: center;
+.placeholder-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+}
+
+.album-content {
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  color: var(--text-secondary);
+  flex: 1;
 }
 
-.placeholder-content .album-icon {
-  font-size: 4rem;
-  margin: 0;
+.album-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
-.placeholder-content .album-title {
+.album-icon {
   font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  flex-shrink: 0;
 }
 
-.placeholder-content .album-subtitle {
+.album-content h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.album-description {
+  color: var(--text-secondary);
   font-size: 1rem;
-  opacity: 0.7;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.view-more {
+  color: var(--link-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: auto;
+}
+
+.album-card:hover .view-more {
+  color: var(--link-hover);
+}
+
+.coming-soon-badge {
+  display: inline-block;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: auto;
+}
+
+.album-card.coming-soon {
+  opacity: 0.8;
+}
+
+.album-card.coming-soon:hover {
+  opacity: 1;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .hero-section,
-  .albums-section {
+  .albums-page {
     padding: 2rem 1rem;
   }
 
@@ -268,29 +245,12 @@ h1 {
     font-size: 2rem;
   }
 
-  .page-intro {
-    font-size: 1rem;
-  }
-
   .albums-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
 
-  .album-card.featured {
-    grid-column: span 1;
-  }
-
-  .album-overlay {
-    padding: 1.5rem;
-  }
-
-  .album-title {
-    font-size: 1.5rem;
-  }
-
-  .album-subtitle {
-    font-size: 0.85rem;
+  .album-image {
+    height: 200px;
   }
 }
 </style>
