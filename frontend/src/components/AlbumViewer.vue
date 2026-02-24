@@ -58,7 +58,7 @@
         <div v-if="currentPhotos.length > 0" class="photos-grid">
           <div v-for="item in currentPhotos" :key="item.src" class="photo-item">
             <OptimizedImage
-              v-if="!item.type || item.type === 'image'"
+              v-if="!isVideo(item)"
               :src="item.src"
               :alt="item.caption"
               size="md"
@@ -67,8 +67,9 @@
               @click="openLightbox(item)"
             />
             <video
-              v-else-if="item.type === 'video'"
+              v-else
               :src="item.src"
+              class="photo-video"
               @click="openLightbox(item)"
               muted
               loop
@@ -90,7 +91,7 @@
       <div class="lightbox-content" @click.stop>
         <button class="lightbox-close" @click="closeLightbox">×</button>
         <OptimizedImage
-          v-if="!lightboxPhoto.type || lightboxPhoto.type === 'image'"
+          v-if="!isVideo(lightboxPhoto)"
           :src="lightboxPhoto.src"
           :alt="lightboxPhoto.caption"
           size="full"
@@ -98,8 +99,9 @@
           img-class="lightbox-image"
         />
         <video
-          v-else-if="lightboxPhoto.type === 'video'"
+          v-else
           :src="lightboxPhoto.src"
+          class="lightbox-video"
           controls
           autoplay
           loop
@@ -180,6 +182,21 @@ function sortPhotos(photos) {
   }
 
   return sorted
+}
+
+// Helper to check if item is a video
+function isVideo(item) {
+  // Check type field if available
+  if (item.type === 'video') return true
+  if (item.type === 'image') return false
+
+  // Fallback: detect from URL extension if type field is missing
+  if (item.src) {
+    const urlLower = item.src.toLowerCase()
+    return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/.test(urlLower)
+  }
+
+  return false
 }
 
 // Helper to filter photos by search query
@@ -419,7 +436,8 @@ h1 {
 
 .photo-item :deep(img),
 .photo-item video,
-:deep(.photo-image) {
+:deep(.photo-image),
+.photo-video {
   width: 100%;
   height: 300px;
   object-fit: cover;
@@ -427,7 +445,8 @@ h1 {
   cursor: pointer;
 }
 
-.photo-item video {
+.photo-item video,
+.photo-video {
   background: #000;
 }
 

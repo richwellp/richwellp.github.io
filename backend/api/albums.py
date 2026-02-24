@@ -52,7 +52,7 @@ def list_albums():
     try:
         # Query published albums ordered by order_index
         response = supabase.table('albums') \
-            .select('id,slug,name,subtitle,order_index') \
+            .select('id,slug,name,subtitle,order_index,published') \
             .eq('published', True) \
             .order('order_index') \
             .execute()
