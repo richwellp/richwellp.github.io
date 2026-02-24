@@ -16,9 +16,11 @@ Compress(app)
 from api.blog import blog_bp
 from api.albums import albums_bp
 from api.auth import auth_bp
+from api.sitemap import sitemap_bp
 app.register_blueprint(blog_bp, url_prefix='/blog')
 app.register_blueprint(albums_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(sitemap_bp)
 
 # Secure CORS configuration with cookie support
 allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:5173,https://richwellp.github.io,https://richwellp-github-io.vercel.app').split(',')
