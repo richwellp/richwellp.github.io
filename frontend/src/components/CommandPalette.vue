@@ -341,10 +341,12 @@ function getFlatIndex(item) {
         <div class="search-header">
           <span class="search-icon">🔍</span>
           <input
+            id="command-palette-search"
             ref="searchInput"
             v-model="searchQuery"
             type="text"
             class="search-input"
+            aria-label="Search pages and commands"
             placeholder="Search pages, blog posts, projects, experience, skills..."
             autocomplete="off"
             spellcheck="false"

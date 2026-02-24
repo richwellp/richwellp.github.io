@@ -37,12 +37,14 @@
         class="editor-pane"
       >
         <textarea
+          id="markdown-editor"
           ref="textarea"
           v-model="content"
           @input="handleInput"
           class="editor-textarea"
           :placeholder="placeholder"
           spellcheck="true"
+          aria-label="Markdown content editor"
         ></textarea>
       </div>
 

@@ -387,6 +387,7 @@ const closeMiscDropdown = () => {
                 <path d="m21 21-4.35-4.35"></path>
               </svg>
               <input
+                id="mobile-search"
                 type="text"
                 class="search-input"
                 v-model="searchQuery"

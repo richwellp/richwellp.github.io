@@ -134,8 +134,9 @@
         <!-- Actions -->
         <div class="form-actions">
           <div class="actions-left">
-            <label class="publish-toggle">
+            <label class="publish-toggle" for="publish-checkbox">
               <input
+                id="publish-checkbox"
                 type="checkbox"
                 v-model="formData.published"
                 :disabled="isSaving"
