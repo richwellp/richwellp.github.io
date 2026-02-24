@@ -33,8 +33,8 @@
           >
             <div class="blog-card-content">
               <div class="blog-card-header">
-                <div class="blog-date">{{ new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</div>
-                <div v-if="post.readingTime" class="blog-reading-time">{{ post.readingTime }} min</div>
+                <div class="blog-date">{{ formatDate(post.published_at || post.created_at) }}</div>
+                <div v-if="post.reading_time" class="blog-reading-time">{{ post.reading_time }} min</div>
               </div>
               <h3>{{ post.title }}</h3>
               <p class="blog-excerpt">{{ post.excerpt }}</p>
@@ -180,6 +180,13 @@ import { useBlog } from '../composables/useBlog'
 const { posts, loading, fetchPosts } = useBlog()
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
+
+const formatDate = (date) => {
+  if (!date) return 'No date'
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return 'Invalid date'
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
 
 onMounted(() => {
   fetchPosts()
