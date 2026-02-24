@@ -75,6 +75,7 @@
               muted
               loop
               playsinline
+              preload="metadata"
             />
             <p class="photo-caption">{{ item.caption }}</p>
           </div>
@@ -107,6 +108,7 @@
           autoplay
           loop
           playsinline
+          preload="auto"
         />
         <p class="lightbox-caption">{{ lightboxPhoto.caption }}</p>
       </div>

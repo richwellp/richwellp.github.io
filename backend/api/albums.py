@@ -402,12 +402,13 @@ def admin_upload_file():
         file_content = file.read()
 
         # Upload to Supabase Storage (service role bypasses RLS)
+        # Use longer cache for faster loading (30 days for videos/images)
         upload_response = supabase.storage.from_('photos').upload(
             filepath,
             file_content,
             {
                 'content-type': file.content_type,
-                'cache-control': '3600',
+                'cache-control': 'public, max-age=2592000, immutable',  # 30 days
                 'upsert': 'false'
             }
         )

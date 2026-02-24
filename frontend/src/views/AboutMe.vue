@@ -9,7 +9,7 @@
           class="hero-image"
         />
         <h1>Richwell Cyrille Santos Perez</h1>
-        <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | Currently an AI Engineer at <a href="https://www.safran-group.com/companies/safran-passenger-innovations" target="_blank" rel="noopener noreferrer">Safran</a></p>
+        <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | AI Engineer at <a href="https://www.safran-group.com/companies/safran-passenger-innovations" target="_blank" rel="noopener noreferrer">Safran</a></p>
 
         <!-- Animated Subtitle -->
         <transition name="slide-fade" mode="out-in">

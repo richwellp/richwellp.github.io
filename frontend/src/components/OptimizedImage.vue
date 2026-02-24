@@ -10,6 +10,7 @@
       :alt="alt"
       :loading="loading"
       :class="imgClass"
+      decoding="async"
       v-bind="$attrs"
     />
   </picture>

@@ -123,6 +123,7 @@
                   :src="album.cover_photo"
                   :alt="`${album.name} Album`"
                   loading="lazy"
+                  decoding="async"
                 />
                 <video
                   v-else
@@ -131,6 +132,7 @@
                   autoplay
                   loop
                   playsinline
+                  preload="metadata"
                 />
                 <div class="album-overlay">
                   <div class="overlay-content">
