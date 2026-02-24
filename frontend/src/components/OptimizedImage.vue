@@ -44,8 +44,14 @@ const props = defineProps({
 })
 
 // Convert original image path to WebP path with size
+// Only for local images (not Supabase Storage URLs)
 const webpSrc = computed(() => {
   if (!props.src) return null
+
+  // Skip WebP optimization for Supabase Storage URLs
+  if (props.src.includes('supabase.co/storage')) {
+    return null
+  }
 
   // Extract the extension and base path
   const lastDot = props.src.lastIndexOf('.')
