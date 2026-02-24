@@ -1,23 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useAdminBlog } from '@/composables/useAdminBlog'
-import { useAdminAuth } from '@/composables/useAdminAuth'
 
 // Mock fetch globally
 global.fetch = vi.fn()
 
 describe('useAdminBlog', () => {
   beforeEach(() => {
-    // Reset fetch mock and auth state
+    // Reset fetch mock
     vi.clearAllMocks()
-    const { logout } = useAdminAuth()
-    logout()
   })
 
   describe('fetchAdminPosts', () => {
-    it('fetches all posts with auth header', async () => {
-      const { login } = useAdminAuth()
-      login('test-admin-key')
-
+    it('fetches all posts with credentials included', async () => {
       const mockPosts = [
         { slug: 'draft-post', title: 'Draft', published: false },
         { slug: 'published-post', title: 'Published', published: true }
@@ -31,13 +25,12 @@ describe('useAdminBlog', () => {
       const { fetchAdminPosts, posts } = useAdminBlog()
       await fetchAdminPosts()
 
-      // Verify auth header sent
+      // Verify credentials included (cookie-based auth)
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/blog/admin/posts'),
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Authorization': 'Bearer test-admin-key'
-          })
+          credentials: 'include',
+          method: 'GET'
         })
       )
 
@@ -45,9 +38,6 @@ describe('useAdminBlog', () => {
     })
 
     it('handles status filter parameter', async () => {
-      const { login } = useAdminAuth()
-      login('test-key')
-
       global.fetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ posts: [], page: 1, per_page: 10 })
@@ -72,23 +62,18 @@ describe('useAdminBlog', () => {
     })
 
     it('sets loading state correctly', async () => {
-      const { login } = useAdminAuth()
-      login('test-key')
-
       global.fetch.mockImplementationOnce(() =>
         new Promise(resolve => {
           setTimeout(() => {
             resolve({
               ok: true,
-              json: async () => ({ posts: [] })
+              json: async () => ({ posts: [], page: 1, per_page: 10 })
             })
           }, 10)
         })
       )
 
-      const { loading, fetchAdminPosts } = useAdminBlog()
-
-      expect(loading.value).toBe(false)
+      const { fetchAdminPosts, loading } = useAdminBlog()
 
       const promise = fetchAdminPosts()
       expect(loading.value).toBe(true)
@@ -100,13 +85,10 @@ describe('useAdminBlog', () => {
 
   describe('getAdminPost', () => {
     it('fetches single post with auth', async () => {
-      const { login } = useAdminAuth()
-      login('test-key')
-
       const mockPost = {
         slug: 'test-post',
         title: 'Test Post',
-        content: '# Content',
+        content: '# Hello',
         published: false
       }
 
@@ -121,9 +103,7 @@ describe('useAdminBlog', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/blog/admin/posts/test-post'),
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Authorization': 'Bearer test-key'
-          })
+          credentials: 'include'
         })
       )
 
@@ -131,9 +111,6 @@ describe('useAdminBlog', () => {
     })
 
     it('throws on 404', async () => {
-      const { login } = useAdminAuth()
-      login('test-key')
-
       global.fetch.mockResolvedValueOnce({
         ok: false,
         status: 404
@@ -147,9 +124,6 @@ describe('useAdminBlog', () => {
 
   describe('createPost', () => {
     it('creates post with auth header', async () => {
-      const { login } = useAdminAuth()
-      login('test-key')
-
       const postData = {
         slug: 'new-post',
         title: 'New Post',
@@ -160,7 +134,7 @@ describe('useAdminBlog', () => {
       global.fetch.mockResolvedValueOnce({
         ok: true,
         status: 201,
-        json: async () => ({ ...postData, id: '123' })
+        json: async () => ({ ...postData, id: 1 })
       })
 
       const { createPost } = useAdminBlog()
@@ -170,15 +144,12 @@ describe('useAdminBlog', () => {
         expect.stringContaining('/blog/posts'),
         expect.objectContaining({
           method: 'POST',
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-key'
-          }),
+          credentials: 'include',
           body: JSON.stringify(postData)
         })
       )
 
-      expect(result.id).toBe('123')
+      expect(result.id).toBe(1)
     })
 
     it('throws on 401 unauthorized', async () => {
@@ -195,9 +166,6 @@ describe('useAdminBlog', () => {
 
   describe('updatePost', () => {
     it('updates post with auth header', async () => {
-      const { login } = useAdminAuth()
-      login('test-key')
-
       const updateData = { title: 'Updated Title' }
 
       global.fetch.mockResolvedValueOnce({
@@ -212,10 +180,7 @@ describe('useAdminBlog', () => {
         expect.stringContaining('/blog/posts/test-post'),
         expect.objectContaining({
           method: 'PUT',
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-key'
-          }),
+          credentials: 'include',
           body: JSON.stringify(updateData)
         })
       )
@@ -224,9 +189,6 @@ describe('useAdminBlog', () => {
 
   describe('deletePost', () => {
     it('deletes post with auth header', async () => {
-      const { login } = useAdminAuth()
-      login('test-key')
-
       global.fetch.mockResolvedValueOnce({
         ok: true,
         status: 204
@@ -239,9 +201,7 @@ describe('useAdminBlog', () => {
         expect.stringContaining('/blog/posts/test-post'),
         expect.objectContaining({
           method: 'DELETE',
-          headers: expect.objectContaining({
-            'Authorization': 'Bearer test-key'
-          })
+          credentials: 'include'
         })
       )
 

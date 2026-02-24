@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, Response, stream_with_context
 from flask_cors import CORS
+from flask_compress import Compress
 from collections import defaultdict
 from datetime import datetime, timedelta
 import os
@@ -7,6 +8,9 @@ import json
 from config import RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW, MESSAGE_LENGTH_LIMIT, HISTORY_LIMIT, get_contact_message
 
 app = Flask(__name__)
+
+# Enable gzip compression for all responses
+Compress(app)
 
 # Register blueprints
 from api.blog import blog_bp

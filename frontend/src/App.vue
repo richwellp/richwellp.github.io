@@ -5,6 +5,7 @@ import { useTheme } from './composables/useTheme'
 import { useProfessionalInfo } from './composables/useProfessionalInfo'
 import { useBlog } from './composables/useBlog'
 import { useChatAssistant } from './composables/useChatAssistant'
+import { useSearch } from './composables/useSearch'
 import ChatAssistant from './components/ChatAssistant.vue'
 import CommandPalette from './components/CommandPalette.vue'
 
@@ -12,33 +13,10 @@ const mobileMenuOpen = ref(false)
 const miscDropdownOpen = ref(false)
 const { theme, toggleTheme } = useTheme()
 const commandPaletteRef = ref(null)
-const searchQuery = ref('')
-const searchResults = ref([])
-const showSearchResults = ref(false)
+const { searchQuery, searchResults, showSearchResults, isLoadingBlogContent, searchPages, clearSearch } = useSearch()
 const { posts, fetchPosts } = useBlog()
-const { projects, experience, skills, education, loadProfessionalInfo } = useProfessionalInfo()
+const { loadProfessionalInfo } = useProfessionalInfo()
 const { preloadContext } = useChatAssistant()
-
-const blogContent = ref({})
-const isLoadingBlogContent = ref(false)
-
-// Load full blog content for searching
-const loadBlogContent = async () => {
-  if (isLoadingBlogContent.value || Object.keys(blogContent.value).length > 0) return
-
-  isLoadingBlogContent.value = true
-  const { getPostBySlug } = useBlog()
-
-  for (const post of posts.value) {
-    try {
-      const fullPost = await getPostBySlug(post.slug)
-      blogContent.value[post.slug] = fullPost.content
-    } catch (err) {
-      console.error(`Failed to load content for ${post.slug}`, err)
-    }
-  }
-  isLoadingBlogContent.value = false
-}
 
 onMounted(async () => {
   fetchPosts()
@@ -51,8 +29,18 @@ const openSearch = () => {
   commandPaletteRef.value?.openPalette()
 }
 
-// Extract snippet around the match
-const extractSnippet = (text, query, maxLength = 100) => {
+const selectSearchResult = (path) => {
+  clearSearch()
+  closeMobileMenu()
+}
+
+const closeSearch = () => {
+  showSearchResults.value = false
+}
+
+// Remove all the duplicate search logic - now in useSearch composable
+
+const _oldExtractSnippet = (text, query, maxLength = 100) => {
   const lowerText = text.toLowerCase()
   const lowerQuery = query.toLowerCase()
   const index = lowerText.indexOf(lowerQuery)

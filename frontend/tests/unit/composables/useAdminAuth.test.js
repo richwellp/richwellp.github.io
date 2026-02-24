@@ -2,63 +2,124 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useAdminAuth } from '@/composables/useAdminAuth'
 
 describe('useAdminAuth', () => {
-  const STORAGE_KEY = 'admin_token'
+  let fetchMock
 
   beforeEach(() => {
-    // Clear localStorage before each test
-    localStorage.clear()
-    // Reset auth state before each test
+    // Mock fetch for authentication endpoints
+    fetchMock = vi.spyOn(global, 'fetch').mockImplementation((url) => {
+      if (url.includes('/auth/login')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            message: 'Login successful',
+            authenticated: true,
+            method: 'cookie'
+          })
+        })
+      }
+      if (url.includes('/auth/logout')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            message: 'Logged out successfully',
+            authenticated: false
+          })
+        })
+      }
+      if (url.includes('/auth/status')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            authenticated: false,
+            method: null,
+            expires_in: null
+          })
+        })
+      }
+      return Promise.reject(new Error('Unknown endpoint'))
+    })
+
+    // Reset auth state
     const { logout } = useAdminAuth()
     logout()
   })
 
   afterEach(() => {
-    localStorage.clear()
+    vi.restoreAllMocks()
   })
 
   describe('login', () => {
-    it('sets authenticated state with valid key', () => {
+    it('sets authenticated state with valid key', async () => {
       const { login, isAuthenticated } = useAdminAuth()
 
       expect(isAuthenticated.value).toBe(false)
 
-      const result = login('test-admin-key')
+      const result = await login('test-admin-key')
 
       expect(result).toBe(true)
       expect(isAuthenticated.value).toBe(true)
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/login'),
+        expect.objectContaining({
+          method: 'POST',
+          credentials: 'include',
+          body: JSON.stringify({ key: 'test-admin-key' })
+        })
+      )
     })
 
-    it('trims whitespace from key', () => {
-      const { login, getAuthHeaders } = useAdminAuth()
+    it('trims whitespace from key', async () => {
+      const { login } = useAdminAuth()
 
-      login('  test-key  ')
+      await login('  test-key  ')
 
-      const headers = getAuthHeaders()
-      expect(headers.Authorization).toBe('Bearer test-key')
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/login'),
+        expect.objectContaining({
+          body: JSON.stringify({ key: 'test-key' })
+        })
+      )
     })
 
-    it('rejects empty key', () => {
+    it('rejects empty key', async () => {
+      const { login, isAuthenticated, authError } = useAdminAuth()
+
+      const result = await login('')
+
+      expect(result).toBe(false)
+      expect(isAuthenticated.value).toBe(false)
+      expect(authError.value).toBeTruthy()
+    })
+
+    it('rejects whitespace-only key', async () => {
       const { login, isAuthenticated } = useAdminAuth()
 
-      const result = login('')
+      const result = await login('   ')
 
       expect(result).toBe(false)
       expect(isAuthenticated.value).toBe(false)
     })
 
-    it('rejects whitespace-only key', () => {
+    it('rejects null key', async () => {
       const { login, isAuthenticated } = useAdminAuth()
 
-      const result = login('   ')
+      const result = await login(null)
 
       expect(result).toBe(false)
       expect(isAuthenticated.value).toBe(false)
     })
 
-    it('rejects null key', () => {
+    it('handles invalid key from server', async () => {
       const { login, isAuthenticated } = useAdminAuth()
 
-      const result = login(null)
+      fetchMock.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: false,
+          json: () => Promise.resolve({ error: 'Invalid admin key' })
+        })
+      )
+
+      const result = await login('wrong-key')
 
       expect(result).toBe(false)
       expect(isAuthenticated.value).toBe(false)
@@ -66,125 +127,105 @@ describe('useAdminAuth', () => {
   })
 
   describe('logout', () => {
-    it('clears authenticated state', () => {
+    it('clears authenticated state', async () => {
       const { login, logout, isAuthenticated } = useAdminAuth()
 
-      login('test-key')
+      await login('test-key')
       expect(isAuthenticated.value).toBe(true)
 
-      logout()
-
+      await logout()
       expect(isAuthenticated.value).toBe(false)
     })
 
-    it('clears auth headers', () => {
-      const { login, logout, getAuthHeaders } = useAdminAuth()
+    it('sends logout request to server', async () => {
+      const { login, logout } = useAdminAuth()
 
-      login('test-key')
-      logout()
+      await login('test-key')
+      await logout()
 
-      const headers = getAuthHeaders()
-      expect(headers).toEqual({})
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/logout'),
+        expect.objectContaining({
+          method: 'POST',
+          credentials: 'include'
+        })
+      )
     })
   })
 
-  describe('getAuthHeaders', () => {
-    it('returns Authorization header when authenticated', () => {
-      const { login, getAuthHeaders } = useAdminAuth()
+  describe('getAuthFetchOptions', () => {
+    it('returns fetch options with credentials included', () => {
+      const { getAuthFetchOptions } = useAdminAuth()
 
-      login('my-secret-key')
+      const options = getAuthFetchOptions('GET')
 
-      const headers = getAuthHeaders()
-      expect(headers).toHaveProperty('Authorization')
-      expect(headers.Authorization).toBe('Bearer my-secret-key')
+      expect(options).toEqual({
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
     })
 
-    it('returns empty object when not authenticated', () => {
-      const { getAuthHeaders } = useAdminAuth()
+    it('includes body when provided', () => {
+      const { getAuthFetchOptions } = useAdminAuth()
 
-      const headers = getAuthHeaders()
-      expect(headers).toEqual({})
+      const data = { title: 'Test' }
+      const options = getAuthFetchOptions('POST', data)
+
+      expect(options.body).toBe(JSON.stringify(data))
     })
   })
 
   describe('shared state', () => {
-    it('shares authentication state across instances', () => {
+    it('shares authentication state across instances', async () => {
       const instance1 = useAdminAuth()
       const instance2 = useAdminAuth()
 
-      expect(instance1.isAuthenticated.value).toBe(false)
-      expect(instance2.isAuthenticated.value).toBe(false)
-
-      instance1.login('test-key')
+      await instance1.login('test-key')
 
       // Both instances see the same state
       expect(instance1.isAuthenticated.value).toBe(true)
       expect(instance2.isAuthenticated.value).toBe(true)
     })
 
-    it('shares auth headers across instances', () => {
+    it('shares auth method across instances', async () => {
       const instance1 = useAdminAuth()
       const instance2 = useAdminAuth()
 
-      instance1.login('shared-key')
+      await instance1.login('test-key')
 
-      const headers1 = instance1.getAuthHeaders()
-      const headers2 = instance2.getAuthHeaders()
-
-      expect(headers1.Authorization).toBe('Bearer shared-key')
-      expect(headers2.Authorization).toBe('Bearer shared-key')
+      expect(instance1.authMethod.value).toBe('cookie')
+      expect(instance2.authMethod.value).toBe('cookie')
     })
   })
 
-  describe('localStorage persistence', () => {
-    it('persists token to localStorage on login', () => {
-      const { login } = useAdminAuth()
+  describe('error handling', () => {
+    it('handles network errors during login', async () => {
+      const { login, isAuthenticated, authError } = useAdminAuth()
 
-      login('persisted-key')
+      fetchMock.mockRejectedValueOnce(new Error('Network error'))
 
-      expect(localStorage.getItem(STORAGE_KEY)).toBe('persisted-key')
+      const result = await login('test-key')
+
+      expect(result).toBe(false)
+      expect(isAuthenticated.value).toBe(false)
+      expect(authError.value).toContain('Network error')
     })
 
-    it('removes token from localStorage on logout', () => {
-      const { login, logout } = useAdminAuth()
+    it('handles network errors during logout', async () => {
+      const { login, logout, isAuthenticated } = useAdminAuth()
 
-      login('test-key')
-      expect(localStorage.getItem(STORAGE_KEY)).toBe('test-key')
-
-      logout()
-      expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
-    })
-
-    it('persists token across instances (simulates page refresh)', () => {
-      const instance1 = useAdminAuth()
-
-      // Login with first instance
-      instance1.login('persisted-key')
-      expect(localStorage.getItem(STORAGE_KEY)).toBe('persisted-key')
-
-      // Second instance should see the same token (simulating page refresh)
-      const instance2 = useAdminAuth()
-      expect(instance2.isAuthenticated.value).toBe(true)
-      expect(instance2.adminToken.value).toBe('persisted-key')
-    })
-
-    it('handles localStorage write errors gracefully', () => {
-      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
-        .mockImplementation(() => {
-          throw new Error('Storage quota exceeded')
-        })
-
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-      const { login, isAuthenticated } = useAdminAuth()
-      const result = login('test-key')
-
-      expect(result).toBe(true)
+      await login('test-key')
       expect(isAuthenticated.value).toBe(true)
-      expect(consoleErrorSpy).toHaveBeenCalled()
 
-      setItemSpy.mockRestore()
-      consoleErrorSpy.mockRestore()
+      fetchMock.mockRejectedValueOnce(new Error('Network error'))
+
+      await logout()
+
+      // Still clears local state even if request fails
+      expect(isAuthenticated.value).toBe(false)
     })
   })
 })
