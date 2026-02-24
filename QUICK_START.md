@@ -4,16 +4,17 @@
 
 ### 1️⃣ Run Database Migrations (Supabase SQL Editor)
 
-Open your Supabase project → SQL Editor, then run these **2 files in order**:
+Open your Supabase project → SQL Editor, then **copy/paste and run** these 2 files:
 
-**First:** `backend/database/albums_schema.sql`
-- Creates albums and photos tables
+**Step 1:** Copy entire `backend/database/albums_schema.sql` → Run
+- Creates albums and photos tables with UUID IDs
+- Adds categories column for Travel album filtering
 - Sets up indexes and RLS policies
 
-**Second:** `backend/database/seed_photos.sql`
+**Step 2:** Copy entire `backend/database/seed_photos.sql` → Run
 - Creates 3 albums (Travel, Sports, Me)
-- Adds sample photos
-- Safe to run multiple times
+- Adds ~13 sample photos
+- Safe to run multiple times (uses ON CONFLICT)
 
 **Optional:** If blog_posts table doesn't exist, run `backend/database/blog_schema.sql`
 
