@@ -119,19 +119,19 @@
               </div>
             </router-link>
 
-            <!-- Professional Album -->
+            <!-- Me Album -->
             <router-link to="/misc/professional" class="album-card">
               <div class="album-image">
                 <OptimizedImage
                   src="/assets/photos/professional/professional_1.jpg"
-                  alt="Professional Milestones"
+                  alt="Personal Moments"
                   size="md"
                 />
                 <div class="album-overlay">
                   <div class="overlay-content">
-                    <span class="album-icon">💼</span>
-                    <span class="album-title">Professional</span>
-                    <span class="album-subtitle">Graduation • School/Work Events</span>
+                    <span class="album-icon">👤</span>
+                    <span class="album-title">Me</span>
+                    <span class="album-subtitle">Personal moments</span>
                     <span class="view-link">View Album →</span>
                   </div>
                 </div>
@@ -182,10 +182,14 @@ const { posts, loading, fetchPosts } = useBlog()
 const recentPosts = computed(() => posts.value.slice(0, 3))
 
 const formatDate = (date) => {
-  if (!date) return 'No date'
-  const d = new Date(date)
-  if (isNaN(d.getTime())) return 'Invalid date'
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  if (!date) return 'Recent'
+  try {
+    const d = new Date(date)
+    if (isNaN(d.getTime())) return 'Recent'
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  } catch (error) {
+    return 'Recent'
+  }
 }
 
 onMounted(() => {
