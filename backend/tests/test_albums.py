@@ -31,7 +31,7 @@ class TestListAlbums:
     def test_list_albums_success(self, mock_supabase, client):
         """Should return list of published albums ordered by order_index"""
         # Arrange
-        mock_data = [
+        mock_albums_data = [
             {
                 'id': 1,
                 'slug': 'travel',
@@ -49,7 +49,32 @@ class TestListAlbums:
                 'published': True
             }
         ]
-        mock_supabase.table.return_value.select.return_value.eq.return_value.order.return_value.execute.return_value.data = mock_data
+
+        # Mock photos for cover photo selection
+        mock_photos_data = [
+            {'url': 'https://example.com/photo1.jpg'},
+            {'url': 'https://example.com/photo2.mp4'}  # Second album has video
+        ]
+
+        # Mock table() to return different data for albums vs photos queries
+        def table_side_effect(table_name):
+            mock_table = MagicMock()
+            if table_name == 'albums':
+                mock_table.select.return_value.eq.return_value.order.return_value.execute.return_value.data = mock_albums_data
+            elif table_name == 'photos':
+                # Return appropriate photos for each album based on query
+                mock_select = MagicMock()
+                mock_eq = MagicMock()
+                mock_order = MagicMock()
+
+                # photos query returns photos for the album
+                mock_order.execute.return_value.data = mock_photos_data
+                mock_eq.order.return_value = mock_order
+                mock_select.eq.return_value = mock_eq
+                mock_table.select.return_value = mock_select
+            return mock_table
+
+        mock_supabase.table.side_effect = table_side_effect
 
         # Act
         response = client.get('/albums')

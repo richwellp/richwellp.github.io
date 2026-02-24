@@ -119,9 +119,18 @@
               <!-- Album with cover photo -->
               <div v-if="album.cover_photo" class="album-image">
                 <img
+                  v-if="!isVideoCover(album.cover_photo)"
                   :src="album.cover_photo"
                   :alt="`${album.name} Album`"
                   loading="lazy"
+                />
+                <video
+                  v-else
+                  :src="album.cover_photo"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
                 />
                 <div class="album-overlay">
                   <div class="overlay-content">
@@ -190,6 +199,14 @@ const formatDate = (date) => {
   } catch (error) {
     return 'Recent'
   }
+}
+
+// Check if cover photo URL is a video
+const isVideoCover = (url) => {
+  if (!url) return false
+  const urlLower = url.toLowerCase()
+  // Check for video extensions or video content-type in URL
+  return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower) || urlLower.includes('video/')
 }
 
 onMounted(() => {
@@ -344,14 +361,20 @@ h1 {
   overflow: hidden;
 }
 
-.album-image :deep(img) {
+.album-image :deep(img),
+.album-image video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
 
-.album-card:hover .album-image :deep(img) {
+.album-image video {
+  background: #000;
+}
+
+.album-card:hover .album-image :deep(img),
+.album-card:hover .album-image video {
   transform: scale(1.1);
 }
 

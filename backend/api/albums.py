@@ -59,19 +59,29 @@ def list_albums():
 
         albums = response.data
 
-        # For each album, get the first photo as cover photo
+        # For each album, get cover photo (prioritize videos over images)
         for album in albums:
-            photos_response = supabase.table('photos') \
+            # First try to get a video as cover (check URL patterns)
+            all_photos = supabase.table('photos') \
                 .select('url') \
                 .eq('album_id', album['id']) \
                 .order('order_index') \
-                .limit(1) \
                 .execute()
 
-            if photos_response.data and len(photos_response.data) > 0:
-                album['cover_photo'] = photos_response.data[0]['url']
-            else:
-                album['cover_photo'] = None
+            cover_url = None
+            if all_photos.data:
+                # Check for videos first
+                for photo in all_photos.data:
+                    url = photo['url'].lower()
+                    if '.mp4' in url or '.mov' in url or '.webm' in url or 'video/' in url:
+                        cover_url = photo['url']
+                        break
+
+                # If no video found, use first photo
+                if not cover_url:
+                    cover_url = all_photos.data[0]['url']
+
+            album['cover_photo'] = cover_url
 
         return jsonify({
             'albums': albums
@@ -128,6 +138,8 @@ def get_album(slug):
             }), 404
 
         # Get photos for this album
+        # Note: 'type' column not included - doesn't exist in schema yet
+        # Frontend will detect videos from URL patterns
         photos_response = supabase.table('photos') \
             .select('url,caption,category,order_index,date_taken,location') \
             .eq('album_id', album['id']) \
@@ -152,10 +164,10 @@ def get_album(slug):
                         categories.append(category)
 
                     # Remove category from photo object (not needed in frontend)
+                    # Note: type field omitted - column doesn't exist, frontend detects from URL
                     photo_obj = {
                         'src': photo['url'],
                         'caption': photo['caption'],
-                        'type': photo.get('type', 'image'),
                         'date_taken': photo.get('date_taken'),
                         'location': photo.get('location'),
                         'order_index': photo['order_index']
@@ -174,12 +186,12 @@ def get_album(slug):
             }), 200
         else:
             # Flat array of photos (no categories)
+            # Note: type field omitted - column doesn't exist, frontend detects from URL
             photos_array = []
             for photo in photos_data:
                 photos_array.append({
                     'src': photo['url'],
                     'caption': photo['caption'],
-                    'type': photo.get('type', 'image'),
                     'date_taken': photo.get('date_taken'),
                     'location': photo.get('location'),
                     'order_index': photo['order_index']
