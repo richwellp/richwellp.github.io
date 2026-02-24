@@ -64,15 +64,9 @@ import { useAlbums } from '../composables/useAlbums'
 
 const { albums, loading, error, fetchAlbums } = useAlbums()
 
-// Map album slugs to routes
-const albumRouteMap = {
-  'travel': '/misc/travel',
-  'me': '/misc/professional',
-  'sports': '/misc/sports'
-}
-
+// All albums use dynamic route: /misc/albums/:slug
 function getAlbumRoute(slug) {
-  return albumRouteMap[slug] || `/misc/${slug}`
+  return `/misc/albums/${slug}`
 }
 
 onMounted(async () => {

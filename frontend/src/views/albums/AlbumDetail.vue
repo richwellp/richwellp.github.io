@@ -37,27 +37,26 @@ const categoryList = computed(() => {
   }))
 })
 
-// Transform photos from API format to AlbumViewer format
+// Add video type detection to photos (API already returns correct format with 'src')
 const transformedPhotos = computed(() => {
   if (!albumData.value || !albumData.value.photos) return []
 
-  const transformPhoto = (photo) => ({
-    src: photo.url,
-    caption: photo.caption || '',
-    type: photo.url?.match(/\.(mp4|mov|webm)$/i) ? 'video' : 'image'
+  const addVideoType = (photo) => ({
+    ...photo,
+    type: photo.type || (photo.src?.match(/\.(mp4|mov|webm)$/i) ? 'video' : 'image')
   })
 
-  // If photos is an object (categorized), transform each category
+  // If photos is an object (categorized), add type to each photo
   if (typeof albumData.value.photos === 'object' && !Array.isArray(albumData.value.photos)) {
     const transformed = {}
     for (const [category, photos] of Object.entries(albumData.value.photos)) {
-      transformed[category] = photos.map(transformPhoto)
+      transformed[category] = photos.map(addVideoType)
     }
     return transformed
   }
 
-  // If photos is an array (uncategorized), transform the array
-  return albumData.value.photos.map(transformPhoto)
+  // If photos is an array (uncategorized), add type to each photo
+  return albumData.value.photos.map(addVideoType)
 })
 
 function getComingSoonMessage() {
