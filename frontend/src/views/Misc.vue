@@ -123,7 +123,7 @@
             <router-link to="/misc/professional" class="album-card">
               <div class="album-image">
                 <OptimizedImage
-                  src="/assets/photos/professional/professional_1.jpg"
+                  src="/assets/photos/professional_1.jpg"
                   alt="Personal Moments"
                   size="md"
                 />

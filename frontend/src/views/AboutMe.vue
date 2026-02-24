@@ -4,7 +4,7 @@
     <section class="hero">
       <div class="hero-content">
         <OptimizedImage
-          src="/assets/photos/professional/professional_1.jpg"
+          src="/assets/photos/professional_1.jpg"
           alt="Richwell Perez"
           loading="eager"
           size="md"
@@ -56,7 +56,7 @@
           </div>
           <div class="story-images">
             <OptimizedImage
-              src="/assets/photos/professional/professional_0.jpg"
+              src="/assets/photos/professional_0.jpg"
               alt="Graduation"
               size="md"
               img-class="story-photo"

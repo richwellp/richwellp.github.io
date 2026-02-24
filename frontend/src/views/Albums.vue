@@ -86,7 +86,7 @@ onMounted(async () => {
       if (album.slug === 'travel') {
         album.coverPhoto = '/assets/photos/travel/colorado/personal_emlake.jpg'
       } else if (album.slug === 'me') {
-        album.coverPhoto = '/assets/photos/professional/professional_1.jpg'
+        album.coverPhoto = '/assets/photos/professional_1.jpg'
       }
     })
   } catch (err) {

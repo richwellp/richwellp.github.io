@@ -12,7 +12,7 @@ export function generatePersonSchema() {
     '@type': 'Person',
     'name': 'Richwell Cyrille Santos Perez',
     'url': 'https://richwellp.github.io',
-    'image': 'https://richwellp.github.io/assets/photos/professional/professional_1.jpg',
+    'image': 'https://richwellp.github.io/assets/photos/professional_1.jpg',
     'jobTitle': 'AI Engineer',
     'worksFor': {
       '@type': 'Organization',
@@ -40,7 +40,7 @@ export function generateOrganizationSchema() {
     '@type': 'Organization',
     'name': 'Richwell Perez',
     'url': 'https://richwellp.github.io',
-    'logo': 'https://richwellp.github.io/assets/photos/professional/professional_1.jpg',
+    'logo': 'https://richwellp.github.io/assets/photos/professional_1.jpg',
     'description': 'Portfolio and blog of Richwell Perez, AI Engineer',
     'sameAs': [
       'https://www.linkedin.com/in/richwell-perez',
@@ -73,7 +73,7 @@ export function generateBlogPostSchema(post) {
     'description': post.excerpt || post.title,
     'datePublished': post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     'url': `https://richwellp.github.io/misc/blog/${post.slug}`,
-    'image': post.image || 'https://richwellp.github.io/assets/photos/professional/professional_1.jpg',
+    'image': post.image || 'https://richwellp.github.io/assets/photos/professional_1.jpg',
     'author': {
       '@type': 'Person',
       'name': post.author || 'Richwell Perez',
@@ -84,7 +84,7 @@ export function generateBlogPostSchema(post) {
       'name': 'Richwell Perez',
       'logo': {
         '@type': 'ImageObject',
-        'url': 'https://richwellp.github.io/assets/photos/professional/professional_1.jpg'
+        'url': 'https://richwellp.github.io/assets/photos/professional_1.jpg'
       }
     }
   }
