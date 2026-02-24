@@ -217,6 +217,12 @@ const formatFileSize = (bytes) => {
 }
 
 const handleSubmit = async () => {
+  // Store file type before uploading (in case file is cleared)
+  let fileType = null
+  if (selectedFile.value) {
+    fileType = selectedFile.value.type
+  }
+
   // If file is selected, upload it first
   if (selectedFile.value && !uploading.value) {
     try {
@@ -264,11 +270,11 @@ const handleSubmit = async () => {
     return
   }
 
-  // Detect type from URL or selected file
+  // Detect type from saved file type, URL, or default to image
   let mediaType = 'image' // default
-  if (selectedFile.value) {
-    // Detect from file type
-    mediaType = selectedFile.value.type.startsWith('video') ? 'video' : 'image'
+  if (fileType) {
+    // Use the file type we saved before upload
+    mediaType = fileType.startsWith('video') ? 'video' : 'image'
   } else if (form.value.url) {
     // Detect from URL extension
     const urlLower = form.value.url.toLowerCase()

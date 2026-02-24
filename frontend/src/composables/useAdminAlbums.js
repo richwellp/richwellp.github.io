@@ -106,7 +106,10 @@ export function useAdminAlbums() {
       body: JSON.stringify(photoData)
     })
 
-    if (!response.ok) throw new Error('Failed to create photo')
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || 'Failed to create photo')
+    }
     return await response.json()
   }
 

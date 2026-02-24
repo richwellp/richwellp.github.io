@@ -459,6 +459,11 @@ def admin_create_photo(slug):
         return jsonify({'photo': result.data[0]}), 201
 
     except Exception as e:
+        print(f"Error creating photo in album '{slug}': {str(e)}")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Request data: {request.json}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 

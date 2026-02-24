@@ -83,11 +83,10 @@ const content = ref(props.modelValue)
 const currentView = ref('split')
 const textarea = ref(null)
 
-// Initialize markdown-it
+// Initialize markdown-it (matches BlogPost.vue configuration)
 const md = new MarkdownIt({
   html: false,        // Disable HTML for security
   linkify: true,      // Auto-convert URLs
-  breaks: true,       // Convert \n to <br>
   typographer: true   // Smart quotes
 })
 
@@ -307,9 +306,9 @@ const applyFormat = (action) => {
 }
 
 .preview-content {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--text-primary);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
 }
 
 .preview-placeholder {
@@ -370,40 +369,46 @@ const applyFormat = (action) => {
 }
 
 .markdown-body code {
-  background: rgba(0, 0, 0, 0.1);
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-size: 0.875em;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  background: var(--bg-tertiary);
+  color: var(--accent-primary);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.95em;
+  font-family: 'Courier New', monospace;
 }
 
 .markdown-body pre {
-  background: rgba(0, 0, 0, 0.05);
-  padding: 1em;
-  border-radius: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
   overflow-x: auto;
-  margin: 1em 0;
+  margin-bottom: 1.5rem;
 }
 
 .markdown-body pre code {
-  background: transparent;
+  background: none;
+  color: var(--text-primary);
   padding: 0;
 }
 
 .markdown-body a {
-  color: var(--accent-primary);
-  text-decoration: underline;
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 500;
 }
 
 .markdown-body a:hover {
-  color: var(--accent-hover);
+  color: var(--link-hover);
+  text-decoration: underline;
 }
 
 .markdown-body blockquote {
-  border-left: 4px solid var(--border-color);
-  padding-left: 1em;
-  margin: 1em 0;
+  border-left: 4px solid var(--accent-primary);
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
   color: var(--text-secondary);
+  font-style: italic;
 }
 
 .markdown-body strong {
