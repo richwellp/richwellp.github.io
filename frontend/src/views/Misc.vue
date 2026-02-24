@@ -98,7 +98,10 @@
 
         <!-- Photo Albums - Featured Section -->
         <div class="albums-section">
-          <h3 class="subsection-title">Photo Albums</h3>
+          <div class="section-header">
+            <h3 class="subsection-title">Photo Albums</h3>
+            <router-link to="/misc/albums" class="view-all-link">View All →</router-link>
+          </div>
           <div class="albums-grid">
             <!-- Travel Album -->
             <router-link to="/misc/travel" class="album-card featured">
@@ -259,6 +262,10 @@ h1 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+}
+
+.section-header .subsection-title {
+  margin-bottom: 0;
 }
 
 .view-all-link {
