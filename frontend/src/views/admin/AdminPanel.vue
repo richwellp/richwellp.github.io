@@ -21,6 +21,7 @@
       <!-- Header -->
       <div class="admin-header">
         <div class="header-left">
+          <router-link to="/admin" class="back-link">← Dashboard</router-link>
           <h1>Blog Admin</h1>
           <p class="subtitle">Manage your blog posts</p>
         </div>
@@ -283,6 +284,19 @@ onMounted(() => {
   gap: 1rem;
 }
 
+.back-link {
+  display: inline-block;
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: var(--link-hover);
+}
+
 .header-left h1 {
   margin: 0 0 0.5rem;
   font-size: 2rem;
@@ -500,6 +514,7 @@ onMounted(() => {
 .action-btn {
   padding: 0.5rem 1rem;
   background: var(--bg-tertiary);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   cursor: pointer;
@@ -520,6 +535,10 @@ onMounted(() => {
 .action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.action-btn.danger {
+  color: #dc2626;
 }
 
 .action-btn.danger:hover {
