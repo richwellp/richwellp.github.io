@@ -282,9 +282,10 @@ export function injectMultipleStructuredData(schemas) {
 /**
  * Get breadcrumbs for current route
  * @param {string} routeName - Current route name
+ * @param {object} routeParams - Route params (for dynamic routes)
  * @returns {Array} Breadcrumb items
  */
-export function getBreadcrumbs(routeName) {
+export function getBreadcrumbs(routeName, routeParams = {}) {
   const breadcrumbMap = {
     'about-me': [
       { name: 'Home', path: '/' }
@@ -309,6 +310,11 @@ export function getBreadcrumbs(routeName) {
       { name: 'Home', path: '/' },
       { name: 'Contact', path: '/contact' }
     ],
+    'albums': [
+      { name: 'Home', path: '/' },
+      { name: 'Misc', path: '/misc' },
+      { name: 'Albums', path: '/misc/albums' }
+    ],
     'blog-list': [
       { name: 'Home', path: '/' },
       { name: 'Misc', path: '/misc' },
@@ -319,24 +325,17 @@ export function getBreadcrumbs(routeName) {
       { name: 'Misc', path: '/misc' },
       { name: 'Blog', path: '/misc/blog' },
       { name: 'Post', path: '' } // Will be updated with actual post title
-    ],
-    'travel-album': [
+    ]
+  }
+
+  // Handle dynamic album route
+  if (routeName === 'album-detail' && routeParams.slug) {
+    const albumName = routeParams.slug.charAt(0).toUpperCase() + routeParams.slug.slice(1)
+    return [
       { name: 'Home', path: '/' },
       { name: 'Misc', path: '/misc' },
       { name: 'Albums', path: '/misc/albums' },
-      { name: 'Travel', path: '/misc/albums/travel' }
-    ],
-    'me-album': [
-      { name: 'Home', path: '/' },
-      { name: 'Misc', path: '/misc' },
-      { name: 'Albums', path: '/misc/albums' },
-      { name: 'Me', path: '/misc/albums/me' }
-    ],
-    'sports-album': [
-      { name: 'Home', path: '/' },
-      { name: 'Misc', path: '/misc' },
-      { name: 'Albums', path: '/misc/albums' },
-      { name: 'Sports', path: '/misc/albums/sports' }
+      { name: albumName, path: `/misc/albums/${routeParams.slug}` }
     ]
   }
 
@@ -348,7 +347,7 @@ export function getBreadcrumbs(routeName) {
  * Should be called in router beforeEach guard
  */
 export function useStructuredDataOnRouteChange(to) {
-  const breadcrumbs = getBreadcrumbs(to.name)
+  const breadcrumbs = getBreadcrumbs(to.name, to.params)
   const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs)
   const personSchema = generatePersonSchema()
 
