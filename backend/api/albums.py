@@ -129,7 +129,7 @@ def get_album(slug):
 
         # Get photos for this album
         photos_response = supabase.table('photos') \
-            .select('url,caption,category,order_index') \
+            .select('url,caption,category,order_index,date_taken,location') \
             .eq('album_id', album['id']) \
             .order('order_index') \
             .execute()
@@ -155,7 +155,10 @@ def get_album(slug):
                     photo_obj = {
                         'src': photo['url'],
                         'caption': photo['caption'],
-                        'type': photo.get('type', 'image')
+                        'type': photo.get('type', 'image'),
+                        'date_taken': photo.get('date_taken'),
+                        'location': photo.get('location'),
+                        'order_index': photo['order_index']
                     }
                     photos_by_category[category].append(photo_obj)
 
@@ -176,7 +179,10 @@ def get_album(slug):
                 photos_array.append({
                     'src': photo['url'],
                     'caption': photo['caption'],
-                    'type': photo.get('type', 'image')
+                    'type': photo.get('type', 'image'),
+                    'date_taken': photo.get('date_taken'),
+                    'location': photo.get('location'),
+                    'order_index': photo['order_index']
                 })
 
             return jsonify({

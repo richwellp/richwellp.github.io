@@ -10,23 +10,6 @@
         </p>
       </div>
 
-      <!-- Filter Controls -->
-      <div v-if="!loading && !error && albums.length > 0" class="filter-controls">
-        <div class="search-box">
-          <input
-            id="album-search"
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search albums..."
-            class="search-input"
-            aria-label="Search albums"
-          />
-        </div>
-        <div class="filter-stats">
-          {{ filteredAlbums.length }} {{ filteredAlbums.length === 1 ? 'album' : 'albums' }}
-        </div>
-      </div>
-
       <!-- Loading State -->
       <div v-if="loading" class="loading">
         <p>Loading albums...</p>
@@ -38,9 +21,9 @@
       </div>
 
       <!-- Albums Grid -->
-      <div v-if="!loading && !error && filteredAlbums.length > 0" class="albums-grid">
+      <div v-if="!loading && !error && albums.length > 0" class="albums-grid">
         <router-link
-          v-for="album in filteredAlbums"
+          v-for="album in albums"
           :key="album.id"
           :to="getAlbumRoute(album.slug)"
           :class="['album-card', { 'coming-soon': !album.published }]"
@@ -66,12 +49,6 @@
         </router-link>
       </div>
 
-      <!-- Empty State (No Results from Search) -->
-      <div v-if="!loading && !error && albums.length > 0 && filteredAlbums.length === 0" class="empty-state">
-        <p>No albums match your search "{{ searchQuery }}"</p>
-        <button @click="searchQuery = ''" class="btn-clear">Clear Search</button>
-      </div>
-
       <!-- Empty State (No Albums) -->
       <div v-if="!loading && !error && albums.length === 0" class="empty-state">
         <p>No albums available yet.</p>
@@ -81,32 +58,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAlbums } from '../composables/useAlbums'
 
 const { albums, loading, error, fetchAlbums } = useAlbums()
-const searchQuery = ref('')
 
 // All albums use dynamic route: /misc/albums/:slug
 function getAlbumRoute(slug) {
   return `/misc/albums/${slug}`
 }
-
-// Filter albums by search query
-const filteredAlbums = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return albums.value
-  }
-
-  const query = searchQuery.value.toLowerCase().trim()
-  return albums.value.filter(album => {
-    const nameMatch = album.name?.toLowerCase().includes(query)
-    const subtitleMatch = album.subtitle?.toLowerCase().includes(query)
-    const slugMatch = album.slug?.toLowerCase().includes(query)
-    return nameMatch || subtitleMatch || slugMatch
-  })
-})
 
 onMounted(async () => {
   try {
@@ -157,51 +118,6 @@ h1 {
   font-size: 1.1rem;
   color: var(--text-secondary);
   max-width: 800px;
-}
-
-/* Filter Controls */
-.filter-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: var(--bg-card);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-
-.search-box {
-  flex: 1;
-  max-width: 400px;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-family: inherit;
-  transition: border-color 0.3s ease;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-}
-
-.search-input::placeholder {
-  color: var(--text-secondary);
-}
-
-.filter-stats {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 500;
 }
 
 /* Loading & Error States */
@@ -333,24 +249,6 @@ h1 {
   opacity: 1;
 }
 
-.btn-clear {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-clear:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--accent-primary);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .albums-page {
@@ -359,19 +257,6 @@ h1 {
 
   h1 {
     font-size: 2rem;
-  }
-
-  .filter-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box {
-    max-width: 100%;
-  }
-
-  .filter-stats {
-    text-align: center;
   }
 
   .albums-grid {

@@ -28,6 +28,32 @@
           </button>
         </div>
 
+        <!-- Sort and Search Controls -->
+        <div class="photo-controls">
+          <div class="search-box">
+            <input
+              id="photo-search"
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search photos..."
+              class="search-input"
+              aria-label="Search photos by caption or location"
+            />
+          </div>
+          <div class="sort-box">
+            <label for="photo-sort" class="sort-label">Sort:</label>
+            <select
+              id="photo-sort"
+              v-model="sortBy"
+              class="sort-select"
+            >
+              <option value="order">Display Order</option>
+              <option value="date-newest">Date (Newest First)</option>
+              <option value="date-oldest">Date (Oldest First)</option>
+            </select>
+          </div>
+        </div>
+
         <!-- Photo Grid -->
         <div v-if="currentPhotos.length > 0" class="photos-grid">
           <div v-for="item in currentPhotos" :key="item.src" class="photo-item">
@@ -127,14 +153,63 @@ const props = defineProps({
 
 const activeTab = ref(props.defaultCategory || (props.categories[0]?.id || null))
 const lightboxPhoto = ref(null)
+const searchQuery = ref('')
+const sortBy = ref('order')
 
 const hasCategories = computed(() => props.categories.length > 0)
 
-const currentPhotos = computed(() => {
-  if (hasCategories.value && typeof props.photos === 'object' && !Array.isArray(props.photos)) {
-    return props.photos[activeTab.value] || []
+// Helper to sort photos
+function sortPhotos(photos) {
+  const sorted = [...photos]
+
+  if (sortBy.value === 'date-newest') {
+    sorted.sort((a, b) => {
+      if (!a.date_taken) return 1
+      if (!b.date_taken) return -1
+      return new Date(b.date_taken) - new Date(a.date_taken)
+    })
+  } else if (sortBy.value === 'date-oldest') {
+    sorted.sort((a, b) => {
+      if (!a.date_taken) return 1
+      if (!b.date_taken) return -1
+      return new Date(a.date_taken) - new Date(b.date_taken)
+    })
+  } else {
+    // Display order (default)
+    sorted.sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
   }
-  return Array.isArray(props.photos) ? props.photos : []
+
+  return sorted
+}
+
+// Helper to filter photos by search query
+function filterPhotos(photos) {
+  if (!searchQuery.value.trim()) return photos
+
+  const query = searchQuery.value.toLowerCase().trim()
+  return photos.filter(photo => {
+    const captionMatch = photo.caption?.toLowerCase().includes(query)
+    const locationMatch = photo.location?.toLowerCase().includes(query)
+    return captionMatch || locationMatch
+  })
+}
+
+const currentPhotos = computed(() => {
+  let photos = []
+
+  if (hasCategories.value && typeof props.photos === 'object' && !Array.isArray(props.photos)) {
+    photos = props.photos[activeTab.value] || []
+  } else {
+    photos = Array.isArray(props.photos) ? props.photos : []
+  }
+
+  // Apply search filter
+  photos = filterPhotos(photos)
+
+  // Apply sorting
+  photos = sortPhotos(photos)
+
+  return photos
 })
 
 const openLightbox = (photo) => {
@@ -250,6 +325,74 @@ h1 {
   border-bottom-color: var(--bg-card);
   position: relative;
   bottom: -2px;
+}
+
+/* Photo Controls */
+.photo-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.search-box {
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.sort-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-label {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.sort-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
 }
 
 /* Photos Grid */
@@ -381,6 +524,19 @@ h1 {
   .tab {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
+  }
+
+  .photo-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .sort-box {
+    justify-content: space-between;
   }
 
   .photos-grid {
