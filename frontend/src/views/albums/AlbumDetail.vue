@@ -60,10 +60,6 @@ const transformedPhotos = computed(() => {
 })
 
 function getComingSoonMessage() {
-  const slug = route.params.slug
-  if (slug === 'sports') {
-    return 'Photos from volleyball matches and powerlifting sessions will be added here!'
-  }
   return `Photos will be added to this album soon!`
 }
 
