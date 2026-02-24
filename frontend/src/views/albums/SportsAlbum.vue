@@ -2,7 +2,7 @@
   <AlbumViewer
     v-if="!loading && albumData"
     :title="albumData.album.name"
-    :icon="albumData.album.icon"
+    icon="⚽"
     :subtitle="albumData.album.subtitle"
     :photos="albumData.photos"
     coming-soon

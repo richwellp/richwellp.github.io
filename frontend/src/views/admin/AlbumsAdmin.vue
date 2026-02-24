@@ -53,7 +53,6 @@
         <table>
           <thead>
             <tr>
-              <th>Icon</th>
               <th>Name</th>
               <th>Slug</th>
               <th>Photos</th>
@@ -64,7 +63,6 @@
           </thead>
           <tbody>
             <tr v-for="album in albums" :key="album.id">
-              <td class="icon-cell">{{ album.icon }}</td>
               <td class="name-cell">
                 <strong>{{ album.name }}</strong>
                 <small v-if="album.subtitle">{{ album.subtitle }}</small>

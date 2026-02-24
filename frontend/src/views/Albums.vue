@@ -36,11 +36,10 @@
             />
           </div>
           <div v-else class="album-image placeholder">
-            <div class="placeholder-icon">{{ album.icon }}</div>
+            <div class="placeholder-icon">📷</div>
           </div>
           <div class="album-content">
             <div class="album-header">
-              <span class="album-icon">{{ album.icon }}</span>
               <h2>{{ album.name }}</h2>
             </div>
             <p class="album-description">{{ album.subtitle }}</p>
