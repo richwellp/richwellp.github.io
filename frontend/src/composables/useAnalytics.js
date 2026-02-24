@@ -39,19 +39,9 @@ export function useAnalytics() {
 }
 
 /**
- * Setup Cloudflare Web Analytics (FREE):
- *
- * 1. Go to: https://dash.cloudflare.com
- * 2. Navigate to: Analytics & Logs → Web Analytics
- * 3. Click "Add a site" and enter: richwellp.github.io
- * 4. Copy your site token
- * 5. Replace YOUR_CLOUDFLARE_TOKEN in index.html with your actual token
- *
- * Features:
- * - Automatic page view tracking
- * - Referrer tracking
- * - Device/browser analytics
- * - Zero performance impact
- * - 100% FREE forever
- * - GDPR compliant, no cookies
+ * View your site analytics:
+ * 1. Go to https://dash.cloudflare.com                                                                                                                                  
+ * 2. Sign in with your Cloudflare account
+ * 3. Navigate to: Analytics & Logs → Web Analytics                                                                                                                                             3. Navigate to: Analytics & Logs → Web Analytics                                                                                                                                  
+ * 4. Select your site: richwellp.github.io 
  */
