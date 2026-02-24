@@ -81,9 +81,10 @@ const frontendContent = {
   },
   experience: {
     title: 'Experience Overview',
-    content: `AI Engineer Safran Database Administrator Illinois Secretary of State Teaching Assistant UIUC Software Engineer
+    content: `AI Engineer RAVE Aerospace Database Administrator Illinois Secretary of State Teaching Assistant UIUC Software Engineer
     Full-stack development RAG systems predictive maintenance multi-agent architectures LangGraph chatbot
     Azure OpenAI PostgreSQL Python Quart Vue.js machine learning clustering analytics dashboard
+    In-flight entertainment connectivity IFEC systems aviation aerospace Safran Passenger Innovations
     DB2 mainframe z/OS SQL optimization ETL pipelines Azure cloud services statewide digital initiatives
     Software Design Database Systems object-oriented design patterns performance optimization`,
     path: '/experience',

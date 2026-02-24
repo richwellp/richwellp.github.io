@@ -16,7 +16,8 @@ export function generatePersonSchema() {
     'jobTitle': 'AI Engineer',
     'worksFor': {
       '@type': 'Organization',
-      'name': 'Safran'
+      'name': 'RAVE Aerospace',
+      'url': 'https://www.linkedin.com/company/rave-aerospace'
     },
     'sameAs': [
       'https://www.linkedin.com/in/richwell-perez',

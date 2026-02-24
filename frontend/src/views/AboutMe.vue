@@ -9,7 +9,7 @@
           class="hero-image"
         />
         <h1>Richwell Cyrille Santos Perez</h1>
-        <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | AI Engineer at <a href="https://www.safran-group.com/companies/safran-passenger-innovations" target="_blank" rel="noopener noreferrer">Safran</a></p>
+        <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | AI Engineer at <a href="https://www.linkedin.com/company/rave-aerospace" target="_blank" rel="noopener noreferrer">RAVE Aerospace</a></p>
 
         <!-- Animated Subtitle -->
         <transition name="slide-fade" mode="out-in">
@@ -70,11 +70,11 @@
         <div class="timeline">
           <div class="timeline-item">
             <div class="timeline-header">
-              <h3>AI Engineer at Safran</h3>
+              <h3>AI Engineer at RAVE Aerospace</h3>
               <span class="timeline-date">June 2025 - Present</span>
             </div>
             <p class="timeline-description">
-              Building full-stack applications with RAG, developing predictive maintenance systems, and
+              Building full-stack applications with RAG, developing predictive maintenance systems for in-flight entertainment and connectivity (IFEC) systems, and
               creating AI solutions to minimize manual labor.
             </p>
           </div>

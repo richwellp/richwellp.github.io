@@ -29,11 +29,11 @@
   "experience": [
     {
       "title": "AI Engineer",
-      "company": "Safran",
+      "company": "RAVE Aerospace",
       "location": "Laramie, WY; Brea, CA",
       "dates": "June 2025 - Present",
       "current": true,
-      "description": "Developing AI initiatives in aerospace and in-flight entertainment systems, building production-grade RAG solutions with multi-agent architectures and predictive maintenance systems.",
+      "description": "Developing AI initiatives in aerospace and in-flight entertainment and connectivity (IFEC) systems at RAVE Aerospace (formerly Safran Passenger Innovations, rebranded February 2026 following acquisition by Kingswood Capital Management). Building production-grade RAG solutions with multi-agent architectures and predictive maintenance systems.",
       "highlights": [
         "Multi-Agent RAG System: Architected and deployed a hierarchical LangGraph-based chatbot for aviation Master Data Management, serving 600+ internal users via Azure App Services",
         "Full-Stack Development: Built end-to-end solution with Quart (async Python) backend, Vue 3 + Vuex frontend, dual PostgreSQL databases (operational + knowledge base), and Azure OpenAI integration",
