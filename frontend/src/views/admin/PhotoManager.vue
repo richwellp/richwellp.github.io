@@ -144,7 +144,13 @@ const isVideo = (photo) => {
   // Fallback: detect from URL extension if type field is missing
   if (photo.url) {
     const urlLower = photo.url.toLowerCase()
-    return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/.test(urlLower)
+    const hasVideoExt = /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower)
+    if (hasVideoExt) return true
+
+    // Check Content-Type in URL (Supabase includes it)
+    if (urlLower.includes('video/') || urlLower.includes('.mp4') || urlLower.includes('.mov')) {
+      return true
+    }
   }
 
   return false

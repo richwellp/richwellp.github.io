@@ -71,6 +71,7 @@
               :src="item.src"
               class="photo-video"
               @click="openLightbox(item)"
+              autoplay
               muted
               loop
               playsinline
@@ -187,13 +188,26 @@ function sortPhotos(photos) {
 // Helper to check if item is a video
 function isVideo(item) {
   // Check type field if available
-  if (item.type === 'video') return true
+  if (item.type === 'video') {
+    console.log('[AlbumViewer] Video detected by type field:', item.src)
+    return true
+  }
   if (item.type === 'image') return false
 
   // Fallback: detect from URL extension if type field is missing
   if (item.src) {
     const urlLower = item.src.toLowerCase()
-    return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/.test(urlLower)
+    const hasVideoExt = /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower)
+    if (hasVideoExt) {
+      console.log('[AlbumViewer] Video detected by extension:', item.src)
+      return true
+    }
+
+    // Check Content-Type in URL (Supabase includes it)
+    if (urlLower.includes('video/') || urlLower.includes('.mp4') || urlLower.includes('.mov')) {
+      console.log('[AlbumViewer] Video detected by URL pattern:', item.src)
+      return true
+    }
   }
 
   return false
