@@ -105,12 +105,11 @@ const simulateStreaming = (messageId, fullContent, delay = 20) => {
     messages.value[messageIndex].content = ''
 
     let currentIndex = 0
-    const cursor = '<span class="typing-cursor">▋</span>' // Cursor with wrapper
 
     const interval = setInterval(() => {
       if (currentIndex >= fullContent.length) {
         clearInterval(interval)
-        // Remove cursor and mark as not streaming
+        // Mark as not streaming
         messages.value[messageIndex].content = fullContent
         messages.value[messageIndex].isStreaming = false
         saveMessages()
@@ -118,9 +117,9 @@ const simulateStreaming = (messageId, fullContent, delay = 20) => {
         return
       }
 
-      // Add next character with cursor at the end
+      // Add next character (cursor is rendered separately in ChatAssistant.vue)
       currentIndex++
-      messages.value[messageIndex].content = fullContent.substring(0, currentIndex) + cursor
+      messages.value[messageIndex].content = fullContent.substring(0, currentIndex)
     }, delay)
   })
 }

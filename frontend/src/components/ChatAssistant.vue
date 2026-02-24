@@ -65,8 +65,11 @@
               v-if="message.type === 'assistant'"
               class="message-content"
               :class="{ 'markdown-body': !message.isStreaming }"
-              v-html="message.isStreaming ? message.content : renderMarkdown(message.content)"
-            ></div>
+            >
+              <span v-if="message.isStreaming" v-html="message.content"></span>
+              <span v-else v-html="renderMarkdown(message.content)"></span>
+              <span v-if="message.isStreaming" class="typing-cursor">▋</span>
+            </div>
             <div v-else class="message-content">{{ message.content }}</div>
 
             <!-- Copy button for assistant messages -->
@@ -645,12 +648,14 @@ watch(isOpen, async (newValue) => {
 }
 
 .markdown-body a {
-  color: var(--accent-primary);
+  color: #3b82f6; /* Bright blue that works in both light and dark modes */
   text-decoration: underline;
+  font-weight: 500;
 }
 
 .markdown-body a:hover {
-  color: var(--accent-hover);
+  color: #60a5fa; /* Lighter blue on hover */
+  text-decoration: none;
 }
 
 .markdown-body strong {
