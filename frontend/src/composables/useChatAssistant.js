@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { professionalInfo } from '../data/professionalInfo'
 import { useBlog } from './useBlog'
 import { useAnalytics } from './useAnalytics'
 import { CONTACT } from '../config/contact'
@@ -10,6 +9,7 @@ const messages = ref([])
 const isOpen = ref(false)
 const isTyping = ref(false)
 const blogPosts = ref([])
+const professionalInfo = ref(null)
 const contextLoaded = ref(false)
 
 // UUID generator with fallback for older browsers
@@ -25,20 +25,34 @@ const generateUUID = () => {
   })
 }
 
-// Load blog posts once on first chat open
+// Load context (blog posts + professional info) once on first chat open
 const loadContext = async () => {
   if (!contextLoaded.value) {
+    // Load blog posts from API
     const { fetchPosts } = useBlog()
     await fetchPosts()
     const { posts } = useBlog()
     blogPosts.value = posts.value
+
+    // Load professional info from JSON file (dynamic, no rebuild needed)
+    try {
+      const response = await fetch('/data/professionalInfo.json')
+      if (response.ok) {
+        professionalInfo.value = await response.json()
+      } else {
+        console.error('Failed to load professional info')
+      }
+    } catch (error) {
+      console.error('Error loading professional info:', error)
+    }
+
     contextLoaded.value = true
   }
 }
 
 // Build site context for API
 const getSiteContext = () => ({
-  professional: professionalInfo,
+  professional: professionalInfo.value,
   blogs: blogPosts.value.map(post => ({
     title: post.title,
     date: post.date,

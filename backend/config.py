@@ -16,7 +16,8 @@ MESSAGE_LENGTH_LIMIT = 2000  # characters
 HISTORY_LIMIT = 20  # maximum conversation history to send
 
 # Gemini Configuration
-GEMINI_MODEL = 'gemini-2.0-flash-exp'  # or 'gemini-2.5-flash'
+# Options: 'gemini-2.5-flash' (explicit) or 'gemini-flash-latest' (auto-updates)
+GEMINI_MODEL = 'gemini-2.5-flash'  # Best free tier: 15 RPM, 1,500 RPD
 
 # Blog Configuration
 DEFAULT_PAGE_SIZE = 10
