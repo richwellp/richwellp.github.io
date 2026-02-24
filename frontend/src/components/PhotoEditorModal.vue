@@ -9,16 +9,52 @@
           </div>
 
           <form @submit.prevent="handleSubmit" class="modal-body">
+            <!-- File Upload -->
             <div class="form-group">
-              <label for="url">Image URL *</label>
+              <label for="file">Upload File *</label>
+              <div class="upload-area" :class="{ 'has-file': selectedFile, 'uploading': uploading }">
+                <input
+                  id="file"
+                  type="file"
+                  accept="image/*,video/*"
+                  @change="handleFileSelect"
+                  class="file-input"
+                  :disabled="uploading"
+                />
+                <div v-if="!selectedFile && !form.url" class="upload-placeholder">
+                  <span class="upload-icon">📁</span>
+                  <p>Click to select image or video</p>
+                  <small>Supports: JPG, PNG, MP4, MOV (max 50MB)</small>
+                </div>
+                <div v-else-if="selectedFile" class="file-selected">
+                  <span class="file-icon">{{ selectedFile.type.startsWith('video') ? '🎥' : '🖼️' }}</span>
+                  <p>{{ selectedFile.name }}</p>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                  <button v-if="!uploading" type="button" @click="clearFile" class="clear-btn">×</button>
+                </div>
+                <div v-else-if="form.url" class="url-preview">
+                  <p>{{ form.url }}</p>
+                </div>
+                <div v-if="uploading" class="upload-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
+                  </div>
+                  <small>Uploading... {{ uploadProgress }}%</small>
+                </div>
+              </div>
+              <small v-if="uploadError" class="error-text">{{ uploadError }}</small>
+            </div>
+
+            <!-- Manual URL (alternative) -->
+            <div v-if="!selectedFile && !uploading" class="form-group">
+              <label for="url">Or paste URL manually</label>
               <input
                 id="url"
                 v-model="form.url"
                 type="text"
-                required
                 placeholder="https://example.com/photo.jpg"
               />
-              <small>Direct URL to the image file</small>
+              <small>Direct URL to image or video file</small>
             </div>
 
             <div class="form-group">
@@ -88,6 +124,8 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { uploadFile } from '../lib/supabase'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -96,6 +134,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'save'])
+const route = useRoute()
 
 const isEditing = computed(() => !!props.photo)
 
@@ -107,6 +146,12 @@ const form = ref({
   category: null,
   order_index: 0
 })
+
+// File upload state
+const selectedFile = ref(null)
+const uploading = ref(false)
+const uploadProgress = ref(0)
+const uploadError = ref('')
 
 // Watch for photo changes (when editing)
 watch(() => props.photo, (newPhoto) => {
@@ -132,7 +177,92 @@ watch(() => props.photo, (newPhoto) => {
   }
 }, { immediate: true })
 
-const handleSubmit = () => {
+// File handling
+const handleFileSelect = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // Validate file type
+  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']
+  if (!validTypes.includes(file.type)) {
+    uploadError.value = 'Invalid file type. Supported: JPG, PNG, GIF, WEBP, MP4, MOV, WEBM'
+    return
+  }
+
+  // Validate file size (50MB max)
+  const maxSize = 50 * 1024 * 1024 // 50MB
+  if (file.size > maxSize) {
+    uploadError.value = 'File too large. Maximum size: 50MB'
+    return
+  }
+
+  selectedFile.value = file
+  uploadError.value = ''
+}
+
+const clearFile = () => {
+  selectedFile.value = null
+  uploadError.value = ''
+  // Clear file input
+  const fileInput = document.getElementById('file')
+  if (fileInput) fileInput.value = ''
+}
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
+const handleSubmit = async () => {
+  // If file is selected, upload it first
+  if (selectedFile.value && !uploading.value) {
+    try {
+      uploading.value = true
+      uploadProgress.value = 0
+      uploadError.value = ''
+
+      // Get album slug from route
+      const albumSlug = route.params.slug
+
+      // Simulate progress (since Supabase doesn't provide real progress)
+      const progressInterval = setInterval(() => {
+        if (uploadProgress.value < 90) {
+          uploadProgress.value += 10
+        }
+      }, 100)
+
+      // Upload file
+      const { url } = await uploadFile(selectedFile.value, albumSlug)
+
+      clearInterval(progressInterval)
+      uploadProgress.value = 100
+
+      // Set URL in form
+      form.value.url = url
+
+      // Clear file state
+      setTimeout(() => {
+        selectedFile.value = null
+        uploading.value = false
+        uploadProgress.value = 0
+      }, 500)
+    } catch (error) {
+      console.error('Upload failed:', error)
+      uploadError.value = error.message || 'Upload failed'
+      uploading.value = false
+      uploadProgress.value = 0
+      return // Don't submit if upload fails
+    }
+  }
+
+  // Validate URL exists
+  if (!form.value.url) {
+    uploadError.value = 'Please upload a file or enter a URL'
+    return
+  }
+
+  const photoData = {
   const photoData = {
     ...form.value,
     category: form.value.category?.trim() || null,
@@ -307,5 +437,130 @@ const handleBackdropClick = () => {
 .modal-enter-from .modal-content,
 .modal-leave-to .modal-content {
   transform: scale(0.9);
+}
+
+/* Upload Area */
+.upload-area {
+  position: relative;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  background: var(--bg-secondary);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-tertiary);
+}
+
+.upload-area.uploading {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-input:disabled {
+  cursor: not-allowed;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.upload-icon {
+  font-size: 3rem;
+}
+
+.upload-placeholder p {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.upload-placeholder small {
+  color: var(--text-secondary);
+}
+
+.file-selected,
+.url-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.file-icon {
+  font-size: 2.5rem;
+}
+
+.file-selected p,
+.url-preview p {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0;
+  word-break: break-all;
+}
+
+.file-selected small {
+  color: var(--text-secondary);
+}
+
+.clear-btn {
+  position: absolute;
+  top: -1rem;
+  right: -1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.upload-progress {
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  transition: width 0.3s ease;
+}
+
+.error-text {
+  color: #ef4444;
+  font-weight: 600;
 }
 </style>
