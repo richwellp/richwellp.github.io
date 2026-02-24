@@ -3,12 +3,10 @@
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-content">
-        <OptimizedImage
+        <img
           src="/assets/photos/professional_1.jpg"
           alt="Richwell Perez"
-          loading="eager"
-          size="md"
-          img-class="hero-image"
+          class="hero-image"
         />
         <h1>Richwell Cyrille Santos Perez</h1>
         <p class="subtitle">BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> | Currently an AI Engineer at <a href="https://www.safran-group.com/companies/safran-passenger-innovations" target="_blank" rel="noopener noreferrer">Safran</a></p>
@@ -55,11 +53,10 @@
             </p>
           </div>
           <div class="story-images">
-            <OptimizedImage
+            <img
               src="/assets/photos/professional_0.jpg"
               alt="Graduation"
-              size="md"
-              img-class="story-photo"
+              class="story-photo"
             />
           </div>
         </div>
@@ -116,7 +113,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import OptimizedImage from '../components/OptimizedImage.vue'
 import { injectMultipleStructuredData, generatePersonSchema, generateOrganizationSchema } from '../composables/useStructuredData'
 
 const timelineItems = [

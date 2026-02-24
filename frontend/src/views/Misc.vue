@@ -122,10 +122,10 @@
             <!-- Me Album -->
             <router-link to="/misc/professional" class="album-card">
               <div class="album-image">
-                <OptimizedImage
+                <img
                   src="/assets/photos/professional_1.jpg"
                   alt="Personal Moments"
-                  size="md"
+                  loading="lazy"
                 />
                 <div class="album-overlay">
                   <div class="overlay-content">
