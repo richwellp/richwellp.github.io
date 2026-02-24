@@ -175,7 +175,8 @@ def get_album(slug):
             for photo in photos_data:
                 photos_array.append({
                     'src': photo['url'],
-                    'caption': photo['caption']
+                    'caption': photo['caption'],
+                    'type': photo.get('type', 'image')
                 })
 
             return jsonify({
