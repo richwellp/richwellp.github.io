@@ -2,7 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { useTheme } from './composables/useTheme'
-import { professionalInfo } from './data/professionalInfo.js'
+import { useProfessionalInfo } from './composables/useProfessionalInfo'
 import { useBlog } from './composables/useBlog'
 import ChatAssistant from './components/ChatAssistant.vue'
 import CommandPalette from './components/CommandPalette.vue'
@@ -15,6 +15,7 @@ const searchQuery = ref('')
 const searchResults = ref([])
 const showSearchResults = ref(false)
 const { posts, fetchPosts } = useBlog()
+const { projects, experience, skills, education, loadProfessionalInfo } = useProfessionalInfo()
 
 const blogContent = ref({})
 const isLoadingBlogContent = ref(false)
@@ -37,8 +38,9 @@ const loadBlogContent = async () => {
   isLoadingBlogContent.value = false
 }
 
-onMounted(() => {
+onMounted(async () => {
   fetchPosts()
+  await loadProfessionalInfo()
 })
 
 const openSearch = () => {
@@ -149,7 +151,7 @@ const searchPages = async () => {
   })
 
   // Search projects (including highlights)
-  professionalInfo.projects.forEach(project => {
+  projects.value.forEach(project => {
     const titleMatch = project.name.toLowerCase().includes(query)
     const descMatch = project.description.toLowerCase().includes(query)
     const techMatch = project.technologies.some(t => t.toLowerCase().includes(query))
@@ -186,7 +188,7 @@ const searchPages = async () => {
   })
 
   // Search experience/jobs (including all highlights)
-  professionalInfo.experience.forEach(exp => {
+  experience.value.forEach(exp => {
     const titleMatch = exp.title.toLowerCase().includes(query) || exp.company.toLowerCase().includes(query)
     const descMatch = exp.description.toLowerCase().includes(query)
     const techMatch = exp.technologies.some(t => t.toLowerCase().includes(query))
@@ -222,15 +224,15 @@ const searchPages = async () => {
     }
   })
 
-  // Search skills
-  const allSkills = [
-    ...professionalInfo.skills.languages,
-    ...professionalInfo.skills.frameworks,
-    ...professionalInfo.skills.databases,
-    ...professionalInfo.skills.cloud,
-    ...professionalInfo.skills.ai_ml,
-    ...professionalInfo.skills.tools
-  ]
+  // Search skills - dynamically iterate over all categories
+  const allSkills = []
+  if (skills.value) {
+    Object.values(skills.value).forEach(categorySkills => {
+      if (Array.isArray(categorySkills)) {
+        allSkills.push(...categorySkills)
+      }
+    })
+  }
 
   const matchingSkills = allSkills.filter(skill => skill.toLowerCase().includes(query))
   if (matchingSkills.length > 0) {
@@ -245,7 +247,7 @@ const searchPages = async () => {
   }
 
   // Search education (including focus areas and specializations)
-  professionalInfo.education.forEach(edu => {
+  education.value.forEach(edu => {
     const degreeMatch = edu.degree.toLowerCase().includes(query)
     const institutionMatch = edu.institution.toLowerCase().includes(query)
     const focusMatch = edu.focus?.some(f => f.toLowerCase().includes(query))
@@ -341,6 +343,10 @@ const closeMiscDropdown = () => {
             CV
           </RouterLink>
 
+          <RouterLink to="/contact" @click="closeMobileMenu" active-class="active">
+            Contact
+          </RouterLink>
+
           <!-- Misc Dropdown -->
           <div
             class="nav-dropdown"
@@ -374,10 +380,6 @@ const closeMiscDropdown = () => {
               </RouterLink>
             </div>
           </div>
-
-          <RouterLink to="/contact" @click="closeMobileMenu" active-class="active">
-            Contact
-          </RouterLink>
 
           <!-- Search Bar -->
           <div class="search-container">

@@ -7,178 +7,40 @@
       </p>
 
       <div class="projects-grid">
-        <!-- UIUC Letter Grades -->
-        <div class="project-block">
+        <div
+          v-for="(project, index) in projects"
+          :key="index"
+          class="project-block"
+        >
           <div class="project-header">
-            <h3>UIUC Letter Grades</h3>
-            <p class="project-subtitle">Full-Stack Web App with AI Integration</p>
-          </div>
-          <p class="project-description">
-            Built a full-stack analytics platform to help students make informed decisions about
-            their courses by visualizing historical GPA data and predicting outcomes.
-          </p>
-          <ul class="project-highlights">
-            <li>Built analytics platform with Node.js, MongoDB, and Python to visualize GPA data across 10+ years</li>
-            <li>Trained ML models (linear/logistic regression, sequential models) for predictive grade analytics</li>
-            <li>Designed interactive data visualizations for tracking performance across semesters</li>
-            <li>Implemented user authentication and automated data processing pipelines</li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">Node.js</span>
-            <span class="tech-tag">MongoDB</span>
-            <span class="tech-tag">Python</span>
-            <span class="tech-tag">TensorFlow</span>
-            <span class="tech-tag">Data Visualization</span>
-          </div>
-        </div>
-
-        <!-- Video Anomaly Detection -->
-        <div class="project-block">
-          <div class="project-header">
-            <h3>Video Anomaly Detection Model</h3>
-            <p class="project-subtitle">Leveraging Weapon Recognition for Enhanced Accuracy</p>
-          </div>
-          <p class="project-description">
-            Developed an AI pipeline for real-time crime detection in surveillance videos, combining
-            anomaly detection with weapon recognition.
-          </p>
-          <ul class="project-highlights">
-            <li>Integrated weapon detection with anomaly scores for improved crime classification</li>
-            <li>Developed AI pipeline using UCF-Crime anomaly detection & YOLO/Faster R-CNN</li>
-            <li>Optimized anomaly detection using Multi-Instance Learning (MIL) & improved loss functions</li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">PyTorch</span>
-            <span class="tech-tag">YOLO</span>
-            <span class="tech-tag">Faster R-CNN</span>
-            <span class="tech-tag">Computer Vision</span>
-            <span class="tech-tag">MIL</span>
-          </div>
-        </div>
-
-        <!-- Deep Learning Aerosol Model -->
-        <div class="project-block">
-          <div class="project-header">
-            <h3>Deep Learning Aerosol Model</h3>
-            <p class="project-subtitle">NCSA AI Innovation Hackathon</p>
-            <a href="https://ai.ncsa.illinois.edu/center-for-ai-innovation-announces-hackathon-winners/" target="_blank" rel="noopener noreferrer" class="award-badge">
-              🏆 3rd Place, Ashby Prize in Computational Science
+            <h3>{{ project.name }}</h3>
+            <p class="project-subtitle">{{ project.subtitle }}</p>
+            <!-- Links (if any) -->
+            <a
+              v-for="(link, linkIndex) in project.links"
+              :key="linkIndex"
+              :href="link"
+              target="_blank"
+              rel="noopener noreferrer"
+              :class="link.includes('github') ? 'github-link' : 'award-badge'"
+            >
+              {{ link.includes('hackathon-winners') ? '🏆 3rd Place, Ashby Prize in Computational Science' : 'View on GitHub →' }}
             </a>
           </div>
-          <p class="project-description">
-            Engineered deep learning models to predict climate-relevant aerosol properties using
-            high-performance computing infrastructure.
-          </p>
+          <p class="project-description">{{ project.description }}</p>
           <ul class="project-highlights">
-            <li>Engineered transformer and Encoder/Decoder models to capture temporal patterns in aerosol properties</li>
-            <li>Applied advanced preprocessing techniques to handle high-dimensional climate data</li>
-            <li>Leveraged HAL 9000 (UIUC's supercomputer) for high-performance training</li>
+            <li v-for="(highlight, hIndex) in project.highlights" :key="hIndex">
+              {{ highlight }}
+            </li>
           </ul>
           <div class="tech-stack">
-            <span class="tech-tag">PyTorch</span>
-            <span class="tech-tag">Transformers</span>
-            <span class="tech-tag">Climate Data</span>
-            <span class="tech-tag">HPC</span>
-          </div>
-        </div>
-
-        <!-- COVID Logging System -->
-        <div class="project-block">
-          <div class="project-header">
-            <h3>COVID Logging System</h3>
-            <p class="project-subtitle">Database Systems Project</p>
-            <a href="https://github.com/richwellp/CS411_Project" target="_blank" rel="noopener noreferrer" class="github-link">
-              View on GitHub →
-            </a>
-          </div>
-          <p class="project-description">
-            Built a comprehensive COVID-19 tracking and logging system with database management for monitoring cases and contact tracing.
-          </p>
-          <ul class="project-highlights">
-            <li>Designed relational database schema for COVID case management and contact tracing</li>
-            <li>Implemented CRUD operations with complex queries for data analysis</li>
-            <li>Built web interface for real-time case logging and reporting</li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">SQL</span>
-            <span class="tech-tag">Database Design</span>
-            <span class="tech-tag">Python</span>
-            <span class="tech-tag">Web Development</span>
-          </div>
-        </div>
-
-        <!-- Not Geoff - Facial Recognition -->
-        <div class="project-block">
-          <div class="project-header">
-            <h3>Not Geoff</h3>
-            <p class="project-subtitle">Facial Recognition System</p>
-            <a href="https://github.com/richwellp/Not-Geoff" target="_blank" rel="noopener noreferrer" class="github-link">
-              View on GitHub →
-            </a>
-          </div>
-          <p class="project-description">
-            Developed a facial recognition system using computer vision techniques to identify and verify individuals.
-          </p>
-          <ul class="project-highlights">
-            <li>Implemented face detection and recognition using OpenCV and deep learning models</li>
-            <li>Built real-time video processing pipeline for face identification</li>
-            <li>Trained custom models for improved accuracy on specific datasets</li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">Python</span>
-            <span class="tech-tag">OpenCV</span>
-            <span class="tech-tag">Computer Vision</span>
-            <span class="tech-tag">Deep Learning</span>
-          </div>
-        </div>
-
-        <!-- Rocket Rollers -->
-        <div class="project-block">
-          <div class="project-header">
-            <h3>Rocket Rollers</h3>
-            <p class="project-subtitle">Game Development Project</p>
-            <a href="https://github.com/richwellp/Rocket-Rollers" target="_blank" rel="noopener noreferrer" class="github-link">
-              View on GitHub →
-            </a>
-          </div>
-          <p class="project-description">
-            Created an interactive game featuring physics-based mechanics and dynamic gameplay elements.
-          </p>
-          <ul class="project-highlights">
-            <li>Implemented game physics engine with collision detection and response</li>
-            <li>Designed level progression system with increasing difficulty</li>
-            <li>Built responsive controls and smooth animation systems</li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">Unity</span>
-            <span class="tech-tag">C#</span>
-            <span class="tech-tag">Game Development</span>
-            <span class="tech-tag">Physics</span>
-          </div>
-        </div>
-
-        <!-- Open Flights -->
-        <div class="project-block">
-          <div class="project-header">
-            <h3>Open Flights</h3>
-            <p class="project-subtitle">Flight Data Analysis Platform</p>
-            <a href="https://github.com/richwellp/Open-Flights" target="_blank" rel="noopener noreferrer" class="github-link">
-              View on GitHub →
-            </a>
-          </div>
-          <p class="project-description">
-            Built a data analysis platform for visualizing and analyzing global flight routes and airport data.
-          </p>
-          <ul class="project-highlights">
-            <li>Processed and visualized large-scale flight route datasets</li>
-            <li>Implemented interactive maps for exploring flight connections</li>
-            <li>Built analytics dashboard for route optimization and statistics</li>
-          </ul>
-          <div class="tech-stack">
-            <span class="tech-tag">Python</span>
-            <span class="tech-tag">Data Analysis</span>
-            <span class="tech-tag">Visualization</span>
-            <span class="tech-tag">Pandas</span>
+            <span
+              v-for="tech in project.technologies"
+              :key="tech"
+              class="tech-tag"
+            >
+              {{ tech }}
+            </span>
           </div>
         </div>
       </div>
@@ -189,37 +51,23 @@
 <script setup>
 import { onMounted } from 'vue'
 import { injectStructuredData, generateProjectsListSchema } from '../composables/useStructuredData'
+import { useProfessionalInfo } from '../composables/useProfessionalInfo'
 
-const projects = [
-  {
-    title: 'UIUC Letter Grades',
-    description: 'Full-stack analytics platform for visualizing GPA data and predicting course outcomes'
-  },
-  {
-    title: 'Video Anomaly Detection Model',
-    description: 'AI pipeline for real-time crime detection in surveillance videos'
-  },
-  {
-    title: 'Deep Learning Aerosol Model',
-    description: 'Deep learning models to predict climate-relevant aerosol properties'
-  },
-  {
-    title: 'COVID Logging System',
-    description: 'COVID-19 tracking and logging system with database management'
-  },
-  {
-    title: 'AI-Powered Resume Generator',
-    description: 'LLM-based tool for generating tailored resumes from prompts'
-  },
-  {
-    title: 'Personal Portfolio Site',
-    description: 'Modern portfolio website built with Vue 3'
+// Load professional info
+const { projects, loadProfessionalInfo } = useProfessionalInfo()
+
+onMounted(async () => {
+  await loadProfessionalInfo()
+
+  // Inject structured data for projects list
+  if (projects.value) {
+    const projectsForSchema = projects.value.map(p => ({
+      title: p.name,
+      description: p.description
+    }))
+    const projectsSchema = generateProjectsListSchema(projectsForSchema)
+    injectStructuredData(projectsSchema, 'projects-list-schema')
   }
-]
-
-onMounted(() => {
-  const projectsSchema = generateProjectsListSchema(projects)
-  injectStructuredData(projectsSchema, 'projects-list-schema')
 })
 </script>
 

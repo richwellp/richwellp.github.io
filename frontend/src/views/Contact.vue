@@ -28,7 +28,7 @@
               <line x1="15" y1="9" x2="9" y2="15"></line>
               <line x1="9" y1="9" x2="15" y2="15"></line>
             </svg>
-            <p>Oops! Something went wrong. Please try again or email me directly at richwell.perez@gmail.com</p>
+            <p>Oops! Something went wrong. Please try again or email me directly at {{ CONTACT.email }}</p>
           </div>
 
           <!-- Contact Form -->
@@ -109,8 +109,8 @@
             </svg>
             <div>
               <h3>Email</h3>
-              <a href="mailto:richwell.perez@gmail.com" @click="trackExternalLink('email')">
-                richwell.perez@gmail.com
+              <a :href="`mailto:${CONTACT.email}`" @click="trackExternalLink('email')">
+                {{ CONTACT.email }}
               </a>
             </div>
           </div>
@@ -122,12 +122,12 @@
             <div>
               <h3>LinkedIn</h3>
               <a
-                href="https://www.linkedin.com/in/richwell-perez"
+                :href="CONTACT.linkedin"
                 target="_blank"
                 rel="noopener noreferrer"
                 @click="trackExternalLink('linkedin')"
               >
-                linkedin.com/in/richwell-perez
+                {{ CONTACT.linkedin.replace('https://www.', '') }}
               </a>
             </div>
           </div>
@@ -139,12 +139,12 @@
             <div>
               <h3>GitHub</h3>
               <a
-                href="https://github.com/richwellp"
+                :href="CONTACT.github"
                 target="_blank"
                 rel="noopener noreferrer"
                 @click="trackExternalLink('github')"
               >
-                github.com/richwellp
+                {{ CONTACT.github.replace('https://', '') }}
               </a>
             </div>
           </div>
@@ -164,6 +164,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAnalytics } from '../composables/useAnalytics'
+import { CONTACT } from '../config/contact'
 
 const { trackContactForm, trackExternalLink } = useAnalytics()
 

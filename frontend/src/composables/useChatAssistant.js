@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { useBlog } from './useBlog'
+import { useProfessionalInfo } from './useProfessionalInfo'
 import { useAnalytics } from './useAnalytics'
 import { CONTACT } from '../config/contact'
 import { API_ENDPOINTS, API_CONFIG } from '../config/api'
@@ -9,7 +10,6 @@ const messages = ref([])
 const isOpen = ref(false)
 const isTyping = ref(false)
 const blogPosts = ref([])
-const professionalInfo = ref(null)
 const contextLoaded = ref(false)
 
 // UUID generator with fallback for older browsers
@@ -34,32 +34,27 @@ const loadContext = async () => {
     const { posts } = useBlog()
     blogPosts.value = posts.value
 
-    // Load professional info from JSON file (dynamic, no rebuild needed)
-    try {
-      const response = await fetch('/data/professionalInfo.json')
-      if (response.ok) {
-        professionalInfo.value = await response.json()
-      } else {
-        console.error('Failed to load professional info')
-      }
-    } catch (error) {
-      console.error('Error loading professional info:', error)
-    }
+    // Load professional info from shared composable (dynamic, no rebuild needed)
+    const { loadProfessionalInfo } = useProfessionalInfo()
+    await loadProfessionalInfo()
 
     contextLoaded.value = true
   }
 }
 
 // Build site context for API
-const getSiteContext = () => ({
-  professional: professionalInfo.value,
-  blogs: blogPosts.value.map(post => ({
-    title: post.title,
-    date: post.date,
-    excerpt: post.excerpt,
-    tags: post.tags
-  }))
-})
+const getSiteContext = () => {
+  const { professionalInfo } = useProfessionalInfo()
+  return {
+    professional: professionalInfo.value,
+    blogs: blogPosts.value.map(post => ({
+      title: post.title,
+      date: post.date,
+      excerpt: post.excerpt,
+      tags: post.tags
+    }))
+  }
+}
 
 // Chat storage version (increment when making breaking changes)
 const CHAT_VERSION = 2

@@ -2,10 +2,11 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import Fuse from 'fuse.js'
-import { professionalInfo } from '../data/professionalInfo.js'
+import { useProfessionalInfo } from '../composables/useProfessionalInfo.js'
 import { useBlog } from '../composables/useBlog.js'
 
 const router = useRouter()
+const { projects, experience, skills, loadProfessionalInfo } = useProfessionalInfo()
 const isOpen = ref(false)
 const searchQuery = ref('')
 const selectedIndex = ref(0)
@@ -49,7 +50,7 @@ function buildSearchIndex() {
   })
 
   // Add projects
-  professionalInfo.projects.forEach(project => {
+  projects.value.forEach(project => {
     content.push({
       type: 'project',
       icon: '🚀',
@@ -62,7 +63,7 @@ function buildSearchIndex() {
   })
 
   // Add experience
-  professionalInfo.experience.forEach(exp => {
+  experience.value.forEach(exp => {
     content.push({
       type: 'experience',
       icon: '💼',
@@ -74,15 +75,26 @@ function buildSearchIndex() {
     })
   })
 
-  // Add skills
-  const allSkills = [
-    ...professionalInfo.skills.languages.map(s => ({ category: 'Languages', name: s })),
-    ...professionalInfo.skills.frameworks.map(s => ({ category: 'Frameworks', name: s })),
-    ...professionalInfo.skills.databases.map(s => ({ category: 'Databases', name: s })),
-    ...professionalInfo.skills.cloud.map(s => ({ category: 'Cloud', name: s })),
-    ...professionalInfo.skills.ai_ml.map(s => ({ category: 'AI/ML', name: s })),
-    ...professionalInfo.skills.tools.map(s => ({ category: 'Tools', name: s }))
-  ]
+  // Add skills - dynamically iterate over all categories
+  const allSkills = []
+  if (skills.value) {
+    Object.entries(skills.value).forEach(([categoryKey, categorySkills]) => {
+      if (Array.isArray(categorySkills)) {
+        // Convert category key to readable name (e.g., 'ai_ml' -> 'AI/ML', 'languages' -> 'Languages')
+        const categoryName = categoryKey
+          .split('_')
+          .map(word => word.toUpperCase())
+          .join('/')
+
+        categorySkills.forEach(skillName => {
+          allSkills.push({
+            category: categoryName,
+            name: skillName
+          })
+        })
+      }
+    })
+  }
 
   allSkills.forEach(skill => {
     content.push({
@@ -308,8 +320,9 @@ watch(searchQuery, () => {
 })
 
 // Lifecycle
-onMounted(() => {
-  loadBlogPosts()
+onMounted(async () => {
+  await loadProfessionalInfo()
+  await loadBlogPosts()
   buildSearchIndex()
   loadRecentSearches()
   window.addEventListener('keydown', handleKeyDown)

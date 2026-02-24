@@ -9,189 +9,40 @@
 
       <!-- Timeline -->
       <section class="timeline">
-
-        <!-- Safran -->
-        <div class="experience-card" :class="{ collapsed: !expandedCards.safran }">
+        <div
+          v-for="(exp, index) in experience"
+          :key="index"
+          class="experience-card"
+          :class="{ collapsed: !expandedCards[index] }"
+        >
           <div class="timeline-marker"></div>
-          <div class="card-header" @click="toggleCard('safran')">
+          <div class="card-header" @click="toggleCard(index)">
             <div>
-              <h3>AI Engineer</h3>
-              <p class="company">Safran | Laramie, WY; Brea, CA</p>
+              <h3>{{ exp.title }}</h3>
+              <p class="company">{{ exp.company }} | {{ exp.location }}</p>
             </div>
             <div class="header-right">
-              <span class="date">June 2025 - Present</span>
+              <span class="date">{{ exp.dates }}</span>
               <button class="collapse-btn" aria-label="Toggle details">
-                <span class="collapse-icon">{{ expandedCards.safran ? '▼' : '▶' }}</span>
+                <span class="collapse-icon">{{ expandedCards[index] ? '▼' : '▶' }}</span>
               </button>
             </div>
           </div>
-          <div class="card-content" v-show="expandedCards.safran">
-            <p class="description">
-              Developing AI initiatives in aerospace and in-flight entertainment systems, building
-              production-grade RAG solutions with multi-agent architectures and predictive maintenance systems.
-            </p>
+          <div class="card-content" v-show="expandedCards[index]">
+            <p class="description">{{ exp.description }}</p>
             <ul class="achievements">
-              <li>
-                <strong>Multi-Agent RAG System:</strong> Architected and deployed a hierarchical LangGraph-based chatbot for aviation Master Data Management, serving 600+ internal users via Azure App Services. Implemented a supervisor agent orchestrating specialized business knowledge and SQL agents with Server-Sent Events (SSE) streaming for real-time responses.
-              </li>
-              <li>
-                <strong>Full-Stack Development:</strong> Built end-to-end solution with Quart (async Python) backend, Vue 3 + Vuex frontend, dual PostgreSQL databases (operational + knowledge base), and Azure OpenAI integration with embeddings and Azure Dynamic Sessions for secure code execution.
-              </li>
-              <li>
-                <strong>Performance Optimization:</strong> Reduced response latency by 50% (2×faster) through optimization of multi-agent orchestration, prompt engineering (Prompty templates), intelligent caching strategies, and prompt distillation techniques.
-              </li>
-              <li>
-                <strong>Production Infrastructure:</strong> Deployed scalable ASGI APIs with Hypercorn, implemented conversation persistence with message ratings and reasoning trace storage, structured JSONL logging, comprehensive pytest + pytest-asyncio test suites, and Azure OpenTelemetry monitoring.
-              </li>
-              <li>
-                <strong>ML Analytics & Insights:</strong> Applied unsupervised machine learning (K-Means, DBSCAN, UMAP, HDBSCAN) and topic modeling to cluster 10,000+ RAG conversation interactions, built analytical dashboards with matplotlib for usage patterns, and implemented continuous improvement feedback loops.
-              </li>
-              <li>
-                <strong>Predictive Maintenance:</strong> Developing ML-based predictive maintenance
-                system to forecast RDU (Removable Display Unit) resets in in-flight entertainment
-                (IFE) systems using historical telemetry, operational data, and scikit-learn models to improve reliability
-                and minimize downtime.
-              </li>
-              <li>
-                <strong>IFE Log Analysis System:</strong> Developing LLM-powered log analyzer for In-Flight Entertainment systems to process 2GB log bundles (5M+ lines). Implementing 4-stage pipeline with Drain algorithm for template mining (30x compression), vector database for semantic search, and intelligent 2-level query routing to achieve 500-1000x log reduction with comprehensive analysis capabilities.
+              <li v-for="(highlight, hIndex) in exp.highlights" :key="hIndex">
+                {{ highlight }}
               </li>
             </ul>
             <div class="tech-stack">
-              <span class="tech-tag">Python</span>
-              <span class="tech-tag">LangChain</span>
-              <span class="tech-tag">Vue.js</span>
-              <span class="tech-tag">Quart</span>
-              <span class="tech-tag">PostgreSQL</span>
-              <span class="tech-tag">Azure OpenAI</span>
-              <span class="tech-tag">Azure App Services</span>
-              <span class="tech-tag">SSE</span>
-              <span class="tech-tag">RAG</span>
-              <span class="tech-tag">Scikit-learn</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Illinois Secretary of State -->
-        <div class="experience-card" :class="{ collapsed: !expandedCards.ilsos }">
-          <div class="timeline-marker"></div>
-          <div class="card-header" @click="toggleCard('ilsos')">
-            <div>
-              <h3>Database Administrator</h3>
-              <p class="company">Illinois Secretary of State | Springfield, IL</p>
-            </div>
-            <div class="header-right">
-              <span class="date">February 2025 - June 2025</span>
-              <button class="collapse-btn" aria-label="Toggle details">
-                <span class="collapse-icon">{{ expandedCards.ilsos ? '▼' : '▶' }}</span>
-              </button>
-            </div>
-          </div>
-          <div class="card-content" v-show="expandedCards.ilsos">
-            <p class="description">
-              Managed high-throughput DB2 databases on z/OS mainframe systems, supporting statewide
-              digital initiatives.
-            </p>
-            <ul class="achievements">
-              <li>
-                <strong>Database Optimization:</strong> Managed high-throughput DB2 databases (5B+
-                records) on z/OS mainframe systems, optimizing queries and schemas to support
-                statewide applications.
-              </li>
-              <li>
-                <strong>Performance Tuning:</strong> Improved query performance by designing and
-                tuning complex SQL queries and schemas, reducing lookup time from 20 seconds to
-                instantaneous for critical backend application queries.
-              </li>
-              <li>
-                <strong>Automation:</strong> Implemented ETL pipelines and automation scripts to
-                streamline data migration and significantly reduce manual effort.
-              </li>
-              <li>
-                <strong>Cross-functional Collaboration:</strong> Collaborated with cross-functional
-                development teams to design efficient schemas, stored procedures, and to integrate
-                Azure-based services for scalable, cloud-connected applications.
-              </li>
-              <li>
-                <strong>Digital Initiatives:</strong> Supported the development and deployment of
-                statewide digital initiatives, including mobile driver's licenses and REAL ID.
-              </li>
-            </ul>
-            <div class="tech-stack">
-              <span class="tech-tag">DB2</span>
-              <span class="tech-tag">SQL</span>
-              <span class="tech-tag">z/OS</span>
-              <span class="tech-tag">Azure</span>
-              <span class="tech-tag">ETL</span>
-              <span class="tech-tag">Python</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- UIUC - Teaching Assistant -->
-        <div class="experience-card" :class="{ collapsed: !expandedCards.uiucta }">
-          <div class="timeline-marker"></div>
-          <div class="card-header" @click="toggleCard('uiucta')">
-            <div>
-              <h3>Graduate Teaching Assistant</h3>
-              <p class="company">University of Illinois Urbana-Champaign | Urbana, IL</p>
-            </div>
-            <div class="header-right">
-              <span class="date">August 2022 - May 2023</span>
-              <button class="collapse-btn" aria-label="Toggle details">
-                <span class="collapse-icon">{{ expandedCards.uiucta ? '▼' : '▶' }}</span>
-              </button>
-            </div>
-          </div>
-          <div class="card-content" v-show="expandedCards.uiucta">
-            <p class="description">
-              Led discussions and labs for Software Design & Database Systems courses.
-            </p>
-            <ul class="achievements">
-              <li>
-                Led discussions and labs for Software Design & Database Systems, teaching
-                object-oriented design, design patterns, and database performance optimization to
-                800+ students.
-              </li>
-            </ul>
-            <div class="tech-stack">
-              <span class="tech-tag">Java</span>
-              <span class="tech-tag">SQL</span>
-              <span class="tech-tag">OOP</span>
-              <span class="tech-tag">Design Patterns</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- UIUC - Software Engineer -->
-        <div class="experience-card" :class="{ collapsed: !expandedCards.uiucse }">
-          <div class="timeline-marker"></div>
-          <div class="card-header" @click="toggleCard('uiucse')">
-            <div>
-              <h3>Software Engineer</h3>
-              <p class="company">University of Illinois Urbana-Champaign | Urbana, IL</p>
-            </div>
-            <div class="header-right">
-              <span class="date">July 2021 - August 2021</span>
-              <button class="collapse-btn" aria-label="Toggle details">
-                <span class="collapse-icon">{{ expandedCards.uiucse ? '▼' : '▶' }}</span>
-              </button>
-            </div>
-          </div>
-          <div class="card-content" v-show="expandedCards.uiucse">
-            <p class="description">
-              Developed embedded software for magnet mapping hardware systems.
-            </p>
-            <ul class="achievements">
-              <li>
-                Developed LabWindows/CVI software to support new magnet mapping hardware,
-                implementing real-time data interpretation, control logic, and optimizing
-                frontend/backend performance.
-              </li>
-            </ul>
-            <div class="tech-stack">
-              <span class="tech-tag">C</span>
-              <span class="tech-tag">LabWindows/CVI</span>
-              <span class="tech-tag">Embedded Systems</span>
+              <span
+                v-for="tech in exp.technologies"
+                :key="tech"
+                class="tech-tag"
+              >
+                {{ tech }}
+              </span>
             </div>
           </div>
         </div>
@@ -201,22 +52,34 @@
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, watch } from 'vue'
 import { injectStructuredData, generateWorkExperienceSchema } from '../composables/useStructuredData'
+import { useProfessionalInfo } from '../composables/useProfessionalInfo'
 
-// Card expansion state - all cards start expanded
-const expandedCards = reactive({
-  safran: true,
-  ilsos: true,
-  uiucta: true,
-  uiucse: true
-})
+// Load professional info
+const { experience, loadProfessionalInfo } = useProfessionalInfo()
 
-const toggleCard = (cardId) => {
-  expandedCards[cardId] = !expandedCards[cardId]
+// Card expansion state - dynamically managed
+const expandedCards = reactive({})
+
+// Initialize expanded state when experience loads
+watch(experience, (newExperience) => {
+  if (newExperience) {
+    newExperience.forEach((_, index) => {
+      if (!(index in expandedCards)) {
+        expandedCards[index] = true // All cards start expanded
+      }
+    })
+  }
+}, { immediate: true })
+
+const toggleCard = (cardIndex) => {
+  expandedCards[cardIndex] = !expandedCards[cardIndex]
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await loadProfessionalInfo()
+
   // Inject work experience schema
   const workExperienceSchema = generateWorkExperienceSchema()
   injectStructuredData(workExperienceSchema, 'work-experience-schema')

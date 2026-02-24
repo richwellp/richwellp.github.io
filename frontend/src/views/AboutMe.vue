@@ -305,6 +305,11 @@ h2 {
   border: 1px solid var(--border-color);
 }
 
+/* Background Section */
+.background {
+  background: var(--bg-secondary);
+}
+
 /* Background/Timeline */
 .timeline {
   max-width: 800px;
