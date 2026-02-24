@@ -285,7 +285,9 @@ const handleSubmit = async () => {
 
   const photoData = {
     ...form.value,
-    type: mediaType,
+    // Note: type field is commented out until column is added to database
+    // Uncomment after running: ALTER TABLE photos ADD COLUMN type TEXT DEFAULT 'image';
+    // type: mediaType,
     category: form.value.category?.trim() || null,
     date_taken: form.value.date_taken || null
   }

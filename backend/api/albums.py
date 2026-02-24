@@ -444,17 +444,23 @@ def admin_create_photo(slug):
 
         max_order = max_order_response.data[0]['order_index'] if max_order_response.data else 0
 
-        # Insert photo
-        result = supabase.table('photos').insert({
+        # Build insert data - only include type if column exists
+        insert_data = {
             'album_id': album_id,
             'url': data['url'],
-            'type': data.get('type', 'image'),
             'caption': data.get('caption', ''),
             'location': data.get('location'),
             'date_taken': data.get('date_taken'),
             'category': data.get('category'),
             'order_index': data.get('order_index', max_order + 1)
-        }).execute()
+        }
+
+        # Include type if provided (for future compatibility)
+        if 'type' in data:
+            insert_data['type'] = data['type']
+
+        # Insert photo
+        result = supabase.table('photos').insert(insert_data).execute()
 
         return jsonify({'photo': result.data[0]}), 201
 

@@ -64,7 +64,7 @@
       <div v-else-if="photos.length > 0" class="photos-grid">
         <div v-for="photo in photos" :key="photo.id" class="photo-card">
           <div class="photo-image">
-            <img v-if="photo.type !== 'video'" :src="photo.url" :alt="photo.caption || 'Photo'" />
+            <img v-if="!isVideo(photo)" :src="photo.url" :alt="photo.caption || 'Photo'" />
             <video v-else :src="photo.url" controls playsinline>
               <source :src="photo.url" type="video/mp4">
               Your browser doesn't support videos.
@@ -134,6 +134,20 @@ const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+const isVideo = (photo) => {
+  // Check type field if available
+  if (photo.type === 'video') return true
+  if (photo.type === 'image') return false
+
+  // Fallback: detect from URL extension if type field is missing
+  if (photo.url) {
+    const urlLower = photo.url.toLowerCase()
+    return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/.test(urlLower)
+  }
+
+  return false
 }
 
 const handleAuthenticated = async () => {
