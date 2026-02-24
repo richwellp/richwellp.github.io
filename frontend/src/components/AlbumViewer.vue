@@ -3,7 +3,7 @@
     <div class="container">
       <!-- Header -->
       <div class="album-header">
-        <router-link to="/misc" class="back-link">← Back to Misc</router-link>
+        <router-link to="/misc/albums" class="back-link">← Back to Albums</router-link>
         <h1>{{ title }}</h1>
         <p class="album-subtitle">{{ subtitle }}</p>
       </div>
