@@ -113,9 +113,8 @@ def get_album(slug):
 
         # Get photos for this album
         photos_response = supabase.table('photos') \
-            .select('file_path,caption,type,category,order_index') \
+            .select('url,caption,category,order_index') \
             .eq('album_id', album['id']) \
-            .eq('published', True) \
             .order('order_index') \
             .execute()
 
@@ -138,7 +137,7 @@ def get_album(slug):
 
                     # Remove category from photo object (not needed in frontend)
                     photo_obj = {
-                        'src': photo['file_path'],
+                        'src': photo['url'],
                         'caption': photo['caption'],
                         'type': photo.get('type', 'image')
                     }
@@ -160,9 +159,8 @@ def get_album(slug):
             photos_array = []
             for photo in photos_data:
                 photos_array.append({
-                    'src': photo['file_path'],
-                    'caption': photo['caption'],
-                    'type': photo.get('type', 'image')
+                    'src': photo['url'],
+                    'caption': photo['caption']
                 })
 
             return jsonify({
@@ -316,7 +314,7 @@ def admin_list_photos(slug):
         # Map sort parameter to column
         sort_map = {
             'upload_date': 'created_at',
-            'file_name': 'file_path',
+            'file_name': 'url',
             'caption': 'caption',
             'category': 'category',
             'order': 'order_index'
@@ -368,11 +366,12 @@ def admin_create_photo(slug):
         # Insert photo
         result = supabase.table('photos').insert({
             'album_id': album_id,
-            'file_path': data['file_path'],
+            'url': data['url'],
             'caption': data.get('caption', ''),
+            'location': data.get('location'),
+            'date_taken': data.get('date_taken'),
             'category': data.get('category'),
-            'order_index': data.get('order_index', max_order + 1),
-            'published': data.get('published', True)
+            'order_index': data.get('order_index', max_order + 1)
         }).execute()
 
         return jsonify({'photo': result.data[0]}), 201
@@ -381,7 +380,7 @@ def admin_create_photo(slug):
         return jsonify({'error': str(e)}), 500
 
 
-@albums_bp.route('/admin/photos/<int:photo_id>', methods=['PUT'])
+@albums_bp.route('/admin/photos/<photo_id>', methods=['PUT'])
 @require_admin
 def admin_update_photo(photo_id):
     """
@@ -402,7 +401,7 @@ def admin_update_photo(photo_id):
         return jsonify({'error': str(e)}), 500
 
 
-@albums_bp.route('/admin/photos/<int:photo_id>', methods=['DELETE'])
+@albums_bp.route('/admin/photos/<photo_id>', methods=['DELETE'])
 @require_admin
 def admin_delete_photo(photo_id):
     """

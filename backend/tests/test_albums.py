@@ -113,7 +113,7 @@ class TestGetAlbum:
         mock_photos_data = [
             {
                 'id': 1,
-                'file_path': '/assets/photos/travel/usa1.jpg',
+                'url': '/assets/photos/travel/usa1.jpg',
                 'caption': 'USA photo',
                 'type': 'image',
                 'category': 'usa',
@@ -121,7 +121,7 @@ class TestGetAlbum:
             },
             {
                 'id': 2,
-                'file_path': '/assets/photos/travel/japan1.jpg',
+                'url': '/assets/photos/travel/japan1.jpg',
                 'caption': 'Japan photo',
                 'type': 'image',
                 'category': 'japan',
@@ -144,7 +144,7 @@ class TestGetAlbum:
             if table_name == 'albums':
                 mock_table.select.return_value.eq.return_value = album_mock
             elif table_name == 'photos':
-                mock_table.select.return_value.eq.return_value.eq.return_value.order.return_value = photos_mock
+                mock_table.select.return_value.eq.return_value.order.return_value = photos_mock
             return mock_table
 
         mock_supabase.table.side_effect = table_side_effect
@@ -200,9 +200,9 @@ class TestGetAlbum:
         # Arrange
         mock_album_data = [{'id': 1, 'slug': 'travel', 'name': 'Travel', 'icon': '✈️', 'subtitle': 'Travel', 'published': True}]
         mock_photos_data = [
-            {'file_path': '/1.jpg', 'caption': 'Photo 1', 'type': 'image', 'category': 'usa', 'order_index': 1},
-            {'file_path': '/2.jpg', 'caption': 'Photo 2', 'type': 'image', 'category': 'usa', 'order_index': 2},
-            {'file_path': '/3.jpg', 'caption': 'Photo 3', 'type': 'image', 'category': 'japan', 'order_index': 1}
+            {'url': '/1.jpg', 'caption': 'Photo 1', 'category': 'usa', 'order_index': 1},
+            {'url': '/2.jpg', 'caption': 'Photo 2', 'category': 'usa', 'order_index': 2},
+            {'url': '/3.jpg', 'caption': 'Photo 3', 'category': 'japan', 'order_index': 1}
         ]
 
         album_mock = MagicMock()
@@ -215,7 +215,7 @@ class TestGetAlbum:
             if table_name == 'albums':
                 mock_table.select.return_value.eq.return_value = album_mock
             elif table_name == 'photos':
-                mock_table.select.return_value.eq.return_value.eq.return_value.order.return_value = photos_mock
+                mock_table.select.return_value.eq.return_value.order.return_value = photos_mock
             return mock_table
 
         mock_supabase.table.side_effect = table_side_effect
@@ -238,8 +238,8 @@ class TestGetAlbum:
         # Arrange
         mock_album_data = [{'id': 2, 'slug': 'me', 'name': 'Me', 'icon': '📷', 'subtitle': 'Personal', 'published': True}]
         mock_photos_data = [
-            {'file_path': '/1.jpg', 'caption': 'Photo 1', 'type': 'image', 'category': None, 'order_index': 1},
-            {'file_path': '/2.jpg', 'caption': 'Photo 2', 'type': 'image', 'category': None, 'order_index': 2}
+            {'url': '/1.jpg', 'caption': 'Photo 1', 'category': None, 'order_index': 1},
+            {'url': '/2.jpg', 'caption': 'Photo 2', 'category': None, 'order_index': 2}
         ]
 
         album_mock = MagicMock()
@@ -252,7 +252,7 @@ class TestGetAlbum:
             if table_name == 'albums':
                 mock_table.select.return_value.eq.return_value = album_mock
             elif table_name == 'photos':
-                mock_table.select.return_value.eq.return_value.eq.return_value.order.return_value = photos_mock
+                mock_table.select.return_value.eq.return_value.order.return_value = photos_mock
             return mock_table
 
         mock_supabase.table.side_effect = table_side_effect
@@ -465,7 +465,7 @@ class TestAdminListPhotos:
             {
                 'id': 1,
                 'album_id': 1,
-                'file_path': '/assets/photos/travel/1.jpg',
+                'url': '/assets/photos/travel/1.jpg',
                 'caption': 'Photo 1',
                 'category': 'usa',
                 'order_index': 1,
@@ -474,7 +474,7 @@ class TestAdminListPhotos:
             {
                 'id': 2,
                 'album_id': 1,
-                'file_path': '/assets/photos/travel/2.jpg',
+                'url': '/assets/photos/travel/2.jpg',
                 'caption': 'Photo 2',
                 'category': 'usa',
                 'order_index': 2,
@@ -524,11 +524,10 @@ class TestAdminCreatePhoto:
         photo_mock.execute.return_value.data = [{
             'id': 100,
             'album_id': 1,
-            'file_path': 'https://example.com/photo.jpg',
+            'url': 'https://example.com/photo.jpg',
             'caption': 'New photo',
             'category': 'usa',
-            'order_index': 11,
-            'published': True
+            'order_index': 11
         }]
 
         def table_side_effect(table_name):
@@ -547,16 +546,15 @@ class TestAdminCreatePhoto:
         response = client.post('/admin/albums/travel/photos',
             headers=admin_headers,
             json={
-                'file_path': 'https://example.com/photo.jpg',
+                'url': 'https://example.com/photo.jpg',
                 'caption': 'New photo',
-                'category': 'usa',
-                'published': True
+                'category': 'usa'
             }
         )
 
         assert response.status_code == 201
         data = response.get_json()
-        assert data['photo']['file_path'] == 'https://example.com/photo.jpg'
+        assert data['photo']['url'] == 'https://example.com/photo.jpg'
 
 
 class TestAdminUpdatePhoto:
