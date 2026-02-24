@@ -10,7 +10,9 @@ app = Flask(__name__)
 
 # Register blueprints
 from api.blog import blog_bp
+from api.albums import albums_bp
 app.register_blueprint(blog_bp, url_prefix='/blog')
+app.register_blueprint(albums_bp)
 
 # Secure CORS configuration
 allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:*,https://richwellp.github.io,https://*.vercel.app').split(',')

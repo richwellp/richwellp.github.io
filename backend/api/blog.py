@@ -61,7 +61,7 @@ def list_posts():
     query = supabase.table('blog_posts').select(
         'slug,title,excerpt,author,tags,published_at,created_at'
     )
-    query = query.eq('published', True).order('published_at', desc=True)
+    query = query.eq('published', True).order('created_at', desc=True)
 
     # Filter by tag if provided
     if tag:
