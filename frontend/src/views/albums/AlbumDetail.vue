@@ -27,13 +27,25 @@ const route = useRoute()
 const { loading, error, fetchAlbumBySlug } = useAlbums()
 const albumData = ref(null)
 
+// Helper to properly capitalize category names (handles abbreviations)
+function formatCategoryName(category) {
+  // Uppercase common country/region abbreviations
+  const abbreviations = ['usa', 'uk', 'uae', 'ussr', 'us']
+  if (abbreviations.includes(category.toLowerCase())) {
+    return category.toUpperCase()
+  }
+
+  // Standard title case for other categories
+  return category.charAt(0).toUpperCase() + category.slice(1)
+}
+
 // Transform API categories to the format AlbumViewer expects
 const categoryList = computed(() => {
   if (!albumData.value || !albumData.value.categories) return []
 
   return albumData.value.categories.map(category => ({
     id: category,
-    name: category.charAt(0).toUpperCase() + category.slice(1)
+    name: formatCategoryName(category)
   }))
 })
 
