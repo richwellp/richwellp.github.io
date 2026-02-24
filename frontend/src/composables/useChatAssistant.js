@@ -403,14 +403,13 @@ export function useChatAssistant() {
     // Track chat open/close
     if (isOpen.value) {
       trackChatInteraction('chat_opened')
-      await loadContext()
 
       // Try loading saved messages first
       if (messages.value.length === 0) {
         loadMessages()
       }
 
-      // If still no messages, add welcome message with streaming animation
+      // If still no messages, add welcome message with streaming animation IMMEDIATELY
       if (messages.value.length === 0) {
         const welcomeId = generateUUID()
         const welcomeContent = `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`
@@ -423,8 +422,12 @@ export function useChatAssistant() {
           isStreaming: true
         })
 
-        await simulateStreaming(welcomeId, welcomeContent, 15)
+        // Start streaming immediately, don't wait for context loading
+        simulateStreaming(welcomeId, welcomeContent, 15)
       }
+
+      // Load context in background (don't await - this can happen in parallel)
+      loadContext()
     } else {
       trackChatInteraction('chat_closed')
     }
