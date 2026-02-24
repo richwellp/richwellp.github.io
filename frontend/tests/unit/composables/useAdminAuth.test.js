@@ -1,11 +1,19 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useAdminAuth } from '@/composables/useAdminAuth'
 
 describe('useAdminAuth', () => {
+  const STORAGE_KEY = 'admin_token'
+
   beforeEach(() => {
+    // Clear localStorage before each test
+    localStorage.clear()
     // Reset auth state before each test
     const { logout } = useAdminAuth()
     logout()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
   })
 
   describe('login', () => {
@@ -125,6 +133,58 @@ describe('useAdminAuth', () => {
 
       expect(headers1.Authorization).toBe('Bearer shared-key')
       expect(headers2.Authorization).toBe('Bearer shared-key')
+    })
+  })
+
+  describe('localStorage persistence', () => {
+    it('persists token to localStorage on login', () => {
+      const { login } = useAdminAuth()
+
+      login('persisted-key')
+
+      expect(localStorage.getItem(STORAGE_KEY)).toBe('persisted-key')
+    })
+
+    it('removes token from localStorage on logout', () => {
+      const { login, logout } = useAdminAuth()
+
+      login('test-key')
+      expect(localStorage.getItem(STORAGE_KEY)).toBe('test-key')
+
+      logout()
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    })
+
+    it('persists token across instances (simulates page refresh)', () => {
+      const instance1 = useAdminAuth()
+
+      // Login with first instance
+      instance1.login('persisted-key')
+      expect(localStorage.getItem(STORAGE_KEY)).toBe('persisted-key')
+
+      // Second instance should see the same token (simulating page refresh)
+      const instance2 = useAdminAuth()
+      expect(instance2.isAuthenticated.value).toBe(true)
+      expect(instance2.adminToken.value).toBe('persisted-key')
+    })
+
+    it('handles localStorage write errors gracefully', () => {
+      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+        .mockImplementation(() => {
+          throw new Error('Storage quota exceeded')
+        })
+
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const { login, isAuthenticated } = useAdminAuth()
+      const result = login('test-key')
+
+      expect(result).toBe(true)
+      expect(isAuthenticated.value).toBe(true)
+      expect(consoleErrorSpy).toHaveBeenCalled()
+
+      setItemSpy.mockRestore()
+      consoleErrorSpy.mockRestore()
     })
   })
 })

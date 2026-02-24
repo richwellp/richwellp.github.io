@@ -126,6 +126,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { uploadFile } from '../lib/supabase'
+import { useAdminAuth } from '../composables/useAdminAuth'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -135,6 +136,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save'])
 const route = useRoute()
+const { adminToken } = useAdminAuth()
 
 const isEditing = computed(() => !!props.photo)
 
@@ -232,8 +234,8 @@ const handleSubmit = async () => {
         }
       }, 100)
 
-      // Upload file
-      const { url } = await uploadFile(selectedFile.value, albumSlug)
+      // Upload file (using backend API with admin auth)
+      const { url } = await uploadFile(selectedFile.value, albumSlug, adminToken.value)
 
       clearInterval(progressInterval)
       uploadProgress.value = 100

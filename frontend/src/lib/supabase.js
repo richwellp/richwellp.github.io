@@ -14,40 +14,42 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '')
 
 /**
- * Upload a file to Supabase Storage
+ * Upload a file to Supabase Storage via backend API
+ * Uses backend service role to bypass RLS policies
  * @param {File} file - File to upload
  * @param {string} albumSlug - Album slug (me, travel, sports, etc.)
+ * @param {string} adminToken - Admin authentication token
  * @returns {Promise<{url: string, path: string}>}
  */
-export async function uploadFile(file, albumSlug) {
+export async function uploadFile(file, albumSlug, adminToken) {
   if (!file) throw new Error('No file provided')
   if (!albumSlug) throw new Error('Album slug required')
+  if (!adminToken) throw new Error('Admin authentication required')
 
-  // Generate unique filename
-  const fileExt = file.name.split('.').pop()
-  const timestamp = Date.now()
-  const fileName = `${timestamp}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
-  const filePath = `${albumSlug}/${fileName}`
+  const API_BASE_URL = import.meta.env.VITE_API_URL
 
-  // Upload to Supabase Storage
-  const { data, error } = await supabase.storage
-    .from('photos')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: false
-    })
+  // Create form data
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('album', albumSlug)
 
-  if (error) {
-    throw new Error(`Upload failed: ${error.message}`)
+  // Upload via backend API (which has service role access)
+  const response = await fetch(`${API_BASE_URL}/admin/upload`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${adminToken}`
+    },
+    body: formData
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Upload failed' }))
+    throw new Error(error.error || 'Upload failed')
   }
 
-  // Get public URL
-  const { data: { publicUrl } } = supabase.storage
-    .from('photos')
-    .getPublicUrl(data.path)
-
+  const data = await response.json()
   return {
-    url: publicUrl,
+    url: data.url,
     path: data.path
   }
 }

@@ -1,8 +1,33 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+
+const STORAGE_KEY = 'admin_token'
+
+// Load token from localStorage on module initialization
+const loadToken = () => {
+  try {
+    return localStorage.getItem(STORAGE_KEY)
+  } catch (e) {
+    console.error('Failed to load admin token:', e)
+    return null
+  }
+}
+
+// Save token to localStorage
+const saveToken = (token) => {
+  try {
+    if (token) {
+      localStorage.setItem(STORAGE_KEY, token)
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  } catch (e) {
+    console.error('Failed to save admin token:', e)
+  }
+}
 
 // Shared state across all instances
-const adminKey = ref(null)
-const isAuthenticated = ref(false)
+const adminToken = ref(loadToken())
+const isAuthenticated = computed(() => !!adminToken.value)
 
 export function useAdminAuth() {
   const login = (key) => {
@@ -10,27 +35,29 @@ export function useAdminAuth() {
       return false
     }
 
-    adminKey.value = key.trim()
-    isAuthenticated.value = true
+    const trimmedKey = key.trim()
+    adminToken.value = trimmedKey
+    saveToken(trimmedKey)
     return true
   }
 
   const logout = () => {
-    adminKey.value = null
-    isAuthenticated.value = false
+    adminToken.value = null
+    saveToken(null)
   }
 
   const getAuthHeaders = () => {
-    if (!adminKey.value) {
+    if (!adminToken.value) {
       return {}
     }
 
     return {
-      'Authorization': `Bearer ${adminKey.value}`
+      'Authorization': `Bearer ${adminToken.value}`
     }
   }
 
   return {
+    adminToken,
     isAuthenticated,
     login,
     logout,

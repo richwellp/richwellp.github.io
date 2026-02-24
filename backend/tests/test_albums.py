@@ -661,3 +661,76 @@ class TestAdminReorderPhoto:
         assert response.status_code == 200
         data = response.get_json()
         assert data['photo']['order_index'] == 1
+
+
+class TestAdminUpload:
+    """Test POST /admin/upload - Upload file to storage"""
+
+    def test_admin_upload_requires_auth(self, client):
+        """Should return 401 without auth"""
+        from io import BytesIO
+        data = {
+            'file': (BytesIO(b'fake image data'), 'test.jpg'),
+            'album': 'sports'
+        }
+        response = client.post('/admin/upload', data=data, content_type='multipart/form-data')
+        assert response.status_code == 401
+
+    def test_admin_upload_requires_file(self, client, admin_headers):
+        """Should return 400 if no file provided"""
+        response = client.post('/admin/upload',
+            headers=admin_headers,
+            data={'album': 'sports'},
+            content_type='multipart/form-data'
+        )
+        assert response.status_code == 400
+        data = response.get_json()
+        assert 'No file' in data['error']
+
+    def test_admin_upload_requires_album(self, client, admin_headers):
+        """Should return 400 if no album slug provided"""
+        from io import BytesIO
+        data = {
+            'file': (BytesIO(b'fake image data'), 'test.jpg')
+        }
+        response = client.post('/admin/upload',
+            headers=admin_headers,
+            data=data,
+            content_type='multipart/form-data'
+        )
+        assert response.status_code == 400
+        data = response.get_json()
+        assert 'Album slug required' in data['error']
+
+    @patch('api.albums.supabase')
+    def test_admin_upload_succeeds(self, mock_supabase, client, admin_headers):
+        """Should upload file and return URL"""
+        from io import BytesIO
+
+        # Mock storage upload
+        mock_storage = MagicMock()
+        mock_supabase.storage.from_.return_value = mock_storage
+
+        # Mock successful upload
+        mock_upload_response = MagicMock()
+        mock_upload_response.error = None
+        mock_storage.upload.return_value = mock_upload_response
+
+        # Mock public URL
+        mock_storage.get_public_url.return_value = 'https://storage.supabase.co/object/public/photos/sports/test.jpg'
+
+        data = {
+            'file': (BytesIO(b'fake image data'), 'test.jpg'),
+            'album': 'sports'
+        }
+        response = client.post('/admin/upload',
+            headers=admin_headers,
+            data=data,
+            content_type='multipart/form-data'
+        )
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert 'url' in data
+        assert 'path' in data
+        assert 'sports' in data['path']

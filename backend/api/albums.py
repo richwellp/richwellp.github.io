@@ -355,6 +355,67 @@ def admin_list_photos(slug):
         return jsonify({'error': str(e)}), 500
 
 
+@albums_bp.route('/admin/upload', methods=['POST'])
+@require_admin
+def admin_upload_file():
+    """
+    POST /admin/upload
+    Upload file to Supabase Storage (bypasses RLS using service role)
+    Expects multipart/form-data with 'file' and 'album' fields
+    """
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+
+        file = request.files['file']
+        album_slug = request.form.get('album')
+
+        if not file or file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+
+        if not album_slug:
+            return jsonify({'error': 'Album slug required'}), 400
+
+        # Generate unique filename
+        import time
+        import random
+        import string
+        file_ext = file.filename.rsplit('.', 1)[1] if '.' in file.filename else 'jpg'
+        timestamp = int(time.time() * 1000)
+        random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=7))
+        filename = f"{timestamp}-{random_str}.{file_ext}"
+        filepath = f"{album_slug}/{filename}"
+
+        # Read file content
+        file_content = file.read()
+
+        # Upload to Supabase Storage (service role bypasses RLS)
+        upload_response = supabase.storage.from_('photos').upload(
+            filepath,
+            file_content,
+            {
+                'content-type': file.content_type,
+                'cache-control': '3600',
+                'upsert': 'false'
+            }
+        )
+
+        # Check for errors
+        if hasattr(upload_response, 'error') and upload_response.error:
+            return jsonify({'error': f'Upload failed: {upload_response.error}'}), 500
+
+        # Get public URL
+        public_url_response = supabase.storage.from_('photos').get_public_url(filepath)
+
+        return jsonify({
+            'url': public_url_response,
+            'path': filepath
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @albums_bp.route('/admin/albums/<slug>/photos', methods=['POST'])
 @require_admin
 def admin_create_photo(slug):
