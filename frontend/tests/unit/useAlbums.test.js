@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useAlbums } from '../../src/composables/useAlbums'
 
-// Mock API_CONFIG
+// Mock API_ENDPOINTS
 vi.mock('../../src/config/api', () => ({
-  default: {
-    BASE_URL: 'http://localhost:5000'
+  API_ENDPOINTS: {
+    albums: 'http://localhost:5000/albums',
+    album: (slug) => `http://localhost:5000/albums/${slug}`
   }
 }))
 

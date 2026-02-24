@@ -2,7 +2,7 @@
  * Composable for fetching albums and photos from API
  */
 import { ref } from 'vue'
-import API_CONFIG from '../config/api'
+import { API_ENDPOINTS } from '../config/api'
 
 export function useAlbums() {
   const albums = ref([])
@@ -18,7 +18,7 @@ export function useAlbums() {
     error.value = null
 
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/albums`, {
+      const response = await fetch(API_ENDPOINTS.albums, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -51,7 +51,7 @@ export function useAlbums() {
     error.value = null
 
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/albums/${slug}`, {
+      const response = await fetch(API_ENDPOINTS.album(slug), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
