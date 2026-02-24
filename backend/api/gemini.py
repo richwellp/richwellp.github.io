@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from api.resume_parser import get_resume_summary
 from config import GEMINI_MODEL, get_contact_message
+import hashlib
+import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -15,8 +17,23 @@ if GEMINI_API_KEY:
 else:
     print("Warning: GEMINI_API_KEY not found in environment variables")
 
+# Cache for system prompts (avoid rebuilding on every request)
+_prompt_cache = {}
+
 def build_system_prompt(site_context=None):
-    """Build system prompt from frontend-provided context."""
+    """
+    Build system prompt from frontend-provided context with caching.
+
+    Caches prompts based on site_context hash to avoid rebuilding identical prompts.
+    """
+    # Create cache key from site_context
+    cache_key = hashlib.md5(json.dumps(site_context, sort_keys=True).encode()).hexdigest() if site_context else 'default'
+
+    # Check cache
+    if cache_key in _prompt_cache:
+        return _prompt_cache[cache_key]
+
+    # Cache miss - build prompt
     prompt = """You are a helpful AI assistant for Richwell Perez's professional portfolio website.
 
 Your role is to answer questions about Richwell's professional background, education, work experience, projects, skills, and blog posts using ONLY the information provided below. Be conversational, friendly, and concise.
@@ -128,6 +145,9 @@ IMPORTANT INSTRUCTIONS:
 7. Do not make up information or speculate beyond what's provided
 8. When answering questions, draw from the resume's detailed information about specific achievements, projects, and responsibilities
 """
+
+    # Cache the prompt for future requests with same context
+    _prompt_cache[cache_key] = prompt
 
     return prompt
 

@@ -4,6 +4,7 @@ import { ref, onMounted } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useProfessionalInfo } from './composables/useProfessionalInfo'
 import { useBlog } from './composables/useBlog'
+import { useChatAssistant } from './composables/useChatAssistant'
 import ChatAssistant from './components/ChatAssistant.vue'
 import CommandPalette from './components/CommandPalette.vue'
 
@@ -16,6 +17,7 @@ const searchResults = ref([])
 const showSearchResults = ref(false)
 const { posts, fetchPosts } = useBlog()
 const { projects, experience, skills, education, loadProfessionalInfo } = useProfessionalInfo()
+const { preloadContext } = useChatAssistant()
 
 const blogContent = ref({})
 const isLoadingBlogContent = ref(false)
@@ -41,6 +43,8 @@ const loadBlogContent = async () => {
 onMounted(async () => {
   fetchPosts()
   await loadProfessionalInfo()
+  // Preload chatbot context in background (non-blocking)
+  preloadContext().catch(err => console.warn('Failed to preload chat context:', err))
 })
 
 const openSearch = () => {

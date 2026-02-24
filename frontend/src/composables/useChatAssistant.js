@@ -494,6 +494,7 @@ export function useChatAssistant() {
     toggleChat,
     clearChat,
     sendQuickMessage,
-    formatTime
+    formatTime,
+    preloadContext: loadContext  // Expose for preloading
   }
 }

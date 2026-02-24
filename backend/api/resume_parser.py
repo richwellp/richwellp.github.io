@@ -6,6 +6,13 @@ import os
 from PyPDF2 import PdfReader
 from pathlib import Path
 
+# Cache for resume content (avoid re-parsing on every request)
+_resume_cache = {
+    'text': None,
+    'timestamp': None,
+    'path': None
+}
+
 
 def get_resume_path():
     """
@@ -23,7 +30,10 @@ def get_resume_path():
 
 def extract_resume_text():
     """
-    Extract text content from resume PDF file.
+    Extract text content from resume PDF file with caching.
+
+    Caches the parsed resume text in memory to avoid re-parsing on every request.
+    Cache is invalidated if the resume file changes.
 
     Returns:
         str: Extracted text from resume, or None if resume not found
@@ -35,6 +45,16 @@ def extract_resume_text():
         return None
 
     try:
+        # Check cache validity
+        current_mtime = resume_path.stat().st_mtime
+
+        if (_resume_cache['text'] is not None and
+            _resume_cache['path'] == resume_path and
+            _resume_cache['timestamp'] == current_mtime):
+            # Return cached content
+            return _resume_cache['text']
+
+        # Cache miss or stale - parse the PDF
         print(f"Loading resume from: {resume_path}")
 
         # Read PDF file
@@ -50,7 +70,12 @@ def extract_resume_text():
         # Join all pages with newlines
         full_text = "\n\n".join(text_content)
 
-        print(f"Resume loaded successfully: {len(full_text)} characters")
+        # Update cache
+        _resume_cache['text'] = full_text
+        _resume_cache['timestamp'] = current_mtime
+        _resume_cache['path'] = resume_path
+
+        print(f"Resume loaded and cached: {len(full_text)} characters")
 
         return full_text
 

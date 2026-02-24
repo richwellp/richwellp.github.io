@@ -41,8 +41,8 @@
         "Production Infrastructure: Deployed scalable ASGI APIs with Hypercorn, implemented conversation persistence with message ratings and reasoning trace storage, structured JSONL logging, comprehensive pytest suites, and Azure OpenTelemetry monitoring",
         "ML Analytics & Insights: Applied unsupervised machine learning (K-Means, DBSCAN, UMAP, HDBSCAN) and topic modeling to cluster 10,000+ RAG conversation interactions, built analytical dashboards with matplotlib",
         "Predictive Maintenance: Developing ML-based predictive maintenance system to forecast RDU (Removable Display Unit) resets in in-flight entertainment (IFE) systems using historical telemetry and scikit-learn models",
-        "Data Engineering: Building data pipelines to process and analyze 2GB+ log bundles (5M+ lines) from IFE systems, using Pyspark to extract features into Delta Lake, implementing log parsing, template mining with Drain algorithm (30x compression), and intelligent query routing to achieve 500-1000x log reduction",
-        "IFE Log Analysis System: Developing LLM-powered log analyzer for In-Flight Entertainment systems to process 2GB log bundles (5M+ lines). Implementing 4-stage pipeline with Drain algorithm for template mining (30x compression), vector database for semantic search, and intelligent query routing to achieve 500-1000x log reduction"
+        "Data Engineering: Built distributed PySpark ETL pipelines to process 5M+ log lines per flight into structured Delta Lake datasets, enabling 30x log compression and reducing searchable volume by 500-1000x.",
+        "IFE Log Analysis System: Developing an LLM-powered log analyzer and an ML-based predictive maintenance system to forecast resets in IFE systems."
       ],
       "technologies": ["Python", "LangChain", "Vue.js", "Quart", "PostgreSQL", "Azure OpenAI", "Azure App Services", "SSE", "RAG", "Scikit-learn", "Microsoft Fabric", "Pyspark", "Delta Lake"]
     },
