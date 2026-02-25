@@ -64,28 +64,36 @@ const generateDynamicCache = (professionalInfo) => {
   if (skills.cloud?.length) skillsByCategory.push(`**Cloud:** ${skills.cloud.slice(0, 5).join(', ')}`)
 
   const education = professionalInfo.education || []
-  const educationText = education.length > 0
-    ? education.map(e => `${e.degree} from ${e.institution} (${e.dates})`).join(', and ')
-    : ''
+
+  // Build education response accurately
+  let educationResponse = ''
+  if (education.length >= 2) {
+    const masters = education[0]
+    const bachelors = education[1]
+    educationResponse = `Richwell holds a **${masters.degree}** and a **${bachelors.degree}**, both from **${masters.shortName}**.\n\n` +
+      `His Master's (${masters.dates}) focused on ${masters.focus?.join(', ')}, graduating with a ${masters.gpa} GPA. ` +
+      `His Bachelor's (${bachelors.dates}) specialized in ${bachelors.specializations?.join(' and ')}, graduating with Honors and a ${bachelors.gpa} GPA.`
+  } else if (education.length === 1) {
+    const degree = education[0]
+    educationResponse = `Richwell holds a **${degree.degree}** from **${degree.shortName}** (${degree.dates})${degree.gpa ? `, graduating with a ${degree.gpa} GPA` : ''}.`
+  }
 
   return {
     // Contact information - friendly and helpful
-    "contact": `You can reach Richwell through:\n\n📧 **Email:** ${professionalInfo.personal?.email}\n🔗 **LinkedIn:** ${professionalInfo.personal?.linkedIn}\n\nFeel free to reach out about opportunities, collaborations, or just to connect!`,
+    "contact": `You can reach Richwell through:\n\n📧 **Email:** ${professionalInfo.personal?.email}\n🔗 **LinkedIn:** ${professionalInfo.personal?.linkedIn}\n\nFeel free to reach out!`,
 
     "email": `Richwell's email is **${professionalInfo.personal?.email}**. Feel free to reach out!`,
 
     // Current role - conversational and detailed
     "current role": currentRole
-      ? `Richwell is currently working as an **${currentRole.title}** at **${currentRole.company}**.\n\n${currentRole.description}\n\nHe's been in this role since ${currentRole.dates}.`
+      ? `Richwell is currently an **${currentRole.title}** at **${currentRole.company}** (${currentRole.dates}).\n\n${currentRole.description}`
       : "Richwell is currently seeking new opportunities.",
 
     // Skills - organized by category
-    "skills": `Richwell has expertise across several areas:\n\n${skillsByCategory.join('\n')}\n\nThese skills span full-stack development, AI/ML engineering, and cloud infrastructure. Would you like to know more about any specific area?`,
+    "skills": `Richwell has expertise across several areas:\n\n${skillsByCategory.join('\n')}\n\nThese skills span full-stack development, AI/ML engineering, and cloud infrastructure.`,
 
-    // Education - narrative style
-    "education": educationText
-      ? `Richwell earned his ${educationText}. His academic focus included ${education[0]?.focus?.join(', ') || 'Computer Science and AI'}${education[0]?.gpa ? `, graduating with a ${education[0].gpa} GPA` : ''}.`
-      : '',
+    // Education - accurate narrative
+    "education": educationResponse,
 
     // Location - friendly and open to opportunities
     "location": `Richwell is based in **${professionalInfo.personal?.location}** and is open to opportunities of all types.`,
