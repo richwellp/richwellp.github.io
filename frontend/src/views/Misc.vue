@@ -146,7 +146,7 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, computed, ref, nextTick } from 'vue'
 import OptimizedImage from '../components/OptimizedImage.vue'
 import { useBlog } from '../composables/useBlog'
 import { useAlbums } from '../composables/useAlbums'
@@ -178,18 +178,32 @@ const isVideoCover = (url) => {
   return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower) || urlLower.includes('video/')
 }
 
-onMounted(() => {
+onMounted(async () => {
   fetchPosts()
   fetchAlbums()
+
+  // Wait for DOM to be fully ready before loading widget
+  await nextTick()
 
   // Load ClustrMaps 3D Globe Widget
   // Using dynamic script loading since inline scripts don't execute on Vue Router navigation
   if (mapContainer.value) {
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.id = 'clstr_globe'
-    script.src = '//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
-    mapContainer.value.appendChild(script)
+    // Remove any existing globe script to prevent conflicts
+    const existingScript = document.getElementById('clstr_globe')
+    if (existingScript) {
+      existingScript.remove()
+    }
+
+    // Small delay to ensure container is fully rendered
+    setTimeout(() => {
+      if (mapContainer.value) {
+        const script = document.createElement('script')
+        script.type = 'text/javascript'
+        script.id = 'clstr_globe'
+        script.src = 'https://cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+        mapContainer.value.appendChild(script)
+      }
+    }, 100)
   }
 })
 </script>
