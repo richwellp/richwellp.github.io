@@ -413,23 +413,23 @@ Routes configuration:
 - `logout()`: Clear auth state
 - `checkAuth()`: Verify token validity
 
-**Authentication Flow (Cookie-based):**
-1. User enters password in `AdminAuthModal`
-2. `POST /auth/login` with password
+**Authentication Flow (Bearer Token):**
+1. User enters admin key in `AdminAuthModal`
+2. `POST /auth/login` with admin key
 3. Backend validates against `BLOG_ADMIN_KEY`
-4. Returns httpOnly secure cookie (`admin_session`, 24h expiry)
-5. Cookie automatically sent with subsequent requests
-6. Backend verifies cookie with `@require_admin` decorator
+4. Frontend stores key in `localStorage` as `admin_token`
+5. All admin requests include `Authorization: Bearer <token>` header
+6. Backend verifies token with `@require_admin` decorator
 
 **Cross-Origin Support:**
-- Production: `SameSite=None; Secure` (enables cookies across richwellp.github.io → richwellp-github-io.vercel.app)
-- Development: `SameSite=Lax` (local testing)
+- Works across all origins (no cookie restrictions)
+- No `SameSite` or `Secure` flag issues
+- No browser third-party cookie blocking
 
-**Cookie Management:**
-- **No localStorage:** Cookies are httpOnly (not accessible to JavaScript)
-- **Automatic transmission:** Browser automatically sends `admin_session` cookie with requests
-- **credentials: 'include':** Frontend fetch config ensures cookies are sent cross-origin
-- **Cookie expiry:** 24 hours from login (enforced by backend)
+**Token Management:**
+- **localStorage:** Token stored as `admin_token` in localStorage
+- **Manual transmission:** Frontend adds `Authorization` header to each request
+- **No expiration:** Token valid until logout or localStorage cleared
 
 #### **`useAdminBlog.js`** (Admin Blog CRUD)
 **Exports:**
@@ -860,52 +860,42 @@ COOKIE_MAX_AGE = 24 * 60 * 60  # 24 hours
 IS_PRODUCTION = os.getenv('FLASK_ENV') == 'production' or os.getenv('VERCEL_ENV') is not None
 
 def require_admin(f):
-    """Decorator to protect admin endpoints"""
+    """Decorator to protect admin endpoints via Bearer token"""
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Try cookie-based auth first (preferred)
-        cookie_token = request.cookies.get(COOKIE_NAME)
-        if cookie_token and cookie_token == ADMIN_KEY:
-            return f(*args, **kwargs)
-
-        # Fall back to header-based auth (legacy)
         auth = request.headers.get('Authorization', '')
-        if auth.startswith('Bearer ') and auth[7:] == ADMIN_KEY:
+
+        if not auth.startswith('Bearer '):
+            return jsonify(error='Unauthorized'), 401
+
+        token = auth[7:]  # Remove 'Bearer ' prefix
+
+        if ADMIN_KEY and secrets.compare_digest(token, ADMIN_KEY):
             return f(*args, **kwargs)
 
         return jsonify(error='Unauthorized'), 401
     return decorated
 
-def create_admin_cookie_response(data, status=200):
-    """Create response with httpOnly secure cookie"""
-    response = make_response(jsonify(data), status)
-    response.set_cookie(
-        COOKIE_NAME,
-        value=ADMIN_KEY,
-        max_age=COOKIE_MAX_AGE,
-        secure=IS_PRODUCTION,  # HTTPS-only in production
-        httponly=True,  # Not accessible via JavaScript (XSS protection)
-        samesite='None' if IS_PRODUCTION else 'Lax'  # Cross-origin support
-    )
-    return response
+def verify_admin_key(key):
+    """Verify admin key with timing-safe comparison"""
+    if not key or not ADMIN_KEY:
+        return False
+    return secrets.compare_digest(key.strip(), ADMIN_KEY)
 ```
 
 **Authentication Flow:**
-1. Admin enters password
-2. `POST /auth/login` validates password against `BLOG_ADMIN_KEY`
-3. If valid: sets httpOnly secure cookie (24h expiry)
-4. Browser automatically sends cookie with subsequent requests
-5. Protected routes check for valid cookie
-6. `@require_admin` decorator verifies cookie or Bearer token (legacy)
+1. Admin enters password in login modal
+2. `POST /auth/login` validates key against `BLOG_ADMIN_KEY`
+3. If valid: frontend stores key in localStorage as `admin_token`
+4. All admin requests include `Authorization: Bearer <token>` header
+5. Protected routes verify token with `@require_admin` decorator
 
 **Security:**
-- **HttpOnly cookies** (not accessible to JavaScript, prevents XSS)
-- **Secure flag** (HTTPS-only in production)
-- **SameSite=None in production** (enables cross-origin between GitHub Pages → Vercel)
-- **SameSite=Lax in development** (localhost testing)
-- **24-hour expiry** (automatic session timeout)
-- **Legacy Bearer token support** (backwards compatibility)
-- **No password stored in database**
+- **Timing-safe comparison** (`secrets.compare_digest()` prevents timing attacks)
+- **No session management** (stateless authentication)
+- **Works cross-origin** (no third-party cookie restrictions)
+- **Public content sanitized** (DOMPurify on blog posts and chatbot)
+- **No password in database** (environment variable only)
 - Single admin user model
 
 ### API Blueprints
@@ -1987,12 +1977,12 @@ def test_create_post_requires_auth():
 
 **Admin Authentication:**
 1. Single admin user model
-2. Password-based login (`BLOG_ADMIN_KEY`)
-3. HttpOnly secure cookies (24-hour expiry)
-4. Cookies automatically sent by browser (not stored in localStorage)
-5. Cross-origin support with `SameSite=None` in production
-6. Backend validates with `@require_admin` decorator
-7. Legacy Bearer token support for backwards compatibility
+2. Admin key-based login (`BLOG_ADMIN_KEY`)
+3. Bearer token stored in localStorage
+4. Token sent via `Authorization: Bearer <token>` header
+5. Works cross-origin (no cookie restrictions)
+6. Backend validates with `@require_admin` decorator using timing-safe comparison
+7. No session expiration (token valid until logout)
 
 **No User Registration:**
 - Portfolio is single-admin

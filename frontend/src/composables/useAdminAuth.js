@@ -1,56 +1,43 @@
 /**
- * useAdminAuth - Admin authentication with secure httpOnly cookies
- * Uses server-side session cookies instead of localStorage for better security
+ * useAdminAuth - Admin authentication with Bearer tokens
+ * Uses localStorage to store admin key and sends as Authorization header
  */
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { API_ENDPOINTS } from '../config/api'
 
+const TOKEN_KEY = 'admin_token'
+
 // Shared authentication state
-const isAuthenticated = ref(false)
-const authMethod = ref(null) // 'cookie' or 'bearer'
+const isAuthenticated = ref(!!localStorage.getItem(TOKEN_KEY))
 const isLoading = ref(false)
 const authError = ref(null)
 
 /**
- * Check authentication status from server
+ * Get stored token from localStorage
  */
-async function checkAuthStatus() {
-  isLoading.value = true
-  authError.value = null
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
 
-  try {
-    const response = await fetch(API_ENDPOINTS.authStatus, {
-      method: 'GET',
-      credentials: 'include', // Include cookies in request
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+/**
+ * Store token in localStorage
+ */
+function setToken(token) {
+  localStorage.setItem(TOKEN_KEY, token)
+  isAuthenticated.value = true
+}
 
-    if (response.ok) {
-      const data = await response.json()
-      isAuthenticated.value = data.authenticated
-      authMethod.value = data.method
-      return data.authenticated
-    } else {
-      isAuthenticated.value = false
-      authMethod.value = null
-      return false
-    }
-  } catch (error) {
-    console.error('Failed to check auth status:', error)
-    authError.value = error.message
-    isAuthenticated.value = false
-    authMethod.value = null
-    return false
-  } finally {
-    isLoading.value = false
-  }
+/**
+ * Remove token from localStorage
+ */
+function clearToken() {
+  localStorage.removeItem(TOKEN_KEY)
+  isAuthenticated.value = false
 }
 
 /**
  * Login with admin key
- * Sets httpOnly secure cookie on success
+ * Stores key in localStorage for subsequent requests
  */
 async function login(key) {
   if (!key || key.trim() === '') {
@@ -62,30 +49,30 @@ async function login(key) {
   authError.value = null
 
   try {
+    // Verify the key works by calling a test endpoint
     const response = await fetch(API_ENDPOINTS.authLogin, {
       method: 'POST',
-      credentials: 'include', // Include cookies in request
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key.trim()}`
       },
       body: JSON.stringify({ key: key.trim() })
     })
 
     if (response.ok) {
-      const data = await response.json()
-      isAuthenticated.value = true
-      authMethod.value = data.method || 'cookie'
+      // Store the admin key for future requests
+      setToken(key.trim())
       return true
     } else {
       const errorData = await response.json()
-      authError.value = errorData.error || 'Login failed'
-      isAuthenticated.value = false
+      authError.value = errorData.error || 'Invalid admin key'
+      clearToken()
       return false
     }
   } catch (error) {
     console.error('Login failed:', error)
     authError.value = 'Network error during login'
-    isAuthenticated.value = false
+    clearToken()
     return false
   } finally {
     isLoading.value = false
@@ -93,53 +80,37 @@ async function login(key) {
 }
 
 /**
- * Logout and clear session cookie
+ * Logout and clear stored token
  */
-async function logout() {
-  isLoading.value = true
+function logout() {
+  clearToken()
   authError.value = null
+}
 
-  try {
-    const response = await fetch(API_ENDPOINTS.authLogout, {
-      method: 'POST',
-      credentials: 'include', // Include cookies in request
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (response.ok) {
-      isAuthenticated.value = false
-      authMethod.value = null
-      return true
-    } else {
-      // Even if logout fails, clear local state
-      isAuthenticated.value = false
-      authMethod.value = null
-      return false
-    }
-  } catch (error) {
-    console.error('Logout failed:', error)
-    authError.value = 'Network error during logout'
-    // Clear local state even on error
-    isAuthenticated.value = false
-    authMethod.value = null
-    return false
-  } finally {
-    isLoading.value = false
-  }
+/**
+ * Check if user is authenticated
+ */
+function checkAuthStatus() {
+  const token = getToken()
+  isAuthenticated.value = !!token
+  return isAuthenticated.value
 }
 
 /**
  * Get headers for authenticated API requests
- * No Authorization header needed - cookies are sent automatically
+ * Includes Authorization Bearer token
  */
 function getAuthHeaders() {
-  // With httpOnly cookies, no headers needed
-  // Cookies are automatically included with credentials: 'include'
-  return {
+  const token = getToken()
+  const headers = {
     'Content-Type': 'application/json'
   }
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  return headers
 }
 
 /**
@@ -148,7 +119,6 @@ function getAuthHeaders() {
 function getAuthFetchOptions(method = 'GET', body = null) {
   const options = {
     method,
-    credentials: 'include', // Critical: include cookies
     headers: getAuthHeaders()
   }
 
@@ -163,14 +133,8 @@ function getAuthFetchOptions(method = 'GET', body = null) {
  * Composable for admin authentication
  */
 export function useAdminAuth() {
-  // Check auth status on first use
-  if (isAuthenticated.value === null) {
-    checkAuthStatus()
-  }
-
   return {
     isAuthenticated,
-    authMethod,
     isLoading,
     authError,
     login,

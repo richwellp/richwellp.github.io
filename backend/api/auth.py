@@ -1,12 +1,10 @@
 """
 Authentication API endpoints
-Provides login/logout/status endpoints with secure httpOnly cookies
+Provides login/logout/status endpoints for Bearer token authentication
 """
 from flask import Blueprint, request, jsonify
 from auth import (
     verify_admin_key,
-    create_admin_cookie_response,
-    clear_admin_cookie_response,
     get_auth_status,
     require_admin
 )
@@ -20,10 +18,10 @@ def login():
     POST /auth/login
     Body: { "key": "admin_key_here" }
 
-    Authenticates admin user and sets httpOnly secure cookie.
+    Verifies admin key. Frontend stores in localStorage and sends as Bearer token.
 
     Returns:
-        200: Login successful, cookie set
+        200: Key is valid (frontend will store it)
         400: Missing key
         401: Invalid key
     """
@@ -37,11 +35,10 @@ def login():
     if not verify_admin_key(key):
         return jsonify(error='Invalid admin key'), 401
 
-    # Create response with httpOnly cookie
-    return create_admin_cookie_response({
+    return jsonify({
         'message': 'Login successful',
         'authenticated': True,
-        'method': 'cookie'
+        'method': 'bearer'
     })
 
 
@@ -50,12 +47,12 @@ def logout():
     """
     POST /auth/logout
 
-    Clears admin session cookie.
+    No-op endpoint. Frontend clears localStorage on logout.
 
     Returns:
-        200: Logout successful, cookie cleared
+        200: Logout acknowledged
     """
-    return clear_admin_cookie_response({
+    return jsonify({
         'message': 'Logged out successfully',
         'authenticated': False
     })

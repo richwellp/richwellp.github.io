@@ -24,12 +24,12 @@ app.register_blueprint(albums_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(sitemap_bp)
 
-# Secure CORS configuration with cookie support
+# CORS configuration for cross-origin requests
 allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:5173,https://richwellp.github.io,https://richwellp-github-io.vercel.app').split(',')
 CORS(app,
      origins=allowed_origins,
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-     supports_credentials=True,  # Required for cookies
+     supports_credentials=True,  # Allow credentials (not required for Bearer tokens, but harmless)
      allow_headers=['Content-Type', 'Authorization'])
 
 # Simple in-memory rate limiter (per IP)

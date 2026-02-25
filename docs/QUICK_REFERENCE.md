@@ -70,9 +70,9 @@ GET  /sitemap.xml             # Dynamic sitemap
 POST /chat/stream             # AI chatbot (SSE)
 ```
 
-### Admin (Requires Cookie)
+### Admin (Requires Bearer Token)
 ```
-POST   /auth/login            # Login → httpOnly cookie
+POST   /auth/login            # Verify admin key → frontend stores in localStorage
 GET    /blog/admin/posts      # All posts (including drafts)
 POST   /blog/posts            # Create post
 PUT    /blog/posts/:slug      # Update post
