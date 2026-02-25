@@ -108,10 +108,7 @@ const handleSubmit = async () => {
   isAuthenticating.value = true
 
   try {
-    // Simulate network delay (in real app, would verify with backend)
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    const success = login(adminKey.value)
+    const success = await login(adminKey.value)
 
     if (success) {
       emit('authenticated')
