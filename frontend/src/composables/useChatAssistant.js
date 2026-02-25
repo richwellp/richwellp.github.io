@@ -280,6 +280,9 @@ export function useChatAssistant() {
       // Show typing animation (fast - 2ms per character)
       await simulateStreaming(responseId, cachedResponse, 2)
 
+      // Ensure typing state is cleared
+      isTyping.value = false
+
       return // Skip API call!
     }
 

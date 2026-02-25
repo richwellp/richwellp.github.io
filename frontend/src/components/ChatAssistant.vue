@@ -747,7 +747,7 @@ watch(isOpen, async (newValue) => {
 .source-badge {
   font-size: 0.7rem;
   background: var(--bg-hover);
-  color: var(--text-secondary);
+  color: var(--link-color);  /* Use link color for better visibility in dark mode */
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   border: 1px solid var(--border-color);
