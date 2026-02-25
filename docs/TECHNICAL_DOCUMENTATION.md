@@ -1,4 +1,7 @@
-# Technical Documentation - richwellp.github.io
+# Technical Documentation
+
+**Quick Reference:** [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
+**Authentication Guide:** [AUTHENTICATION.md](./AUTHENTICATION.md)
 
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)

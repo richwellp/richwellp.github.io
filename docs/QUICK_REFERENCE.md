@@ -1,6 +1,6 @@
-# Quick Reference Guide
+# Quick Reference
 
-One-page cheat sheet for common tasks and information.
+Essential commands and info.
 
 ## 🚀 Development Commands
 
@@ -109,21 +109,19 @@ category, order_index, created_at, updated_at
 
 ## 🔐 Environment Variables
 
-### Frontend (.env)
-```bash
-VITE_API_URL=http://localhost:5000
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=...
-```
+**Backend:**
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_KEY` - Service role key
+- `BLOG_ADMIN_KEY` - Admin password
+- `GEMINI_API_KEY` - Google Gemini key
+- `ALLOWED_ORIGINS` - CORS origins
 
-### Backend (.env)
-```bash
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=...  # service_role key
-BLOG_ADMIN_KEY=your-secure-password
-GEMINI_API_KEY=...
-ALLOWED_ORIGINS=https://richwellp.github.io,http://localhost:5173
-```
+**Frontend:**
+- `VITE_API_URL` - Backend URL
+- `VITE_SUPABASE_URL` - Supabase URL
+- `VITE_SUPABASE_ANON_KEY` - Public anon key
+
+Set in Vercel dashboard → Settings → Environment Variables
 
 ---
 
@@ -176,71 +174,18 @@ npm run build
 
 ## 🗂️ Common Tasks
 
-### Add New Blog Post
-1. Go to `/admin`
-2. Enter admin password
-3. Click "New Post"
-4. Write in markdown
-5. Publish or save as draft
-
-### Upload Photos to Album
-1. Go to `/admin/albums`
-2. Select album
-3. Click "Manage Photos"
-4. Drag & drop photos
-5. Add captions/categories
-6. Save
-
-### Update Professional Info
-1. Edit `frontend/public/data/professionalInfo.json`
-2. Update experience, projects, or skills
-3. Commit and push
-4. Auto-deploys in 2-3 minutes
-
-### Update Resume
-1. Replace `frontend/public/assets/Resume.pdf`
-2. Commit and push
-3. Download link updates automatically
+**Blog Post:** `/admin` → New Post → Write → Publish
+**Photos:** `/admin/albums` → Select album → Upload → Save
+**Experience:** Edit `professionalInfo.json` → Push
+**Resume:** Replace `Resume.pdf` → Push
 
 ---
 
-## 🐛 Debug Commands
+## 🐛 Debug
 
-### Check if API is running
-```bash
-curl http://localhost:5000/
-# Should return: {"status": "ok"}
-```
-
-### Check database connection
-```bash
-# In Python shell
-python
->>> from supabase import create_client
->>> supabase = create_client(url, key)
->>> supabase.table('blog_posts').select('*').execute()
-```
-
-### Check frontend build
-```bash
-cd frontend
-npm run build
-npm run preview  # Preview production build
-```
-
-### Clear all caches
-```bash
-# Frontend
-rm -rf frontend/node_modules frontend/dist
-npm install
-npm run build
-
-# Backend
-rm -rf backend/.venv
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+**API:** `curl http://localhost:5000/` → Should return `{"message": "Hello from Flask..."}`
+**Build:** `cd frontend && npm run build && npm run preview`
+**Clean:** Delete `node_modules` or `.venv` → Reinstall
 
 ---
 
@@ -320,23 +265,12 @@ git push origin main
 
 ---
 
-## 🆘 Emergency Contacts
+## 🔗 Links
 
-**GitHub Repository:**
-https://github.com/richwellp/richwellp.github.io
+- **Live:** https://richwellp.github.io
+- **API:** https://richwellp-github-io.vercel.app
+- **GitHub:** https://github.com/richwellp/richwellp.github.io
+- **Supabase:** https://app.supabase.com
+- **Vercel:** https://vercel.com/dashboard
 
-**Live Site:**
-https://richwellp.github.io
-
-**Backend API:**
-https://richwellp-github-io.vercel.app
-
-**Supabase Dashboard:**
-https://app.supabase.com
-
-**Vercel Dashboard:**
-https://vercel.com/dashboard
-
----
-
-**Need more details?** See [TECHNICAL_DOCUMENTATION.md](./TECHNICAL_DOCUMENTATION.md)
+**Docs:** [TECHNICAL_DOCUMENTATION.md](./TECHNICAL_DOCUMENTATION.md)
