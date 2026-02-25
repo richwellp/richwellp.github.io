@@ -238,7 +238,7 @@ def test_search_posts_finds_by_title_and_content(blog_client):
 
 # Test 7: Create post requires admin auth
 def test_create_post_requires_admin_auth(blog_client):
-    """POST /blog/posts without auth should return 401."""
+    """POST /admin/blog/posts without auth should return 401."""
     post_data = {
         'slug': 'new-post',
         'title': 'New Post',
@@ -246,7 +246,7 @@ def test_create_post_requires_admin_auth(blog_client):
     }
 
     response = blog_client.post(
-        '/blog/posts',
+        '/admin/blog/posts',
         data=json.dumps(post_data),
         content_type='application/json'
     )
@@ -258,8 +258,8 @@ def test_create_post_requires_admin_auth(blog_client):
 
 # Test 8: Create post with valid auth succeeds
 def test_create_post_with_valid_auth_succeeds(blog_client):
-    """POST /blog/posts with valid auth should create post."""
-    with patch('api.blog.supabase') as mock_sb:
+    """POST /admin/blog/posts with valid auth should create post."""
+    with patch('api.admin_blog.supabase') as mock_sb:
         post_data = {
             'slug': 'new-post',
             'title': 'New Post',
@@ -279,7 +279,7 @@ def test_create_post_with_valid_auth_succeeds(blog_client):
         mock_sb.table.return_value = mock_table
 
         response = blog_client.post(
-            '/blog/posts',
+            '/admin/blog/posts',
             data=json.dumps(post_data),
             headers={
                 'Authorization': 'Bearer test-admin-key',
@@ -294,11 +294,11 @@ def test_create_post_with_valid_auth_succeeds(blog_client):
 
 # Test 9: Update post requires admin auth
 def test_update_post_requires_admin_auth(blog_client):
-    """PUT /blog/posts/<slug> without auth should return 401."""
+    """PUT /admin/blog/posts/<slug> without auth should return 401."""
     update_data = {'title': 'Updated Title'}
 
     response = blog_client.put(
-        '/blog/posts/test-post',
+        '/admin/blog/posts/test-post',
         data=json.dumps(update_data),
         content_type='application/json'
     )
@@ -308,8 +308,8 @@ def test_update_post_requires_admin_auth(blog_client):
 
 # Test 10: Delete post requires admin auth
 def test_delete_post_requires_admin_auth(blog_client):
-    """DELETE /blog/posts/<slug> without auth should return 401."""
-    response = blog_client.delete('/blog/posts/test-post')
+    """DELETE /admin/blog/posts/<slug> without auth should return 401."""
+    response = blog_client.delete('/admin/blog/posts/test-post')
 
     assert response.status_code == 401
 
@@ -317,7 +317,7 @@ def test_delete_post_requires_admin_auth(blog_client):
 # Test 11: Calculate reading time
 def test_calculate_reading_time():
     """calculate_reading_time should estimate reading time correctly."""
-    from api.blog import calculate_reading_time
+    from api.admin_blog import calculate_reading_time
 
     # 200 words = 1 minute
     content_200_words = ' '.join(['word'] * 200)
@@ -335,7 +335,7 @@ def test_calculate_reading_time():
 # Test 12: Extract headings from markdown
 def test_extract_headings_from_markdown():
     """extract_headings should parse ## and ### headings."""
-    from api.blog import extract_headings
+    from api.admin_blog import extract_headings
 
     markdown = """
 # Title (should be ignored)
@@ -367,8 +367,8 @@ Final content
 
 # Test 13: Admin list posts requires auth
 def test_admin_list_posts_requires_auth(blog_client):
-    """GET /blog/admin/posts without auth should return 401."""
-    response = blog_client.get('/blog/admin/posts')
+    """GET /admin/blog/posts without auth should return 401."""
+    response = blog_client.get('/admin/blog/posts')
 
     assert response.status_code == 401
     data = json.loads(response.data)
@@ -377,8 +377,8 @@ def test_admin_list_posts_requires_auth(blog_client):
 
 # Test 14: Admin list posts returns all posts including drafts
 def test_admin_list_posts_returns_all_posts(blog_client):
-    """GET /blog/admin/posts with auth should return published and draft posts."""
-    with patch('api.blog.supabase') as mock_sb:
+    """GET /admin/blog/posts with auth should return published and draft posts."""
+    with patch('api.admin_blog.supabase') as mock_sb:
         mock_posts = [
             {
                 'slug': 'published-post',
@@ -407,7 +407,7 @@ def test_admin_list_posts_returns_all_posts(blog_client):
         mock_sb.table.return_value = mock_table
 
         response = blog_client.get(
-            '/blog/admin/posts',
+            '/admin/blog/posts',
             headers={'Authorization': 'Bearer test-admin-key'}
         )
 
@@ -423,8 +423,8 @@ def test_admin_list_posts_returns_all_posts(blog_client):
 
 # Test 15: Admin list posts filters by published status
 def test_admin_list_posts_filters_by_status(blog_client):
-    """GET /blog/admin/posts?status=draft should filter by published status."""
-    with patch('api.blog.supabase') as mock_sb:
+    """GET /admin/blog/posts?status=draft should filter by published status."""
+    with patch('api.admin_blog.supabase') as mock_sb:
         mock_posts = [
             {'slug': 'draft-post', 'published': False}
         ]
@@ -443,7 +443,7 @@ def test_admin_list_posts_filters_by_status(blog_client):
         mock_sb.table.return_value = mock_table
 
         response = blog_client.get(
-            '/blog/admin/posts?status=draft',
+            '/admin/blog/posts?status=draft',
             headers={'Authorization': 'Bearer test-admin-key'}
         )
 
@@ -457,8 +457,8 @@ def test_admin_list_posts_filters_by_status(blog_client):
 
 # Test 16: Admin get post requires auth
 def test_admin_get_post_requires_auth(blog_client):
-    """GET /blog/admin/posts/<slug> without auth should return 401."""
-    response = blog_client.get('/blog/admin/posts/test-post')
+    """GET /admin/blog/posts/<slug> without auth should return 401."""
+    response = blog_client.get('/admin/blog/posts/test-post')
 
     assert response.status_code == 401
     data = json.loads(response.data)
@@ -467,8 +467,8 @@ def test_admin_get_post_requires_auth(blog_client):
 
 # Test 17: Admin get post returns draft post
 def test_admin_get_post_returns_draft(blog_client):
-    """GET /blog/admin/posts/<slug> with auth should return draft posts."""
-    with patch('api.blog.supabase') as mock_sb:
+    """GET /admin/blog/posts/<slug> with auth should return draft posts."""
+    with patch('api.admin_blog.supabase') as mock_sb:
         mock_post = {
             'slug': 'draft-post',
             'title': 'Draft Post',
@@ -493,7 +493,7 @@ def test_admin_get_post_returns_draft(blog_client):
         mock_sb.table.return_value = mock_table
 
         response = blog_client.get(
-            '/blog/admin/posts/draft-post',
+            '/admin/blog/posts/draft-post',
             headers={'Authorization': 'Bearer test-admin-key'}
         )
 
@@ -507,8 +507,8 @@ def test_admin_get_post_returns_draft(blog_client):
 
 # Test 18: Admin get post returns 404 for nonexistent
 def test_admin_get_post_not_found(blog_client):
-    """GET /blog/admin/posts/nonexistent with auth should return 404."""
-    with patch('api.blog.supabase') as mock_sb:
+    """GET /admin/blog/posts/nonexistent with auth should return 404."""
+    with patch('api.admin_blog.supabase') as mock_sb:
         mock_result = Mock()
         mock_result.data = None
 
@@ -522,7 +522,7 @@ def test_admin_get_post_not_found(blog_client):
         mock_sb.table.return_value = mock_table
 
         response = blog_client.get(
-            '/blog/admin/posts/nonexistent',
+            '/admin/blog/posts/nonexistent',
             headers={'Authorization': 'Bearer test-admin-key'}
         )
 

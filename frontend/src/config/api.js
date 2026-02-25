@@ -27,11 +27,11 @@ export const API_ENDPOINTS = {
   blogSearch: `${API_BASE_URL}/blog/search`,
 
   // Admin blog endpoints (require authentication)
-  adminPosts: `${API_BASE_URL}/blog/admin/posts`,
-  adminPost: (slug) => `${API_BASE_URL}/blog/admin/posts/${slug}`,
-  adminCreatePost: `${API_BASE_URL}/blog/posts`,
-  adminUpdatePost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
-  adminDeletePost: (slug) => `${API_BASE_URL}/blog/posts/${slug}`,
+  adminPosts: `${API_BASE_URL}/admin/blog/posts`,
+  adminPost: (slug) => `${API_BASE_URL}/admin/blog/posts/${slug}`,
+  adminCreatePost: `${API_BASE_URL}/admin/blog/posts`,
+  adminUpdatePost: (slug) => `${API_BASE_URL}/admin/blog/posts/${slug}`,
+  adminDeletePost: (slug) => `${API_BASE_URL}/admin/blog/posts/${slug}`,
 
   // Albums endpoints (public)
   albums: `${API_BASE_URL}/albums`,

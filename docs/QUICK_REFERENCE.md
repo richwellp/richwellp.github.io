@@ -70,9 +70,9 @@ GET  /sitemap.xml             # Dynamic sitemap
 POST /chat/stream             # AI chatbot (SSE)
 ```
 
-### Admin (Requires Token)
+### Admin (Requires Cookie)
 ```
-POST   /auth/login            # Login → JWT token
+POST   /auth/login            # Login → httpOnly cookie
 GET    /blog/admin/posts      # All posts (including drafts)
 POST   /blog/posts            # Create post
 PUT    /blog/posts/:slug      # Update post
@@ -90,7 +90,7 @@ DELETE /admin/photos/:id      # Delete photo
 ### blog_posts
 ```sql
 id, slug, title, content, excerpt, author, tags[],
-published, published_at, created_at, updated_at
+published, published_at, reading_time, created_at, updated_at
 ```
 
 ### albums

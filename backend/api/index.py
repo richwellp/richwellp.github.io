@@ -14,10 +14,12 @@ Compress(app)
 
 # Register blueprints
 from api.blog import blog_bp
+from api.admin_blog import admin_blog_bp
 from api.albums import albums_bp
 from api.auth import auth_bp
 from api.sitemap import sitemap_bp
 app.register_blueprint(blog_bp, url_prefix='/blog')
+app.register_blueprint(admin_blog_bp, url_prefix='/admin/blog')
 app.register_blueprint(albums_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(sitemap_bp)

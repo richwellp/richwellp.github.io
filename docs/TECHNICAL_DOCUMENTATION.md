@@ -404,28 +404,29 @@ Routes configuration:
 #### **`useAdminAuth.js`** (Admin Authentication)
 **Exports:**
 - `isAuthenticated` (ref): Auth status
-- `token` (ref): Admin token
+- `token` (ref): Admin token (legacy, for backwards compatibility)
 - `showAuthModal` (ref): Modal visibility
 - `login(password)`: Authenticate admin
 - `logout()`: Clear auth state
 - `checkAuth()`: Verify token validity
 
-**Authentication Flow:**
+**Authentication Flow (Cookie-based):**
 1. User enters password in `AdminAuthModal`
 2. `POST /auth/login` with password
 3. Backend validates against `BLOG_ADMIN_KEY`
-4. Returns JWT token
-5. Token stored in localStorage
-6. Token sent as `Authorization: Bearer <token>` header
-7. Backend verifies token with `@require_admin` decorator
+4. Returns httpOnly secure cookie (`admin_session`, 24h expiry)
+5. Cookie automatically sent with subsequent requests
+6. Backend verifies cookie with `@require_admin` decorator
 
-**Token Storage:**
-```javascript
-localStorage.setItem('admin_token', token)
-localStorage.setItem('admin_token_timestamp', Date.now())
-```
+**Cross-Origin Support:**
+- Production: `SameSite=None; Secure` (enables cookies across richwellp.github.io → richwellp-github-io.vercel.app)
+- Development: `SameSite=Lax` (local testing)
 
-**Token Expiry:** 24 hours (checked on every protected route)
+**Cookie Management:**
+- **No localStorage:** Cookies are httpOnly (not accessible to JavaScript)
+- **Automatic transmission:** Browser automatically sends `admin_session` cookie with requests
+- **credentials: 'include':** Frontend fetch config ensures cookies are sent cross-origin
+- **Cookie expiry:** 24 hours from login (enforced by backend)
 
 #### **`useAdminBlog.js`** (Admin Blog CRUD)
 **Exports:**
@@ -845,48 +846,63 @@ if __name__ == '__main__':
 #### **`backend/auth.py`**
 ```python
 import os
-import jwt
 from functools import wraps
-from flask import request, jsonify
+from flask import request, jsonify, make_response
 
 ADMIN_KEY = os.getenv('BLOG_ADMIN_KEY')
-JWT_SECRET = os.getenv('JWT_SECRET', 'fallback-secret-change-in-production')
+COOKIE_NAME = 'admin_session'
+COOKIE_MAX_AGE = 24 * 60 * 60  # 24 hours
+
+# Detect production environment (Vercel or FLASK_ENV=production)
+IS_PRODUCTION = os.getenv('FLASK_ENV') == 'production' or os.getenv('VERCEL_ENV') is not None
 
 def require_admin(f):
     """Decorator to protect admin endpoints"""
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
-        auth_header = request.headers.get('Authorization')
+        # Try cookie-based auth first (preferred)
+        cookie_token = request.cookies.get(COOKIE_NAME)
+        if cookie_token and cookie_token == ADMIN_KEY:
+            return f(*args, **kwargs)
 
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header.split(' ')[1]
+        # Fall back to header-based auth (legacy)
+        auth = request.headers.get('Authorization', '')
+        if auth.startswith('Bearer ') and auth[7:] == ADMIN_KEY:
+            return f(*args, **kwargs)
 
-        if not token:
-            return jsonify({'error': 'Authentication required'}), 401
-
-        try:
-            jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-        except:
-            return jsonify({'error': 'Invalid or expired token'}), 401
-
-        return f(*args, **kwargs)
+        return jsonify(error='Unauthorized'), 401
     return decorated
+
+def create_admin_cookie_response(data, status=200):
+    """Create response with httpOnly secure cookie"""
+    response = make_response(jsonify(data), status)
+    response.set_cookie(
+        COOKIE_NAME,
+        value=ADMIN_KEY,
+        max_age=COOKIE_MAX_AGE,
+        secure=IS_PRODUCTION,  # HTTPS-only in production
+        httponly=True,  # Not accessible via JavaScript (XSS protection)
+        samesite='None' if IS_PRODUCTION else 'Lax'  # Cross-origin support
+    )
+    return response
 ```
 
 **Authentication Flow:**
 1. Admin enters password
 2. `POST /auth/login` validates password against `BLOG_ADMIN_KEY`
-3. If valid: generates JWT token (24h expiry)
-4. Frontend stores token in localStorage
-5. Protected routes check for `Authorization: Bearer <token>`
-6. `@require_admin` decorator validates JWT
+3. If valid: sets httpOnly secure cookie (24h expiry)
+4. Browser automatically sends cookie with subsequent requests
+5. Protected routes check for valid cookie
+6. `@require_admin` decorator verifies cookie or Bearer token (legacy)
 
 **Security:**
-- JWT tokens (stateless)
-- 24-hour expiry
-- HTTPS-only in production
-- No password stored in database
+- **HttpOnly cookies** (not accessible to JavaScript, prevents XSS)
+- **Secure flag** (HTTPS-only in production)
+- **SameSite=None in production** (enables cross-origin between GitHub Pages → Vercel)
+- **SameSite=Lax in development** (localhost testing)
+- **24-hour expiry** (automatic session timeout)
+- **Legacy Bearer token support** (backwards compatibility)
+- **No password stored in database**
 - Single admin user model
 
 ### API Blueprints
@@ -1535,6 +1551,7 @@ CREATE TABLE blog_posts (
   tags TEXT[] DEFAULT '{}',
   published BOOLEAN DEFAULT FALSE,
   published_at TIMESTAMPTZ,
+  reading_time INTEGER DEFAULT 5,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -1968,10 +1985,11 @@ def test_create_post_requires_auth():
 **Admin Authentication:**
 1. Single admin user model
 2. Password-based login (`BLOG_ADMIN_KEY`)
-3. JWT tokens (24-hour expiry)
-4. Token stored in localStorage (frontend)
-5. Token sent as `Authorization: Bearer <token>`
+3. HttpOnly secure cookies (24-hour expiry)
+4. Cookies automatically sent by browser (not stored in localStorage)
+5. Cross-origin support with `SameSite=None` in production
 6. Backend validates with `@require_admin` decorator
+7. Legacy Bearer token support for backwards compatibility
 
 **No User Registration:**
 - Portfolio is single-admin
@@ -2042,7 +2060,6 @@ CORS(app, resources={
 - API keys
 - Database credentials
 - Admin passwords
-- JWT secrets
 
 **Stored in:**
 - Local: `.env` files (gitignored)
@@ -2184,7 +2201,6 @@ python -m pytest -v
 
 **SSE (Server-Sent Events):** HTTP standard for server-to-client streaming
 **RLS (Row Level Security):** PostgreSQL feature for data access control
-**JWT (JSON Web Token):** Stateless authentication token
 **SPA (Single Page Application):** Frontend that loads once, updates dynamically
 **HMR (Hot Module Replacement):** Live code updates without page refresh
 **TDD (Test-Driven Development):** Write tests before code
