@@ -11,7 +11,7 @@ describe('useAdminBlog', () => {
   })
 
   describe('fetchAdminPosts', () => {
-    it('fetches all posts with credentials included', async () => {
+    it('fetches all posts with auth headers', async () => {
       const mockPosts = [
         { slug: 'draft-post', title: 'Draft', published: false },
         { slug: 'published-post', title: 'Published', published: true }
@@ -25,12 +25,12 @@ describe('useAdminBlog', () => {
       const { fetchAdminPosts, posts } = useAdminBlog()
       await fetchAdminPosts()
 
-      // Verify credentials included (cookie-based auth)
+      // Verify request made to correct endpoint
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/blog/posts'),
         expect.objectContaining({
-          credentials: 'include',
-          method: 'GET'
+          method: 'GET',
+          headers: expect.any(Object)
         })
       )
 
@@ -103,7 +103,8 @@ describe('useAdminBlog', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/blog/posts/test-post'),
         expect.objectContaining({
-          credentials: 'include'
+          method: 'GET',
+          headers: expect.any(Object)
         })
       )
 
@@ -144,7 +145,7 @@ describe('useAdminBlog', () => {
         expect.stringContaining('/admin/blog/posts'),
         expect.objectContaining({
           method: 'POST',
-          credentials: 'include',
+          headers: expect.any(Object),
           body: JSON.stringify(postData)
         })
       )
@@ -180,7 +181,7 @@ describe('useAdminBlog', () => {
         expect.stringContaining('/admin/blog/posts/test-post'),
         expect.objectContaining({
           method: 'PUT',
-          credentials: 'include',
+          headers: expect.any(Object),
           body: JSON.stringify(updateData)
         })
       )
@@ -201,7 +202,7 @@ describe('useAdminBlog', () => {
         expect.stringContaining('/admin/blog/posts/test-post'),
         expect.objectContaining({
           method: 'DELETE',
-          credentials: 'include'
+          headers: expect.any(Object)
         })
       )
 

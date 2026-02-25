@@ -13,7 +13,7 @@ describe('useAdminAuth', () => {
           json: () => Promise.resolve({
             message: 'Login successful',
             authenticated: true,
-            method: 'cookie'
+            method: 'bearer'
           })
         })
       }
@@ -31,8 +31,7 @@ describe('useAdminAuth', () => {
           ok: true,
           json: () => Promise.resolve({
             authenticated: false,
-            method: null,
-            expires_in: null
+            method: null
           })
         })
       }
@@ -62,7 +61,10 @@ describe('useAdminAuth', () => {
         expect.stringContaining('/auth/login'),
         expect.objectContaining({
           method: 'POST',
-          credentials: 'include',
+          headers: expect.objectContaining({
+            'Authorization': expect.stringContaining('Bearer'),
+            'Content-Type': 'application/json'
+          }),
           body: JSON.stringify({ key: 'test-admin-key' })
         })
       )
@@ -133,39 +135,42 @@ describe('useAdminAuth', () => {
       await login('test-key')
       expect(isAuthenticated.value).toBe(true)
 
-      await logout()
+      logout()
       expect(isAuthenticated.value).toBe(false)
     })
 
-    it('sends logout request to server', async () => {
+    it('clears token from localStorage', async () => {
       const { login, logout } = useAdminAuth()
 
       await login('test-key')
-      await logout()
+      expect(localStorage.getItem('admin_token')).toBeTruthy()
 
-      expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/auth/logout'),
-        expect.objectContaining({
-          method: 'POST',
-          credentials: 'include'
-        })
-      )
+      logout()
+      expect(localStorage.getItem('admin_token')).toBeNull()
     })
   })
 
   describe('getAuthFetchOptions', () => {
-    it('returns fetch options with credentials included', () => {
+    it('returns fetch options with Authorization header', () => {
       const { getAuthFetchOptions } = useAdminAuth()
 
       const options = getAuthFetchOptions('GET')
 
       expect(options).toEqual({
         method: 'GET',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         }
       })
+    })
+
+    it('includes Authorization header when token exists', async () => {
+      const { login, getAuthFetchOptions } = useAdminAuth()
+
+      await login('test-key')
+      const options = getAuthFetchOptions('GET')
+
+      expect(options.headers['Authorization']).toBe('Bearer test-key')
     })
 
     it('includes body when provided', () => {
@@ -190,14 +195,17 @@ describe('useAdminAuth', () => {
       expect(instance2.isAuthenticated.value).toBe(true)
     })
 
-    it('shares auth method across instances', async () => {
+    it('shares token across instances', async () => {
       const instance1 = useAdminAuth()
       const instance2 = useAdminAuth()
 
       await instance1.login('test-key')
 
-      expect(instance1.authMethod.value).toBe('cookie')
-      expect(instance2.authMethod.value).toBe('cookie')
+      const headers1 = instance1.getAuthHeaders()
+      const headers2 = instance2.getAuthHeaders()
+
+      expect(headers1['Authorization']).toBe('Bearer test-key')
+      expect(headers2['Authorization']).toBe('Bearer test-key')
     })
   })
 
@@ -214,18 +222,18 @@ describe('useAdminAuth', () => {
       expect(authError.value).toContain('Network error')
     })
 
-    it('handles network errors during logout', async () => {
-      const { login, logout, isAuthenticated } = useAdminAuth()
+    it('clears error on successful login', async () => {
+      const { login, authError } = useAdminAuth()
 
-      await login('test-key')
-      expect(isAuthenticated.value).toBe(true)
-
+      // First login fails
       fetchMock.mockRejectedValueOnce(new Error('Network error'))
+      await login('wrong-key')
+      expect(authError.value).toBeTruthy()
 
-      await logout()
-
-      // Still clears local state even if request fails
-      expect(isAuthenticated.value).toBe(false)
+      // Second login succeeds
+      const result = await login('test-key')
+      expect(result).toBe(true)
+      expect(authError.value).toBeNull()
     })
   })
 })
