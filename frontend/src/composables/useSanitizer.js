@@ -79,7 +79,7 @@ export function sanitizeMarkdown(dirty) {
  */
 export function sanitizeChatMessage(dirty) {
   return sanitizeHtml(dirty, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'a', 'code', 'pre', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: ['href', 'target', 'rel']
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'a', 'code', 'pre', 'ul', 'ol', 'li', 'blockquote'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class']  // Allow class for link styling
   })
 }
