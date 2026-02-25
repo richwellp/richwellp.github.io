@@ -48,37 +48,47 @@ const loadContext = async () => {
 }
 
 // Generate dynamic cache from live professional data
+// Responses are written conversationally, like the AI would respond
 const generateDynamicCache = (professionalInfo) => {
   if (!professionalInfo) return null
 
   const currentRole = professionalInfo.experience?.find(e => e.current)
-  const allSkills = professionalInfo.skills ? Object.values(professionalInfo.skills).flat() : []
+  const skills = professionalInfo.skills || {}
+
+  // Group skills by category for better presentation
+  const skillsByCategory = []
+  if (skills.languages?.length) skillsByCategory.push(`**Languages:** ${skills.languages.slice(0, 5).join(', ')}`)
+  if (skills.frameworks?.length) skillsByCategory.push(`**Frameworks:** ${skills.frameworks.slice(0, 5).join(', ')}`)
+  if (skills.ai_ml?.length) skillsByCategory.push(`**AI/ML:** ${skills.ai_ml.slice(0, 5).join(', ')}`)
+  if (skills.databases?.length) skillsByCategory.push(`**Databases:** ${skills.databases.join(', ')}`)
+  if (skills.cloud?.length) skillsByCategory.push(`**Cloud:** ${skills.cloud.slice(0, 5).join(', ')}`)
+
+  const education = professionalInfo.education || []
+  const educationText = education.length > 0
+    ? education.map(e => `${e.degree} from ${e.institution} (${e.dates})`).join(', and ')
+    : ''
 
   return {
-    // Contact information
-    "contact": `You can reach Richwell at ${professionalInfo.personal?.email} or ${professionalInfo.personal?.linkedIn}`,
-    "email": professionalInfo.personal?.email || "",
+    // Contact information - friendly and helpful
+    "contact": `You can reach Richwell through:\n\n📧 **Email:** ${professionalInfo.personal?.email}\n🔗 **LinkedIn:** ${professionalInfo.personal?.linkedIn}\n\nFeel free to reach out about opportunities, collaborations, or just to connect!`,
 
-    // Current role
-    "current role": currentRole ?
-      `${currentRole.title} at ${currentRole.company}. ${currentRole.description}` : "",
-    "what does he do": currentRole?.description || "",
+    "email": `Richwell's email is **${professionalInfo.personal?.email}**. Feel free to reach out!`,
 
-    // Skills (top 15)
-    "skills": allSkills.slice(0, 15).join(', '),
+    // Current role - conversational and detailed
+    "current role": currentRole
+      ? `Richwell is currently working as an **${currentRole.title}** at **${currentRole.company}**.\n\n${currentRole.description}\n\nHe's been in this role since ${currentRole.dates}.`
+      : "Richwell is currently seeking new opportunities.",
 
-    // Education
-    "education": professionalInfo.education?.map(e =>
-      `${e.degree} from ${e.shortName} (${e.dates})`
-    ).join('; ') || "",
+    // Skills - organized by category
+    "skills": `Richwell has expertise across several areas:\n\n${skillsByCategory.join('\n')}\n\nThese skills span full-stack development, AI/ML engineering, and cloud infrastructure. Would you like to know more about any specific area?`,
 
-    // Location
-    "location": professionalInfo.personal?.location || "",
+    // Education - narrative style
+    "education": educationText
+      ? `Richwell earned his ${educationText}. His academic focus included ${education[0]?.focus?.join(', ') || 'Computer Science and AI'}${education[0]?.gpa ? `, graduating with a ${education[0].gpa} GPA` : ''}.`
+      : '',
 
-    // Experience summary
-    "experience": professionalInfo.experience?.slice(0, 2).map(e =>
-      `${e.title} at ${e.company} (${e.dates})`
-    ).join('; ') || "",
+    // Location - friendly
+    "location": `Richwell is based in **${professionalInfo.personal?.location}**. He's open to remote work and relocation opportunities.`,
   }
 }
 
