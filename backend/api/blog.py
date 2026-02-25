@@ -45,7 +45,7 @@ def list_posts():
 
     # Build query
     query = supabase.table('blog_posts').select(
-        'slug,title,excerpt,author,tags,published_at,created_at'
+        'slug,title,excerpt,author,tags,published_at,created_at,reading_time'
     )
     query = query.eq('published', True).order('created_at', desc=True)
 
@@ -58,13 +58,7 @@ def list_posts():
     end = page * per_page - 1
     result = query.range(start, end).execute()
 
-    # Add reading_time estimate to each post
-    posts = [{
-        **post,
-        'reading_time': DEFAULT_READING_TIME_ESTIMATE  # Estimated (actual calculation requires full content)
-    } for post in result.data]
-
-    return jsonify(posts=posts, page=page, per_page=per_page)
+    return jsonify(posts=result.data, page=page, per_page=per_page)
 
 
 @blog_bp.route('/posts/<slug>', methods=['GET'])
@@ -106,16 +100,18 @@ def search_posts():
 def create_post():
     """Create a new blog post (admin only)."""
     data = request.json
+    content = data['content']
 
     result = supabase.table('blog_posts').insert({
         'slug': data['slug'],
         'title': data['title'],
-        'content': data['content'],
+        'content': content,
         'excerpt': data.get('excerpt', ''),
         'author': data.get('author', 'Richwell Perez'),
         'tags': data.get('tags', []),
         'published': data.get('published', False),
-        'published_at': data.get('published_at')
+        'published_at': data.get('published_at'),
+        'reading_time': calculate_reading_time(content)
     }).execute()
 
     return jsonify(result.data[0]), 201
@@ -126,6 +122,10 @@ def create_post():
 def update_post(slug):
     """Update an existing blog post (admin only)."""
     data = request.json
+
+    # Recalculate reading_time if content is being updated
+    if 'content' in data:
+        data['reading_time'] = calculate_reading_time(data['content'])
 
     result = supabase.table('blog_posts').update(data).eq('slug', slug).execute()
 

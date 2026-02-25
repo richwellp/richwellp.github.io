@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   tags TEXT[] DEFAULT '{}',
   published BOOLEAN DEFAULT FALSE,
   published_at TIMESTAMPTZ,
+  reading_time INTEGER DEFAULT 5,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -92,6 +93,6 @@ USING (published = TRUE);
 -- 5. Verify Installation
 -- ============================================
 -- Run these queries to verify:
--- SELECT id, slug, title, published, published_at FROM blog_posts ORDER BY created_at DESC;
+-- SELECT id, slug, title, published, published_at, reading_time FROM blog_posts ORDER BY created_at DESC;
 -- SELECT COUNT(*) AS total_posts FROM blog_posts;
 -- SELECT COUNT(*) AS published_posts FROM blog_posts WHERE published = TRUE;
