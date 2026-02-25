@@ -14,13 +14,24 @@ export function useBlog() {
       if (options.tag) params.set('tag', options.tag)
 
       const response = await fetch(`${API_ENDPOINTS.blogPosts}?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch posts')
+      if (!response.ok) {
+        console.error('Blog API error:', response.status, response.statusText)
+        throw new Error('Failed to fetch posts')
+      }
 
       const data = await response.json()
+
+      if (!data || !data.posts) {
+        console.error('Invalid blog API response:', data)
+        posts.value = []
+        return { posts: [], page: 1, per_page: 10 }
+      }
+
       posts.value = data.posts
       return data
-    }).catch(() => {
-      // Error already handled by useAsyncRequest
+    }).catch((err) => {
+      console.error('Error loading blog posts:', err)
+      posts.value = []
     })
   }
 
