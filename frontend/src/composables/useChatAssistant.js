@@ -87,8 +87,8 @@ const generateDynamicCache = (professionalInfo) => {
       ? `Richwell earned his ${educationText}. His academic focus included ${education[0]?.focus?.join(', ') || 'Computer Science and AI'}${education[0]?.gpa ? `, graduating with a ${education[0].gpa} GPA` : ''}.`
       : '',
 
-    // Location - friendly
-    "location": `Richwell is based in **${professionalInfo.personal?.location}**. He's open to remote work and relocation opportunities.`,
+    // Location - friendly and open to opportunities
+    "location": `Richwell is based in **${professionalInfo.personal?.location}** and is open to opportunities of all types.`,
   }
 }
 
