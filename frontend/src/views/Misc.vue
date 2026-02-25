@@ -136,14 +136,8 @@
     <section class="visitor-map">
       <div class="container">
         <h2 class="section-title">Visitors</h2>
-        <div class="map-container">
-          <a href="https://clustrmaps.com/site/1c8ov" title="Visit tracker" target="_blank" rel="noopener noreferrer">
-            <img
-              src="https://www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff"
-              alt="Visitor Map - Locations of site visitors"
-              loading="lazy"
-            />
-          </a>
+        <div class="map-container" ref="mapContainer">
+          <!-- ClustrMaps widget will be inserted here -->
         </div>
       </div>
     </section>
@@ -152,13 +146,15 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import OptimizedImage from '../components/OptimizedImage.vue'
 import { useBlog } from '../composables/useBlog'
 import { useAlbums } from '../composables/useAlbums'
 
 const { posts, loading, fetchPosts } = useBlog()
 const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
+
+const mapContainer = ref(null)
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
@@ -185,6 +181,15 @@ const isVideoCover = (url) => {
 onMounted(() => {
   fetchPosts()
   fetchAlbums()
+
+  // Load ClustrMaps 3D widget (no lazy loading)
+  if (mapContainer.value) {
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.id = 'clustrmaps'
+    script.src = '//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a'
+    mapContainer.value.appendChild(script)
+  }
 })
 </script>
 
