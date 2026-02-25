@@ -86,7 +86,7 @@ const generateDynamicCache = (professionalInfo) => {
     const experienceList = allExperience.slice(0, 3).map(exp =>
       `**${exp.title}** at **${exp.company}** (${exp.dates})${exp.current ? ' - Current' : ''}`
     ).join('\n\n')
-    experienceResponse = `Richwell's professional experience includes:\n\n${experienceList}\n\nView [Experience](/experience) for full details.`
+    experienceResponse = `Richwell's professional experience includes:\n\n${experienceList}`
   } else {
     experienceResponse = "Richwell is building his professional experience."
   }
@@ -95,9 +95,9 @@ const generateDynamicCache = (professionalInfo) => {
   let projectsResponse = ''
   if (allProjects.length > 0) {
     const projectList = allProjects.slice(0, 3).map(proj =>
-      `**${proj.title}** - ${proj.shortDescription}`
+      `**${proj.name || proj.title}** - ${proj.subtitle || proj.description || 'A featured project'}`
     ).join('\n\n')
-    projectsResponse = `Here are some of Richwell's projects:\n\n${projectList}\n\nView [Projects](/projects) for complete list.`
+    projectsResponse = `Here are some of Richwell's projects:\n\n${projectList}`
   } else {
     projectsResponse = "Richwell has various projects showcased on his portfolio."
   }
@@ -132,6 +132,7 @@ const generateDynamicCache = (professionalInfo) => {
 
 // Find cached response using conservative matching
 // Only matches very simple, direct questions - complex questions go to API
+// Returns { response: string, cacheKey: string } or null
 const findCachedResponse = (userMessage) => {
   if (!_cacheGenerated || !_dynamicCache) return null
 
@@ -146,7 +147,8 @@ const findCachedResponse = (userMessage) => {
   }
 
   if (quickButtonMatches[query]) {
-    return _dynamicCache[quickButtonMatches[query]]
+    const cacheKey = quickButtonMatches[query]
+    return { response: _dynamicCache[cacheKey], cacheKey }
   }
 
   // Exclude complex questions (multiple clauses, summaries, analysis, comparisons)
@@ -170,43 +172,43 @@ const findCachedResponse = (userMessage) => {
   if (/^(what('| i)s )?((your|his|the) )?(email|contact)(\s*(address|info))?[?]?$/i.test(query) ||
       /^how (can|do) (i|we) (contact|reach) (you|him)[?]?$/i.test(query) ||
       /^contact$/i.test(query)) {  // Also match just "contact"
-    return _dynamicCache["contact"]
+    return { response: _dynamicCache["contact"], cacheKey: "contact" }
   }
 
   // Skills - must be asking specifically for skills/technologies
   if (/^(what('| i)s )?((your|his|the) )?(skills?|technologies|tech stack)[?]?$/i.test(query) ||
       /^what (skills?|technologies) (do|does) (you|he) (have|know|use)[?]?$/i.test(query)) {
-    return _dynamicCache["skills"]
+    return { response: _dynamicCache["skills"], cacheKey: "skills" }
   }
 
   // Location - must be asking specifically for location
   if (/^(where|location)[?]?$/i.test(query) ||
       /^where (is|are) (you|he)( located| based)?[?]?$/i.test(query)) {
-    return _dynamicCache["location"]
+    return { response: _dynamicCache["location"], cacheKey: "location" }
   }
 
   // Education - must be asking specifically for education/degree
   if (/^(what('| i)s )?((your|his|the) )?(education|degree)[?]?$/i.test(query) ||
       /^where did (you|he) (study|graduate|go to school)[?]?$/i.test(query)) {
-    return _dynamicCache["education"]
+    return { response: _dynamicCache["education"], cacheKey: "education" }
   }
 
   // Current role - must be asking specifically about current job
   if (/^(what('| i)s )?((your|his|the) )?current (role|job|position)[?]?$/i.test(query) ||
       /^what (do|does) (you|he) do( now)?[?]?$/i.test(query)) {
-    return _dynamicCache["current role"]
+    return { response: _dynamicCache["current role"], cacheKey: "current role" }
   }
 
   // Work experience - must be asking specifically about experience/work history
   if (/^(what('| i)s )?((your|his|the) )?work experience[?]?$/i.test(query) ||
       /^(what('| i)s )?((your|his|the) )?experience[?]?$/i.test(query)) {
-    return _dynamicCache["experience"]
+    return { response: _dynamicCache["experience"], cacheKey: "experience" }
   }
 
   // Projects - must be asking specifically about projects
   if (/^(what('| i)s )?((your|his|the) )?projects?[?]?$/i.test(query) ||
       /^(show|list) (me )?(your|his|the )?projects?[?]?$/i.test(query)) {
-    return _dynamicCache["projects"]
+    return { response: _dynamicCache["projects"], cacheKey: "projects" }
   }
 
   return null // No simple match - use API for better response
@@ -348,10 +350,10 @@ export function useChatAssistant() {
     }
 
     // Check cache first
-    const cachedResponse = findCachedResponse(userInput)
+    const cacheResult = findCachedResponse(userInput)
 
-    if (cachedResponse) {
-      console.log('[Chat] ✅ Cache hit!')
+    if (cacheResult) {
+      console.log('[Chat] ✅ Cache hit!', cacheResult.cacheKey)
 
       // Add user message
       messages.value.push({
@@ -363,11 +365,20 @@ export function useChatAssistant() {
 
       // Add cached response with typing animation and sources
       const responseId = generateUUID()
-      // Determine appropriate source based on query type
-      let sources = ['profile']
-      if (/contact|email/i.test(userInput)) {
-        sources = ['Contact']  // Contact page for contact-related queries
+
+      // Map cache key to appropriate source
+      const sourceMap = {
+        'contact': 'Contact',
+        'email': 'Contact',
+        'skills': 'resume',
+        'experience': 'experience',
+        'projects': 'projects',
+        'education': 'resume',
+        'current role': 'experience',
+        'location': 'profile'
       }
+
+      const sources = [sourceMap[cacheResult.cacheKey] || 'profile']
 
       messages.value.push({
         id: responseId,
@@ -379,7 +390,7 @@ export function useChatAssistant() {
       })
 
       // Show typing animation (fast - 2ms per character)
-      await simulateStreaming(responseId, cachedResponse, 2)
+      await simulateStreaming(responseId, cacheResult.response, 2)
 
       // Ensure typing state is cleared
       isTyping.value = false
