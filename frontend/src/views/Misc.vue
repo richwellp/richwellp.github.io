@@ -190,12 +190,12 @@ onMounted(() => {
   fetchPosts()
   fetchAlbums()
 
-  // Load ClustrMaps 3D globe widget (no lazy loading)
+  // Load ClustrMaps 2D widget (works better in restricted mode, no reload needed)
   if (mapContainer.value) {
     const script = document.createElement('script')
     script.type = 'text/javascript'
-    script.id = 'clstr_globe'
-    script.src = '//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+    script.id = 'clustrmaps'
+    script.src = '//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a'
 
     // Show fallback if script fails to load or times out
     script.onerror = () => {
@@ -204,8 +204,8 @@ onMounted(() => {
 
     // Show fallback after 5 seconds if nothing renders
     const fallbackTimer = setTimeout(() => {
-      // Check if the widget loaded by looking for canvas or iframe
-      const hasWidget = mapContainer.value?.querySelector('canvas, iframe, a[href*="clustrmaps"]')
+      // Check if the widget loaded by looking for img, canvas, iframe, or link
+      const hasWidget = mapContainer.value?.querySelector('img, canvas, iframe, a[href*="clustrmaps"]')
       if (!hasWidget) {
         showMapFallback.value = true
       }
