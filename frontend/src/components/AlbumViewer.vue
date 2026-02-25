@@ -54,30 +54,101 @@
           </div>
         </div>
 
-        <!-- Photo Grid -->
-        <div v-if="currentPhotos.length > 0" class="photos-grid">
-          <div v-for="item in currentPhotos" :key="item.src" class="photo-item">
-            <OptimizedImage
-              v-if="!isVideo(item)"
-              :src="item.src"
-              :alt="item.caption"
-              size="md"
-              loading="lazy"
-              img-class="photo-image"
-              @click="openLightbox(item)"
+        <!-- Slideshow -->
+        <div v-if="currentPhotos.length > 0" class="slideshow-container">
+          <!-- Main Slideshow Display -->
+          <div class="slideshow-main">
+            <button
+              v-if="currentPhotos.length > 1"
+              class="slideshow-nav prev"
+              @click="previousSlide"
+              aria-label="Previous photo"
+            >
+              &#10094;
+            </button>
+
+            <div class="slideshow-content" @click="openLightbox(currentPhotos[currentSlideIndex])">
+              <OptimizedImage
+                v-if="!isVideo(currentPhotos[currentSlideIndex])"
+                :src="currentPhotos[currentSlideIndex].src"
+                :alt="currentPhotos[currentSlideIndex].caption"
+                size="lg"
+                loading="eager"
+                img-class="slideshow-image"
+              />
+              <video
+                v-else
+                :src="currentPhotos[currentSlideIndex].src"
+                class="slideshow-video"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="auto"
+              />
+            </div>
+
+            <button
+              v-if="currentPhotos.length > 1"
+              class="slideshow-nav next"
+              @click="nextSlide"
+              aria-label="Next photo"
+            >
+              &#10095;
+            </button>
+
+            <!-- Caption -->
+            <div class="slideshow-caption">
+              <p>{{ currentPhotos[currentSlideIndex].caption }}</p>
+              <span class="slideshow-counter">{{ currentSlideIndex + 1 }} / {{ currentPhotos.length }}</span>
+            </div>
+          </div>
+
+          <!-- Playback Controls -->
+          <div v-if="currentPhotos.length > 1" class="slideshow-controls">
+            <button
+              @click="toggleAutoplay"
+              class="control-btn"
+              :aria-label="isPlaying ? 'Pause slideshow' : 'Play slideshow'"
+            >
+              {{ isPlaying ? '⏸' : '▶' }}
+            </button>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              v-model="playbackSpeed"
+              class="speed-slider"
+              aria-label="Slideshow speed"
             />
-            <video
-              v-else
-              :src="item.src"
-              class="photo-video"
-              @click="openLightbox(item)"
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="metadata"
-            />
-            <p class="photo-caption">{{ item.caption }}</p>
+            <span class="speed-label">{{ playbackSpeed }}s</span>
+          </div>
+
+          <!-- Thumbnail Navigation -->
+          <div v-if="currentPhotos.length > 1" class="slideshow-thumbnails">
+            <div
+              v-for="(item, index) in currentPhotos"
+              :key="item.src"
+              @click="currentSlideIndex = index"
+              :class="['thumbnail', { active: index === currentSlideIndex }]"
+            >
+              <OptimizedImage
+                v-if="!isVideo(item)"
+                :src="item.src"
+                :alt="item.caption"
+                size="thumb"
+                loading="lazy"
+                img-class="thumbnail-image"
+              />
+              <video
+                v-else
+                :src="item.src"
+                class="thumbnail-video"
+                muted
+                playsinline
+                preload="metadata"
+              />
+            </div>
           </div>
         </div>
 
@@ -117,7 +188,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import OptimizedImage from './OptimizedImage.vue'
 
@@ -160,6 +231,12 @@ const activeTab = ref(props.defaultCategory || (props.categories[0]?.id || null)
 const lightboxPhoto = ref(null)
 const searchQuery = ref('')
 const sortBy = ref('order')
+
+// Slideshow state
+const currentSlideIndex = ref(0)
+const isPlaying = ref(false)
+const playbackSpeed = ref(3) // seconds
+let autoplayInterval = null
 
 const hasCategories = computed(() => props.categories.length > 0)
 
@@ -245,6 +322,57 @@ const openLightbox = (photo) => {
 const closeLightbox = () => {
   lightboxPhoto.value = null
 }
+
+// Slideshow functions
+const nextSlide = () => {
+  currentSlideIndex.value = (currentSlideIndex.value + 1) % currentPhotos.value.length
+}
+
+const previousSlide = () => {
+  currentSlideIndex.value = (currentSlideIndex.value - 1 + currentPhotos.value.length) % currentPhotos.value.length
+}
+
+const startAutoplay = () => {
+  stopAutoplay()
+  autoplayInterval = setInterval(() => {
+    nextSlide()
+  }, playbackSpeed.value * 1000)
+}
+
+const stopAutoplay = () => {
+  if (autoplayInterval) {
+    clearInterval(autoplayInterval)
+    autoplayInterval = null
+  }
+}
+
+const toggleAutoplay = () => {
+  isPlaying.value = !isPlaying.value
+  if (isPlaying.value) {
+    startAutoplay()
+  } else {
+    stopAutoplay()
+  }
+}
+
+// Watch for changes in playback speed
+watch(playbackSpeed, () => {
+  if (isPlaying.value) {
+    startAutoplay()
+  }
+})
+
+// Reset slide index when photos change
+watch(currentPhotos, () => {
+  currentSlideIndex.value = 0
+  stopAutoplay()
+  isPlaying.value = false
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  stopAutoplay()
+})
 </script>
 
 <style scoped>
@@ -421,49 +549,241 @@ h1 {
   border-color: var(--accent-primary);
 }
 
-/* Photos Grid */
-.photos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+/* Slideshow Container */
+.slideshow-container {
+  width: 100%;
+  margin-top: 2rem;
 }
 
-.photo-item {
+.slideshow-main {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
   background: var(--bg-card);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 10px var(--shadow);
+  box-shadow: 0 4px 20px var(--shadow);
   border: 1px solid var(--border-color);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.slideshow-content {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
   cursor: pointer;
 }
 
-.photo-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px var(--shadow);
+.slideshow-content :deep(img),
+:deep(.slideshow-image) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
-.photo-item :deep(img),
-.photo-item video,
-:deep(.photo-image),
-.photo-video {
+.slideshow-video {
   width: 100%;
-  height: 300px;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Navigation Arrows */
+.slideshow-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 2rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.3s ease;
+  border-radius: 4px;
+}
+
+.slideshow-nav:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.slideshow-nav.prev {
+  left: 1rem;
+}
+
+.slideshow-nav.next {
+  right: 1rem;
+}
+
+/* Caption */
+.slideshow-caption {
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.slideshow-caption p {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+.slideshow-counter {
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* Playback Controls */
+.slideshow-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 400px;
+  border: 1px solid var(--border-color);
+}
+
+.control-btn {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn:hover {
+  background: var(--accent-hover);
+  transform: scale(1.1);
+}
+
+.speed-slider {
+  flex: 1;
+  max-width: 200px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.speed-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s ease;
+}
+
+.speed-slider::-webkit-slider-thumb:hover,
+.speed-slider::-moz-range-thumb:hover {
+  background: var(--accent-hover);
+}
+
+.speed-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Thumbnail Navigation */
+.slideshow-thumbnails {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin-top: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.slideshow-thumbnails::-webkit-scrollbar {
+  height: 8px;
+}
+
+.slideshow-thumbnails::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+.slideshow-thumbnails::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 4px;
+}
+
+.thumbnail {
+  flex-shrink: 0;
+  width: 120px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.thumbnail:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  opacity: 1;
+  border-color: var(--accent-primary);
+}
+
+.thumbnail :deep(img),
+:deep(.thumbnail-image) {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
-  cursor: pointer;
 }
 
-.photo-item video,
-.photo-video {
-  background: #000;
-}
-
-.photo-caption {
-  padding: 1rem;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  text-align: center;
+.thumbnail-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* Empty State */
@@ -567,8 +887,23 @@ h1 {
     justify-content: space-between;
   }
 
-  .photos-grid {
-    grid-template-columns: 1fr;
+  .slideshow-content {
+    height: 400px;
+  }
+
+  .slideshow-nav {
+    font-size: 1.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .slideshow-caption {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .thumbnail {
+    width: 90px;
+    height: 60px;
   }
 
   .coming-soon {
