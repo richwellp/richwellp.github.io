@@ -702,14 +702,28 @@ watch(isOpen, async (newValue) => {
   padding: 0;
 }
 
-.markdown-body a {
+/* Style links in all assistant messages (including during streaming) */
+.chat-message.assistant .message-content a {
   color: var(--link-color); /* Uses theme-specific link color */
   text-decoration: underline;
   font-weight: 500;
 }
 
-.markdown-body a:hover {
+.chat-message.assistant .message-content a:hover {
   color: var(--link-hover); /* Uses theme-specific hover color */
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+/* Also apply to markdown-body for specificity */
+.markdown-body a {
+  color: var(--link-color);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.markdown-body a:hover {
+  color: var(--link-hover);
   text-decoration: underline;
   text-decoration-thickness: 2px;
 }
