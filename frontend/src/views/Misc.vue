@@ -136,15 +136,11 @@
     <section class="visitor-map">
       <div class="container">
         <h2 class="section-title">Visitors</h2>
-        <div class="map-container" ref="mapContainer">
-          <!-- ClustrMaps widget will be inserted here -->
-          <div v-if="showMapFallback" class="map-fallback">
-            <p>📊 Visitor tracking is unavailable</p>
-            <p class="fallback-detail">
-              If you're using privacy/security settings that block third-party scripts,
-              the visitor map cannot be displayed. You can still view all other content normally.
-            </p>
-          </div>
+        <div class="map-container">
+          <!-- ClustrMaps 2D widget - simple embed -->
+          <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
+            <img src='//clustrmaps.com/map_v2.png?cl=ffffff&w=a&t=n&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8' />
+          </a>
         </div>
       </div>
     </section>
@@ -160,9 +156,6 @@ import { useAlbums } from '../composables/useAlbums'
 
 const { posts, loading, fetchPosts } = useBlog()
 const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
-
-const mapContainer = ref(null)
-const showMapFallback = ref(false)
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
@@ -189,88 +182,6 @@ const isVideoCover = (url) => {
 onMounted(() => {
   fetchPosts()
   fetchAlbums()
-
-  // Try 3D globe first, fallback to 2D map if blocked
-  if (mapContainer.value) {
-    let attempt3DFailed = false
-
-    const try3DGlobe = () => {
-      const script3D = document.createElement('script')
-      script3D.type = 'text/javascript'
-      script3D.id = 'clstr_globe'
-      script3D.src = 'https://cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
-
-      // If 3D script fails to load, try 2D immediately
-      script3D.onerror = () => {
-        if (!attempt3DFailed) {
-          attempt3DFailed = true
-          try2DMap()
-        }
-      }
-
-      // After script loads, wait for widget to render (polls every 500ms for 4 seconds)
-      script3D.onload = () => {
-        let checkCount = 0
-        const maxChecks = 8 // 8 checks * 500ms = 4 seconds
-
-        const checkInterval = setInterval(() => {
-          checkCount++
-          const has3DWidget = mapContainer.value?.querySelector('canvas, iframe, a[href*="clustrmaps"]')
-
-          if (has3DWidget) {
-            // 3D widget rendered successfully
-            clearInterval(checkInterval)
-          } else if (checkCount >= maxChecks && !attempt3DFailed) {
-            // 3D didn't render after 4 seconds, try 2D
-            clearInterval(checkInterval)
-            attempt3DFailed = true
-            const oldScript = document.getElementById('clstr_globe')
-            if (oldScript) oldScript.remove()
-            try2DMap()
-          }
-        }, 500)
-      }
-
-      mapContainer.value.appendChild(script3D)
-    }
-
-    const try2DMap = () => {
-      const script2D = document.createElement('script')
-      script2D.type = 'text/javascript'
-      script2D.id = 'clustrmaps'
-      script2D.src = 'https://clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a'
-
-      // Only show unavailable message if 2D also fails (very rare)
-      script2D.onerror = () => {
-        showMapFallback.value = true
-      }
-
-      // After script loads, wait for widget to render
-      script2D.onload = () => {
-        let checkCount = 0
-        const maxChecks = 10 // 10 checks * 500ms = 5 seconds
-
-        const checkInterval = setInterval(() => {
-          checkCount++
-          const has2DWidget = mapContainer.value?.querySelector('img, canvas, iframe, a[href*="clustrmaps"]')
-
-          if (has2DWidget) {
-            // 2D widget rendered successfully
-            clearInterval(checkInterval)
-          } else if (checkCount >= maxChecks) {
-            // 2D also didn't render, show fallback
-            clearInterval(checkInterval)
-            showMapFallback.value = true
-          }
-        }, 500)
-      }
-
-      mapContainer.value.appendChild(script2D)
-    }
-
-    // Start with 3D globe
-    try3DGlobe()
-  }
 })
 </script>
 
@@ -689,30 +600,6 @@ h1 {
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
-}
-
-.map-fallback {
-  text-align: center;
-  padding: 3rem 2rem;
-  background: var(--bg-card);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  width: 100%;
-}
-
-.map-fallback p:first-child {
-  font-size: 1.1rem;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  font-weight: 500;
-}
-
-.fallback-detail {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  max-width: 500px;
-  margin: 0 auto;
 }
 
 /* Responsive */
