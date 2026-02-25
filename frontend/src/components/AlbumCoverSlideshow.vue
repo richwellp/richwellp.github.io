@@ -100,22 +100,17 @@ const loadPhotos = async () => {
         : Object.values(fullAlbum.photos).flat()
 
       photos.value = albumPhotos
-      console.log(`[AlbumSlideshow] Loaded ${albumPhotos.length} photos for ${props.album.name}`)
       startPhotoTimer()
-    } else {
-      console.warn(`[AlbumSlideshow] No photos found for ${props.album.name}`)
     }
   } catch (error) {
-    console.error(`[AlbumSlideshow] Failed to load photos for album ${props.album.slug}:`, error)
+    console.error(`Failed to load photos for album ${props.album.slug}:`, error)
   }
 }
 
 // Move to next photo
 const nextPhoto = () => {
   if (photos.value.length === 0) return
-  const nextIndex = (currentPhotoIndex.value + 1) % photos.value.length
-  console.log(`[AlbumSlideshow] ${props.album.name}: ${currentPhotoIndex.value} → ${nextIndex} (${photos.value.length} total)`)
-  currentPhotoIndex.value = nextIndex
+  currentPhotoIndex.value = (currentPhotoIndex.value + 1) % photos.value.length
 }
 
 // Start timer for photo transitions (videos handle themselves)
