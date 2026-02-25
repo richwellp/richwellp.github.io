@@ -13,6 +13,9 @@ const blogPosts = ref([])
 const contextLoaded = ref(false)
 // Global abort controller for canceling requests
 let currentAbortController = null
+// Module-level cache for dynamic responses
+let _dynamicCache = null
+let _cacheGenerated = false
 
 // UUID generator with fallback for older browsers
 const generateUUID = () => {
@@ -41,6 +44,93 @@ const loadContext = async () => {
     await loadProfessionalInfo()
 
     contextLoaded.value = true
+  }
+}
+
+// Generate dynamic cache from live professional data
+const generateDynamicCache = (professionalInfo) => {
+  if (!professionalInfo) return null
+
+  const currentRole = professionalInfo.experience?.find(e => e.current)
+  const allSkills = professionalInfo.skills ? Object.values(professionalInfo.skills).flat() : []
+
+  return {
+    // Contact information
+    "contact": `You can reach Richwell at ${professionalInfo.personal?.email} or ${professionalInfo.personal?.linkedIn}`,
+    "email": professionalInfo.personal?.email || "",
+
+    // Current role
+    "current role": currentRole ?
+      `${currentRole.title} at ${currentRole.company}. ${currentRole.description}` : "",
+    "what does he do": currentRole?.description || "",
+
+    // Skills (top 15)
+    "skills": allSkills.slice(0, 15).join(', '),
+
+    // Education
+    "education": professionalInfo.education?.map(e =>
+      `${e.degree} from ${e.shortName} (${e.dates})`
+    ).join('; ') || "",
+
+    // Location
+    "location": professionalInfo.personal?.location || "",
+
+    // Experience summary
+    "experience": professionalInfo.experience?.slice(0, 2).map(e =>
+      `${e.title} at ${e.company} (${e.dates})`
+    ).join('; ') || "",
+  }
+}
+
+// Find cached response using fuzzy matching
+const findCachedResponse = (userMessage) => {
+  if (!_cacheGenerated || !_dynamicCache) return null
+
+  const query = userMessage.toLowerCase().trim()
+
+  // Direct keyword matches
+  for (const [keyword, response] of Object.entries(_dynamicCache)) {
+    if (query.includes(keyword)) {
+      return response
+    }
+  }
+
+  // Pattern matching for common question variations
+  if (/email|contact|reach/.test(query)) {
+    return _dynamicCache["contact"]
+  }
+  if (/current (role|job|position)|what (does|do) (he|you) do/.test(query)) {
+    return _dynamicCache["current role"]
+  }
+  if (/skills?|technologies|tech stack/.test(query)) {
+    return _dynamicCache["skills"]
+  }
+  if (/education|degree|university|college/.test(query)) {
+    return _dynamicCache["education"]
+  }
+  if (/where|location|based/.test(query)) {
+    return _dynamicCache["location"]
+  }
+  if (/experience|work history|background/.test(query)) {
+    return _dynamicCache["experience"]
+  }
+
+  return null // No match - use API
+}
+
+// Enhanced preloadContext with cache generation
+const preloadContext = async () => {
+  await loadContext()
+
+  // Generate cache from loaded data
+  try {
+    const { professionalInfo } = useProfessionalInfo()
+    _dynamicCache = generateDynamicCache(professionalInfo.value)
+    _cacheGenerated = true
+    console.log('[Chat] Context + cache ready')
+  } catch (error) {
+    console.warn('[Chat] Cache generation failed, using API only:', error)
+    _cacheGenerated = false
   }
 }
 
@@ -163,6 +253,39 @@ export function useChatAssistant() {
       return
     }
 
+    // Check cache first
+    const cachedResponse = findCachedResponse(userInput)
+
+    if (cachedResponse) {
+      console.log('[Chat] ✅ Cache hit!')
+
+      // Add user message
+      messages.value.push({
+        id: generateUUID(),
+        type: 'user',
+        content: userInput,
+        timestamp: new Date()
+      })
+
+      // Add cached response with typing animation
+      const responseId = generateUUID()
+      messages.value.push({
+        id: responseId,
+        type: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true
+      })
+
+      // Show typing animation (fast - 2ms per character)
+      await simulateStreaming(responseId, cachedResponse, 2)
+
+      return // Skip API call!
+    }
+
+    // Cache miss - continue with existing API logic
+    console.log('[Chat] ❌ Cache miss, calling API...')
+
     // Add user message
     messages.value.push({
       id: generateUUID(),
@@ -201,12 +324,9 @@ export function useChatAssistant() {
       const errorId = generateUUID()
       let errorContent
 
-      // Specific message for timeouts and cancellations
-      const wasCanceled = error.message.includes('cancel')
-      if (error.name === 'AbortError' || error.message.includes('timeout')) {
-        errorContent = wasCanceled
-          ? `Request canceled. Feel free to ask another question.`
-          : `The request timed out after 60 seconds. The AI service may be experiencing high load or rate limits.\n\nPlease try again in a moment, or contact Richwell directly at ${CONTACT.email} for immediate assistance.`
+      // Specific message for cancellations
+      if (error.name === 'AbortError') {
+        errorContent = `Request canceled. Feel free to ask another question.`
       } else {
         errorContent = `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for assistance.`
       }
@@ -233,12 +353,13 @@ export function useChatAssistant() {
     try {
       console.log('[Chat] Creating fetch request with 30s timeout')
 
-      // Create abort controller for timeout and manual cancel
+      // Create abort controller for manual cancel only (no automatic timeout)
+      // User can manually cancel with the red X button anytime
       currentAbortController = new AbortController()
-      const timeoutId = setTimeout(() => {
-        console.log('[Chat] Request timeout after 60s, aborting...')
-        currentAbortController.abort()
-      }, 60000) // 60 second timeout (generous for slow AI responses)
+
+      // REMOVED: Automatic timeout
+      // Reason: API can take 3-5 minutes but still gives good answers
+      // User has manual cancel button if they don't want to wait
 
       const response = await fetch(`${API_ENDPOINTS.chatStream}`, {
         method: 'POST',
@@ -253,7 +374,6 @@ export function useChatAssistant() {
         signal: currentAbortController.signal
       })
 
-      clearTimeout(timeoutId)
       currentAbortController = null // Clear after successful request
       console.log('[Chat] Got response:', response.status)
 
@@ -357,15 +477,12 @@ export function useChatAssistant() {
         }
       }
 
-      // If timeout/abort, show error instead of retrying
-      if (error.name === 'AbortError' || error.message.includes('timeout')) {
-        const wasCanceled = error.message.includes('cancel')
-        console.error('[Chat] Request ' + (wasCanceled ? 'canceled' : 'timed out'))
+      // If manually canceled, show message
+      if (error.name === 'AbortError') {
+        console.error('[Chat] Request manually canceled by user')
 
         const errorId = generateUUID()
-        const errorContent = wasCanceled
-          ? `Request canceled. Feel free to ask another question or contact Richwell at ${CONTACT.email}.`
-          : `The request timed out after 60 seconds. The AI service may be experiencing high load.\n\nPlease try again in a moment, or contact Richwell directly at ${CONTACT.email}.`
+        const errorContent = `Request canceled. Feel free to ask another question or contact Richwell at ${CONTACT.email}.`
 
         messages.value.push({
           id: errorId,
@@ -385,16 +502,12 @@ export function useChatAssistant() {
     }
   }
 
-  // Regular (non-streaming) implementation with timeout
+  // Regular (non-streaming) implementation
   const sendMessageRegular = async (userInput, conversationHistory) => {
     console.log('[Chat] Regular mode: Sending request to', API_ENDPOINTS.chat)
 
-    // Create abort controller for timeout and manual cancel
+    // Create abort controller for manual cancel only
     currentAbortController = new AbortController()
-    const timeoutId = setTimeout(() => {
-      console.log('[Chat] Regular mode timeout after 60s, aborting...')
-      currentAbortController.abort()
-    }, 60000) // 60 second timeout
 
     const response = await fetch(`${API_ENDPOINTS.chat}`, {
       method: 'POST',
@@ -409,7 +522,6 @@ export function useChatAssistant() {
       signal: currentAbortController.signal
     })
 
-    clearTimeout(timeoutId)
     currentAbortController = null // Clear after successful request
     console.log('[Chat] Regular mode: Got response', response.status)
 
@@ -596,6 +708,6 @@ export function useChatAssistant() {
     sendQuickMessage,
     formatTime,
     cancelRequest,
-    preloadContext: loadContext  // Expose for preloading
+    preloadContext  // Expose enhanced preloadContext with cache generation
   }
 }
