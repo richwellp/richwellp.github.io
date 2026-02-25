@@ -226,13 +226,34 @@ const {
   cancelRequest
 } = useChatAssistant()
 
-// Defensive: Watch for completed assistant messages and force clear isTyping
+// Scroll to bottom helper
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  })
+}
+
+// Auto-scroll to latest message when chat opens
+watch(isOpen, (newValue) => {
+  if (newValue && messages.value.length > 0) {
+    // Scroll to bottom when opening chat with existing messages
+    scrollToBottom()
+  }
+})
+
+// Watch messages for defensive typing clear + auto-scroll
 watch(messages, (newMessages) => {
+  // Auto-scroll when chat is open
+  if (isOpen.value) {
+    scrollToBottom()
+  }
+
+  // Defensive: Check for stuck typing indicator
   if (newMessages.length > 0) {
     const lastMessage = newMessages[newMessages.length - 1]
-    // If last message is from assistant and not streaming, ensure typing is off
     if (lastMessage.type === 'assistant' && !lastMessage.isStreaming) {
-      // Small delay to ensure any pending state updates complete
       setTimeout(() => {
         if (isTyping.value) {
           console.warn('[Chat UI] Force clearing stuck isTyping indicator')
