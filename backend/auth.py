@@ -11,6 +11,9 @@ ADMIN_KEY = os.getenv('BLOG_ADMIN_KEY')
 COOKIE_NAME = 'admin_session'
 COOKIE_MAX_AGE = 24 * 60 * 60  # 24 hours in seconds
 
+# Detect if running in development mode
+IS_PRODUCTION = os.getenv('FLASK_ENV') == 'production' or os.getenv('VERCEL_ENV') is not None
+
 
 def require_admin(f):
     """
@@ -54,9 +57,9 @@ def create_admin_cookie_response(data, status=200):
         COOKIE_NAME,
         value=ADMIN_KEY,
         max_age=COOKIE_MAX_AGE,
-        secure=True,  # Only sent over HTTPS
+        secure=IS_PRODUCTION,  # Only sent over HTTPS in production
         httponly=True,  # Not accessible via JavaScript (prevents XSS)
-        samesite='Lax'  # CSRF protection
+        samesite='None' if IS_PRODUCTION else 'Lax'  # None required for cross-origin cookies in production
     )
 
     return response
@@ -83,9 +86,9 @@ def clear_admin_cookie_response(data=None, status=200):
         COOKIE_NAME,
         value='',
         max_age=0,
-        secure=True,
+        secure=IS_PRODUCTION,
         httponly=True,
-        samesite='Lax'
+        samesite='None' if IS_PRODUCTION else 'Lax'
     )
 
     return response
