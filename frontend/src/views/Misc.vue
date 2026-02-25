@@ -136,9 +136,8 @@
     <section class="visitor-map">
       <div class="container">
         <h2 class="section-title">Visitors</h2>
-        <div class="map-container">
-          <!-- ClustrMaps 3D Globe Widget -->
-          <script type="text/javascript" id="clstr_globe" src="//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8"></script>
+        <div class="map-container" ref="mapContainer">
+          <!-- ClustrMaps 3D Globe Widget will load here -->
         </div>
       </div>
     </section>
@@ -154,6 +153,8 @@ import { useAlbums } from '../composables/useAlbums'
 
 const { posts, loading, fetchPosts } = useBlog()
 const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
+
+const mapContainer = ref(null)
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
@@ -180,6 +181,16 @@ const isVideoCover = (url) => {
 onMounted(() => {
   fetchPosts()
   fetchAlbums()
+
+  // Load ClustrMaps 3D Globe Widget
+  // Using dynamic script loading since inline scripts don't execute on Vue Router navigation
+  if (mapContainer.value) {
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.id = 'clstr_globe'
+    script.src = '//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+    mapContainer.value.appendChild(script)
+  }
 })
 </script>
 
