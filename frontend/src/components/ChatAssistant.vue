@@ -702,33 +702,37 @@ watch(isOpen, async (newValue) => {
   padding: 0;
 }
 
-/* Style links in all assistant messages - match About page styling */
+/* Style links in all assistant messages - match About page styling exactly */
 .chat-message.assistant .message-content a {
-  color: var(--link-color);
+  color: var(--link-color) !important; /* Force link color to match AboutMe - #79c0ff in dark, #0969da in light */
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .chat-message.assistant .message-content a:hover {
-  color: var(--link-hover);
+  color: var(--link-hover) !important; /* Force hover color to match AboutMe - #a5d6ff in dark, #0550ae in light */
   text-decoration: underline;
 }
 
 /* Also apply to markdown-body for additional coverage */
 .markdown-body a {
-  color: var(--link-color);
+  color: var(--link-color) !important;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .markdown-body a:hover {
-  color: var(--link-hover);
+  color: var(--link-hover) !important;
   text-decoration: underline;
 }
 
 /* Ensure links in markdown-rendered assistant messages use theme colors */
 .chat-message.assistant .message-content.markdown-body a {
-  color: var(--link-color);
+  color: var(--link-color) !important;
+}
+
+.chat-message.assistant .message-content.markdown-body a:hover {
+  color: var(--link-hover) !important;
 }
 
 .markdown-body strong {

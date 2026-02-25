@@ -138,6 +138,13 @@
         <h2 class="section-title">Visitors</h2>
         <div class="map-container" ref="mapContainer">
           <!-- ClustrMaps widget will be inserted here -->
+          <div v-if="showMapFallback" class="map-fallback">
+            <p>📊 Visitor tracking is unavailable</p>
+            <p class="fallback-detail">
+              If you're using privacy/security settings that block third-party scripts,
+              the visitor map cannot be displayed. You can still view all other content normally.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -155,6 +162,7 @@ const { posts, loading, fetchPosts } = useBlog()
 const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
 
 const mapContainer = ref(null)
+const showMapFallback = ref(false)
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
@@ -188,6 +196,28 @@ onMounted(() => {
     script.type = 'text/javascript'
     script.id = 'clstr_globe'
     script.src = '//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+
+    // Show fallback if script fails to load or times out
+    script.onerror = () => {
+      showMapFallback.value = true
+    }
+
+    // Show fallback after 5 seconds if nothing renders
+    const fallbackTimer = setTimeout(() => {
+      // Check if the widget loaded by looking for canvas or iframe
+      const hasWidget = mapContainer.value?.querySelector('canvas, iframe, a[href*="clustrmaps"]')
+      if (!hasWidget) {
+        showMapFallback.value = true
+      }
+    }, 5000)
+
+    // Clear timer if script loads successfully
+    script.onload = () => {
+      setTimeout(() => {
+        clearTimeout(fallbackTimer)
+      }, 1000)
+    }
+
     mapContainer.value.appendChild(script)
   }
 })
@@ -581,12 +611,15 @@ h1 {
 /* Visitor Map Section */
 .map-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin-top: 2rem;
   max-width: 700px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
+  min-height: 200px;
 }
 
 .map-container a {
@@ -605,6 +638,30 @@ h1 {
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
+}
+
+.map-fallback {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.map-fallback p:first-child {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.fallback-detail {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 /* Responsive */
