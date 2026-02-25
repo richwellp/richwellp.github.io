@@ -61,13 +61,16 @@
         >
           <!-- Message content with markdown rendering for assistant -->
           <div class="message-wrapper">
-            <div
-              v-if="message.type === 'assistant'"
-              class="message-content markdown-body"
-              v-html="message.isStreaming ? sanitizeChatMessage(message.content) : renderMarkdown(message.content)"
-            >
-            </div>
-            <span v-if="message.isStreaming && message.type === 'assistant'" class="typing-cursor">▋</span>
+            <!-- Assistant messages with markdown -->
+            <template v-if="message.type === 'assistant'">
+              <div
+                class="message-content markdown-body"
+                v-html="message.isStreaming ? sanitizeChatMessage(message.content) : renderMarkdown(message.content)"
+              ></div>
+              <span v-if="message.isStreaming" class="typing-cursor">▋</span>
+            </template>
+
+            <!-- User messages (plain text) -->
             <div v-else class="message-content">{{ message.content }}</div>
 
             <!-- Copy button for assistant messages -->
@@ -627,6 +630,21 @@ watch(isOpen, async (newValue) => {
   padding-right: 2.5rem; /* Make room for copy button */
 }
 
+/* CRITICAL: Links must override the text-primary color above */
+.chat-message.assistant .message-content a,
+.chat-message.assistant .message-content a[href] {
+  color: var(--link-color) !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease;
+  font-weight: 500;
+}
+
+.chat-message.assistant .message-content a:hover,
+.chat-message.assistant .message-content a[href]:hover {
+  color: var(--link-hover) !important;
+  text-decoration: underline !important;
+}
+
 .message-wrapper:hover .message-content {
   transform: translateY(-1px);
 }
@@ -718,25 +736,6 @@ watch(isOpen, async (newValue) => {
 .markdown-body pre code {
   background: transparent;
   padding: 0;
-}
-
-/* Style links in all assistant messages - match About page styling exactly */
-.chat-message.assistant .message-content a,
-.chat-message.assistant .message-content a[href],
-.chat-message.assistant .message-content.markdown-body a,
-.chat-message.assistant .message-content.markdown-body a[href] {
-  color: var(--link-color) !important; /* #79c0ff in dark, #0969da in light */
-  text-decoration: none !important;
-  transition: color 0.3s ease;
-  font-weight: 500;
-}
-
-.chat-message.assistant .message-content a:hover,
-.chat-message.assistant .message-content a[href]:hover,
-.chat-message.assistant .message-content.markdown-body a:hover,
-.chat-message.assistant .message-content.markdown-body a[href]:hover {
-  color: var(--link-hover) !important; /* #a5d6ff in dark, #0550ae in light */
-  text-decoration: underline !important;
 }
 
 .markdown-body strong {
