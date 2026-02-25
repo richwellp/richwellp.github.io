@@ -136,6 +136,9 @@
     <section class="visitor-map">
       <div class="container">
         <h2 class="section-title">Visitors</h2>
+        <p class="visitor-intro">
+          Thanks for visiting! See where other visitors have connected from around the world.
+        </p>
         <div class="map-container">
           <!-- ClustrMaps 2D Map Widget with visitor count -->
           <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
@@ -571,34 +574,50 @@ h1 {
 }
 
 /* Visitor Map Section */
+.visitor-intro {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .map-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-top: 2rem;
-  max-width: 700px;
+  max-width: 900px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  min-height: 200px;
+  min-height: 250px;
+  background: var(--bg-tertiary);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
 .map-container a {
   display: block;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
 }
 
 .map-container a:hover {
-  transform: scale(1.02);
-  opacity: 0.9;
+  transform: translateY(-2px);
+  filter: brightness(1.05);
 }
 
 .map-container img {
   max-width: 100%;
+  width: 100%;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 2px 8px var(--shadow);
+  box-shadow: 0 4px 12px var(--shadow);
   border: 1px solid var(--border-color);
 }
 
@@ -612,6 +631,15 @@ h1 {
 
   .visitor-map {
     padding: 2rem 1rem 1rem;
+  }
+
+  .visitor-intro {
+    font-size: 1rem;
+  }
+
+  .map-container {
+    padding: 1.5rem;
+    max-width: 100%;
   }
 
   h1 {
