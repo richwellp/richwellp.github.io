@@ -306,12 +306,13 @@ export function useChatAssistant() {
         timestamp: new Date()
       })
 
-      // Add cached response with typing animation
+      // Add cached response with typing animation and sources
       const responseId = generateUUID()
       messages.value.push({
         id: responseId,
         type: 'assistant',
         content: '',
+        sources: ['profile'],  // Indicate this came from cached profile data
         timestamp: new Date(),
         isStreaming: true
       })
