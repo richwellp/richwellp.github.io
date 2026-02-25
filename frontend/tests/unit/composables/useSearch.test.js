@@ -54,22 +54,17 @@ describe('useSearch', () => {
 
     mockProjects = [
       {
-        title: 'AI Project',
+        name: 'AI Project',
         description: 'Machine learning application',
         technologies: ['Python', 'TensorFlow']
       }
     ]
 
-    mockSkills = [
-      {
-        name: 'Vue.js',
-        category: 'Frontend'
-      },
-      {
-        name: 'Python',
-        category: 'Backend'
-      }
-    ]
+    mockSkills = {
+      frameworks: ['Vue.js', 'React', 'Flask'],
+      languages: ['Python', 'JavaScript', 'TypeScript'],
+      databases: ['PostgreSQL', 'MongoDB']
+    }
 
     // Mock the composables
     useBlog.mockReturnValue({
