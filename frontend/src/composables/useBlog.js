@@ -1,16 +1,13 @@
 import { ref } from 'vue'
 import { API_ENDPOINTS } from '../config/api'
+import { useAsyncRequest } from './useAsyncRequest'
 
 const posts = ref([])
-const loading = ref(false)
-const error = ref(null)
+const { loading, error, execute } = useAsyncRequest()
 
 export function useBlog() {
   const fetchPosts = async (options = {}) => {
-    loading.value = true
-    error.value = null
-
-    try {
+    await execute(async () => {
       const params = new URLSearchParams()
       if (options.page) params.set('page', options.page)
       if (options.per_page) params.set('per_page', options.per_page)
@@ -22,12 +19,9 @@ export function useBlog() {
       const data = await response.json()
       posts.value = data.posts
       return data
-    } catch (err) {
-      error.value = err.message
-      // Don't re-throw, just set error state
-    } finally {
-      loading.value = false
-    }
+    }).catch(() => {
+      // Error already handled by useAsyncRequest
+    })
   }
 
   const getPostBySlug = async (slug) => {

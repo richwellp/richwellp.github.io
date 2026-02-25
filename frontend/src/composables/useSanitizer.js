@@ -60,26 +60,3 @@ export function useSanitizer() {
     sanitizeHtml
   }
 }
-
-/**
- * Sanitize markdown-rendered content (stricter configuration)
- * Assumes markdown-it is already configured with html: false
- */
-export function sanitizeMarkdown(dirty) {
-  return sanitizeHtml(dirty, {
-    // Markdown doesn't need inline styles or dangerous attributes
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id'],
-    FORBID_ATTR: ['style', 'onerror', 'onclick']
-  })
-}
-
-/**
- * Sanitize chat messages (most restrictive)
- * Removes all HTML except basic formatting
- */
-export function sanitizeChatMessage(dirty) {
-  return sanitizeHtml(dirty, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'a', 'code', 'pre', 'ul', 'ol', 'li', 'blockquote'],
-    ALLOWED_ATTR: ['href', 'target', 'rel', 'class']  // Allow class for link styling
-  })
-}

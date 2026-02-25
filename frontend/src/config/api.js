@@ -45,9 +45,3 @@ export const API_ENDPOINTS = {
   adminPhoto: (photoId) => `${API_BASE_URL}/admin/photos/${photoId}`,
   adminPhotoReorder: (photoId) => `${API_BASE_URL}/admin/photos/${photoId}/reorder`,
 }
-
-// API Configuration
-export const API_CONFIG = {
-  messageLimit: 2000,  // Maximum message length
-  historyLimit: 10,    // Maximum messages to send in history
-}

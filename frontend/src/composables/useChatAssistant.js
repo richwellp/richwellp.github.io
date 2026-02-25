@@ -3,7 +3,8 @@ import { useBlog } from './useBlog'
 import { useProfessionalInfo } from './useProfessionalInfo'
 import { useAnalytics } from './useAnalytics'
 import { CONTACT } from '../config/contact'
-import { API_ENDPOINTS, API_CONFIG } from '../config/api'
+import { API_ENDPOINTS } from '../config/api'
+import { MESSAGE_MAX_LENGTH, CHAT_HISTORY_LIMIT } from '../config/constants'
 
 // Shared state across all instances
 const messages = ref([])
@@ -336,7 +337,7 @@ export function useChatAssistant() {
     trackChatInteraction('message_sent', { messageLength: userInput.length })
 
     // Validate message length (prevent quota waste)
-    if (userInput.length > 2000) {
+    if (userInput.length > MESSAGE_MAX_LENGTH) {
       const errorId = generateUUID()
       messages.value.push({
         id: errorId,
@@ -417,7 +418,7 @@ export function useChatAssistant() {
       // Get last 10 messages for context (5 exchanges) - EXCLUDING current message
       const conversationHistory = messages.value
         .slice(0, -1)  // Exclude the message we just added
-        .slice(-API_CONFIG.historyLimit)     // Get last N previous messages
+        .slice(-CHAT_HISTORY_LIMIT)     // Get last N previous messages
         .map(msg => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
           content: msg.content

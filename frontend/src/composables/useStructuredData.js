@@ -3,6 +3,8 @@
  * Generates and injects Schema.org structured data for SEO optimization
  */
 
+import { SITE_URL } from '../config/site'
+
 /**
  * Generate Person Schema (For homepage/about page)
  */
@@ -11,8 +13,8 @@ export function generatePersonSchema() {
     '@context': 'https://schema.org',
     '@type': 'Person',
     'name': 'Richwell Cyrille Santos Perez',
-    'url': 'https://richwellp.github.io',
-    'image': 'https://richwellp.github.io/assets/photos/professional_1.jpg',
+    'url': SITE_URL,
+    'image': `${SITE_URL}/assets/photos/professional_1.jpg`,
     'jobTitle': 'AI Engineer',
     'worksFor': {
       '@type': 'Organization',
@@ -40,8 +42,8 @@ export function generateOrganizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     'name': 'Richwell Perez',
-    'url': 'https://richwellp.github.io',
-    'logo': 'https://richwellp.github.io/assets/photos/professional_1.jpg',
+    'url': SITE_URL,
+    'logo': `${SITE_URL}/assets/photos/professional_1.jpg`,
     'description': 'Portfolio and blog of Richwell Perez, AI Engineer',
     'sameAs': [
       'https://www.linkedin.com/in/richwell-perez',
@@ -73,19 +75,19 @@ export function generateBlogPostSchema(post) {
     'headline': post.title,
     'description': post.excerpt || post.title,
     'datePublished': post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-    'url': `https://richwellp.github.io/misc/blog/${post.slug}`,
-    'image': post.image || 'https://richwellp.github.io/assets/photos/professional_1.jpg',
+    'url': `${SITE_URL}/misc/blog/${post.slug}`,
+    'image': post.image || `${SITE_URL}/assets/photos/professional_1.jpg`,
     'author': {
       '@type': 'Person',
       'name': post.author || 'Richwell Perez',
-      'url': 'https://richwellp.github.io'
+      'url': SITE_URL
     },
     'publisher': {
       '@type': 'Organization',
       'name': 'Richwell Perez',
       'logo': {
         '@type': 'ImageObject',
-        'url': 'https://richwellp.github.io/assets/photos/professional_1.jpg'
+        'url': `${SITE_URL}/assets/photos/professional_1.jpg`
       }
     }
   }
@@ -123,7 +125,7 @@ export function generateBlogListSchema(posts) {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     'name': 'Blog',
-    'url': 'https://richwellp.github.io/misc/blog',
+    'url': `${SITE_URL}/misc/blog`,
     'description': 'Blog posts by Richwell Perez about AI, software engineering, and technology',
     'mainEntity': {
       '@type': 'ItemList',
@@ -133,7 +135,7 @@ export function generateBlogListSchema(posts) {
         'position': index + 1,
         'headline': post.title,
         'description': post.excerpt || post.title,
-        'url': `https://richwellp.github.io/misc/blog/${post.slug}`,
+        'url': `${SITE_URL}/misc/blog/${post.slug}`,
         'datePublished': post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         'author': {
           '@type': 'Person',
@@ -161,7 +163,7 @@ export function generateBreadcrumbSchema(breadcrumbs) {
       '@type': 'ListItem',
       'position': index + 1,
       'name': item.name,
-      'item': `https://richwellp.github.io${item.path}`
+      'item': `${SITE_URL}${item.path}`
     }))
   }
 }
@@ -175,7 +177,7 @@ export function generateWorkExperienceSchema() {
     '@type': 'Person',
     'name': 'Richwell Cyrille Santos Perez',
     'jobTitle': 'AI Engineer',
-    'url': 'https://richwellp.github.io/experience',
+    'url': `${SITE_URL}/experience`,
     'hasOccupation': [
       {
         '@type': 'Occupation',
@@ -214,7 +216,7 @@ export function generateProjectsListSchema(projects) {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     'name': 'Projects',
-    'url': 'https://richwellp.github.io/projects',
+    'url': `${SITE_URL}/projects`,
     'description': 'Portfolio projects by Richwell Perez',
     'creator': {
       '@type': 'Person',

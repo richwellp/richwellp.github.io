@@ -65,7 +65,7 @@
             <template v-if="message.type === 'assistant'">
               <div
                 class="message-content markdown-body"
-                v-html="message.isStreaming ? sanitizeChatMessage(message.content) : renderMarkdown(message.content)"
+                v-html="renderMarkdown(message.content)"
               ></div>
               <span v-if="message.isStreaming" class="typing-cursor">▋</span>
             </template>
@@ -196,7 +196,7 @@
 import { ref, watch, nextTick, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useChatAssistant } from '../composables/useChatAssistant'
-import { sanitizeChatMessage } from '../composables/useSanitizer'
+import { sanitizeHtml } from '../composables/useSanitizer'
 import MarkdownIt from 'markdown-it'
 
 // Initialize markdown-it with safe defaults
@@ -274,7 +274,10 @@ const renderMarkdown = (content) => {
   if (!content) return ''
   const rendered = md.render(content)
   // Sanitize output to prevent XSS attacks
-  return sanitizeChatMessage(rendered)
+  return sanitizeHtml(rendered, {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'a', 'code', 'pre', 'ul', 'ol', 'li', 'blockquote'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class']  // Allow class for link styling
+  })
 }
 
 // Copy message content to clipboard (with fallback for older browsers)

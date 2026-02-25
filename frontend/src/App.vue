@@ -586,8 +586,6 @@ main {
   max-height: 400px;
   z-index: 1000;
   min-width: 250px;
-  /* DEBUG: Temporary bright border to confirm visibility */
-  border: 2px solid var(--accent-primary);
 }
 
 .search-results::-webkit-scrollbar {

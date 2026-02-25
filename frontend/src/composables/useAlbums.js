@@ -3,21 +3,18 @@
  */
 import { ref } from 'vue'
 import { API_ENDPOINTS } from '../config/api'
+import { useAsyncRequest } from './useAsyncRequest'
 
 export function useAlbums() {
   const albums = ref([])
-  const loading = ref(false)
-  const error = ref(null)
+  const { loading, error, execute } = useAsyncRequest()
 
   /**
    * Fetch all published albums
    * @returns {Promise<Array>} Array of albums
    */
   async function fetchAlbums() {
-    loading.value = true
-    error.value = null
-
-    try {
+    return await execute(async () => {
       const response = await fetch(API_ENDPOINTS.albums, {
         method: 'GET',
         headers: {
@@ -32,13 +29,10 @@ export function useAlbums() {
       const data = await response.json()
       albums.value = data.albums || []
       return albums.value
-    } catch (err) {
+    }).catch(err => {
       console.error('Error fetching albums:', err)
-      error.value = err.message
       throw err
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
   /**
@@ -47,10 +41,7 @@ export function useAlbums() {
    * @returns {Promise<Object>} Album with photos
    */
   async function fetchAlbumBySlug(slug) {
-    loading.value = true
-    error.value = null
-
-    try {
+    return await execute(async () => {
       const response = await fetch(API_ENDPOINTS.album(slug), {
         method: 'GET',
         headers: {
@@ -67,13 +58,10 @@ export function useAlbums() {
 
       const data = await response.json()
       return data
-    } catch (err) {
+    }).catch(err => {
       console.error(`Error fetching album ${slug}:`, err)
-      error.value = err.message
       throw err
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
   return {
