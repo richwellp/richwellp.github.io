@@ -702,36 +702,33 @@ watch(isOpen, async (newValue) => {
   padding: 0;
 }
 
-/* Style links in all assistant messages (including during streaming) */
-/* Using !important to ensure link color always overrides general text color */
+/* Style links in all assistant messages - match About page styling */
 .chat-message.assistant .message-content a {
-  color: var(--link-color) !important; /* Uses theme-specific link color */
-  text-decoration: underline;
-  font-weight: 500;
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 .chat-message.assistant .message-content a:hover {
-  color: var(--link-hover) !important; /* Uses theme-specific hover color */
+  color: var(--link-hover);
   text-decoration: underline;
-  text-decoration-thickness: 2px;
 }
 
 /* Also apply to markdown-body for additional coverage */
 .markdown-body a {
-  color: var(--link-color) !important;
-  text-decoration: underline;
-  font-weight: 500;
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 .markdown-body a:hover {
-  color: var(--link-hover) !important;
+  color: var(--link-hover);
   text-decoration: underline;
-  text-decoration-thickness: 2px;
 }
 
-/* Ensure links in markdown-rendered assistant messages are bright */
+/* Ensure links in markdown-rendered assistant messages use theme colors */
 .chat-message.assistant .message-content.markdown-body a {
-  color: var(--link-color) !important;
+  color: var(--link-color);
 }
 
 .markdown-body strong {

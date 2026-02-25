@@ -182,12 +182,12 @@ onMounted(() => {
   fetchPosts()
   fetchAlbums()
 
-  // Load ClustrMaps 3D widget (no lazy loading)
+  // Load ClustrMaps 3D globe widget (no lazy loading)
   if (mapContainer.value) {
     const script = document.createElement('script')
     script.type = 'text/javascript'
-    script.id = 'clustrmaps'
-    script.src = '//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a'
+    script.id = 'clstr_globe'
+    script.src = '//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
     mapContainer.value.appendChild(script)
   }
 })
