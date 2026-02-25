@@ -7,7 +7,7 @@ const { loading, error, execute } = useAsyncRequest()
 
 export function useBlog() {
   const fetchPosts = async (options = {}) => {
-    await execute(async () => {
+    return await execute(async () => {
       const params = new URLSearchParams()
       if (options.page) params.set('page', options.page)
       if (options.per_page) params.set('per_page', options.per_page)
@@ -32,6 +32,7 @@ export function useBlog() {
     }).catch((err) => {
       console.error('Error loading blog posts:', err)
       posts.value = []
+      return { posts: [], page: 1, per_page: 10 }
     })
   }
 
