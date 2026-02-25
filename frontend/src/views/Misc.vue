@@ -142,7 +142,7 @@
         <div class="map-container">
           <!-- ClustrMaps 2D Map Widget with visitor count -->
           <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
-            <img src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=a&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff' alt='Visitor map' />
+            <img src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=600&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff' alt='Visitor map' class="visitor-map-img" />
           </a>
         </div>
       </div>
@@ -604,7 +604,6 @@ h1 {
 .map-container a {
   display: block;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 100%;
 }
 
 .map-container a:hover {
@@ -612,13 +611,16 @@ h1 {
   filter: brightness(1.05);
 }
 
-.map-container img {
+.visitor-map-img {
   max-width: 100%;
-  width: 100%;
   height: auto;
+  display: block;
   border-radius: 8px;
   box-shadow: 0 4px 12px var(--shadow);
   border: 1px solid var(--border-color);
+  image-rendering: auto;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 /* Responsive */
