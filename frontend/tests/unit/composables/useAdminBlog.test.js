@@ -27,7 +27,7 @@ describe('useAdminBlog', () => {
 
       // Verify credentials included (cookie-based auth)
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/blog/admin/posts'),
+        expect.stringContaining('/admin/blog/posts'),
         expect.objectContaining({
           credentials: 'include',
           method: 'GET'
@@ -101,7 +101,7 @@ describe('useAdminBlog', () => {
       const post = await getAdminPost('test-post')
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/blog/admin/posts/test-post'),
+        expect.stringContaining('/admin/blog/posts/test-post'),
         expect.objectContaining({
           credentials: 'include'
         })
@@ -141,7 +141,7 @@ describe('useAdminBlog', () => {
       const result = await createPost(postData)
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/blog/posts'),
+        expect.stringContaining('/admin/blog/posts'),
         expect.objectContaining({
           method: 'POST',
           credentials: 'include',
@@ -177,7 +177,7 @@ describe('useAdminBlog', () => {
       await updatePost('test-post', updateData)
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/blog/posts/test-post'),
+        expect.stringContaining('/admin/blog/posts/test-post'),
         expect.objectContaining({
           method: 'PUT',
           credentials: 'include',
@@ -198,7 +198,7 @@ describe('useAdminBlog', () => {
       const result = await deletePost('test-post')
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/blog/posts/test-post'),
+        expect.stringContaining('/admin/blog/posts/test-post'),
         expect.objectContaining({
           method: 'DELETE',
           credentials: 'include'

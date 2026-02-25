@@ -94,26 +94,3 @@ def verify_auth():
         'method': status['method'],
         'message': 'Authentication valid'
     })
-
-
-@auth_bp.route('/auth/debug', methods=['GET'])
-def debug_auth():
-    """
-    GET /auth/debug
-
-    Debug endpoint to check if admin key is configured.
-    REMOVE THIS IN PRODUCTION!
-
-    Returns:
-        200: Configuration status
-    """
-    from auth import ADMIN_KEY, IS_PRODUCTION
-    import os
-
-    return jsonify({
-        'admin_key_configured': ADMIN_KEY is not None and len(ADMIN_KEY) > 0,
-        'admin_key_length': len(ADMIN_KEY) if ADMIN_KEY else 0,
-        'is_production': IS_PRODUCTION,
-        'flask_env': os.getenv('FLASK_ENV', 'not set'),
-        'vercel_env': os.getenv('VERCEL_ENV', 'not set')
-    })

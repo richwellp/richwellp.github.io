@@ -6,6 +6,7 @@ from functools import wraps
 from flask import request, jsonify, make_response
 from datetime import datetime, timedelta
 import os
+import secrets
 
 ADMIN_KEY = os.getenv('BLOG_ADMIN_KEY')
 COOKIE_NAME = 'admin_session'
@@ -26,13 +27,15 @@ def require_admin(f):
     def decorated(*args, **kwargs):
         # Try cookie-based auth first (more secure)
         cookie_token = request.cookies.get(COOKIE_NAME)
-        if cookie_token and cookie_token == ADMIN_KEY:
+        if cookie_token and ADMIN_KEY and secrets.compare_digest(cookie_token, ADMIN_KEY):
             return f(*args, **kwargs)
 
         # Fall back to header-based auth (legacy)
         auth = request.headers.get('Authorization', '')
-        if auth.startswith('Bearer ') and auth[7:] == ADMIN_KEY:
-            return f(*args, **kwargs)
+        if auth.startswith('Bearer ') and ADMIN_KEY:
+            token = auth[7:]
+            if secrets.compare_digest(token, ADMIN_KEY):
+                return f(*args, **kwargs)
 
         return jsonify(error='Unauthorized'), 401
 
@@ -97,6 +100,7 @@ def clear_admin_cookie_response(data=None, status=200):
 def verify_admin_key(key):
     """
     Verify if the provided key matches the admin key.
+    Uses constant-time comparison to prevent timing attacks.
 
     Args:
         key: Admin key to verify
@@ -107,7 +111,8 @@ def verify_admin_key(key):
     if not key or not ADMIN_KEY:
         return False
 
-    return key.strip() == ADMIN_KEY
+    # Use secrets.compare_digest for constant-time comparison (prevents timing attacks)
+    return secrets.compare_digest(key.strip(), ADMIN_KEY)
 
 
 def get_auth_status():
@@ -119,7 +124,7 @@ def get_auth_status():
     """
     # Check cookie first
     cookie_token = request.cookies.get(COOKIE_NAME)
-    if cookie_token and cookie_token == ADMIN_KEY:
+    if cookie_token and ADMIN_KEY and secrets.compare_digest(cookie_token, ADMIN_KEY):
         return {
             'authenticated': True,
             'method': 'cookie',
@@ -128,12 +133,14 @@ def get_auth_status():
 
     # Check header
     auth = request.headers.get('Authorization', '')
-    if auth.startswith('Bearer ') and auth[7:] == ADMIN_KEY:
-        return {
-            'authenticated': True,
-            'method': 'bearer',
-            'expires_in': None  # No expiration for bearer tokens
-        }
+    if auth.startswith('Bearer ') and ADMIN_KEY:
+        token = auth[7:]
+        if secrets.compare_digest(token, ADMIN_KEY):
+            return {
+                'authenticated': True,
+                'method': 'bearer',
+                'expires_in': None  # No expiration for bearer tokens
+            }
 
     return {
         'authenticated': False,
