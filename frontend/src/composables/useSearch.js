@@ -192,13 +192,13 @@ async function searchPages() {
 
   // Search projects
   projects.value.forEach(project => {
-    const titleMatch = project.title?.toLowerCase().includes(query)
+    const titleMatch = (project.name || project.title)?.toLowerCase().includes(query)
     const descMatch = project.description?.toLowerCase().includes(query)
     const techMatch = project.technologies?.some(tech => tech.toLowerCase().includes(query))
 
     if (titleMatch || descMatch || techMatch) {
       results.push({
-        title: project.title,
+        title: project.name || project.title,
         subtitle: project.description?.substring(0, 80) + '...' || '',
         path: '/projects',
         icon: '🚀',
@@ -208,19 +208,25 @@ async function searchPages() {
     }
   })
 
-  // Search skills
-  skills.value.forEach(skill => {
-    if (skill.name?.toLowerCase().includes(query)) {
-      results.push({
-        title: skill.name,
-        subtitle: `Skill: ${skill.category || 'General'}`,
-        path: '/',
-        icon: '⚡',
-        type: 'skill',
-        relevance: 2
-      })
-    }
-  })
+  // Search skills (flatten object structure)
+  if (skills.value && typeof skills.value === 'object') {
+    Object.entries(skills.value).forEach(([category, skillList]) => {
+      if (Array.isArray(skillList)) {
+        skillList.forEach(skillName => {
+          if (skillName.toLowerCase().includes(query)) {
+            results.push({
+              title: skillName,
+              subtitle: `Skill: ${category.replace(/_/g, ' ')}`,
+              path: '/',
+              icon: '⚡',
+              type: 'skill',
+              relevance: 2
+            })
+          }
+        })
+      }
+    })
+  }
 
   // Sort by relevance
   searchResults.value = results.sort((a, b) => b.relevance - a.relevance).slice(0, 20)
