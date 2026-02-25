@@ -140,9 +140,9 @@
           Thanks for visiting! See where other visitors have connected from around the world.
         </p>
         <div class="map-container">
-          <!-- ClustrMaps 2D Map Widget with visitor count -->
+          <!-- Simple ClustrMaps image - clean and reliable -->
           <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
-            <img src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=600&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff' alt='Visitor map' class="visitor-map-img" />
+            <img src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=a&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff' alt='Visitor map' />
           </a>
         </div>
       </div>
@@ -590,11 +590,10 @@ h1 {
   align-items: center;
   justify-content: center;
   margin-top: 2rem;
-  max-width: 900px;
+  max-width: 700px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  min-height: 250px;
   background: var(--bg-tertiary);
   padding: 2rem;
   border-radius: 12px;
@@ -603,24 +602,19 @@ h1 {
 
 .map-container a {
   display: block;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .map-container a:hover {
   transform: translateY(-2px);
-  filter: brightness(1.05);
 }
 
-.visitor-map-img {
+.map-container img {
   max-width: 100%;
   height: auto;
   display: block;
   border-radius: 8px;
   box-shadow: 0 4px 12px var(--shadow);
-  border: 1px solid var(--border-color);
-  image-rendering: auto;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
 }
 
 /* Responsive */
@@ -640,7 +634,7 @@ h1 {
   }
 
   .map-container {
-    padding: 1.5rem;
+    padding: 1rem;
     max-width: 100%;
   }
 
