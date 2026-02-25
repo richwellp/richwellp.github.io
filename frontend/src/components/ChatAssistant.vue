@@ -631,17 +631,15 @@ watch(isOpen, async (newValue) => {
 }
 
 /* CRITICAL: Links must override the text-primary color above */
-.chat-message.assistant .message-content a,
-.chat-message.assistant .message-content a[href] {
-  color: var(--link-color) !important;
+.chat-message.assistant .message-content :deep(a) {
+  color: #79c0ff !important;
   text-decoration: none !important;
   transition: color 0.3s ease;
   font-weight: 500;
 }
 
-.chat-message.assistant .message-content a:hover,
-.chat-message.assistant .message-content a[href]:hover {
-  color: var(--link-hover) !important;
+.chat-message.assistant .message-content :deep(a:hover) {
+  color: #a5d6ff !important;
   text-decoration: underline !important;
 }
 

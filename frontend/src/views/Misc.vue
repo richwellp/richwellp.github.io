@@ -136,8 +136,11 @@
     <section class="visitor-map">
       <div class="container">
         <h2 class="section-title">Visitors</h2>
-        <div class="map-container" ref="mapContainer">
-          <!-- ClustrMaps 3D Globe Widget will load here -->
+        <div class="map-container">
+          <!-- ClustrMaps 2D Map Widget with visitor count -->
+          <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
+            <img src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=a&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff' alt='Visitor map' />
+          </a>
         </div>
       </div>
     </section>
@@ -146,15 +149,13 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onMounted, computed, ref, nextTick } from 'vue'
+import { onMounted, computed } from 'vue'
 import OptimizedImage from '../components/OptimizedImage.vue'
 import { useBlog } from '../composables/useBlog'
 import { useAlbums } from '../composables/useAlbums'
 
 const { posts, loading, fetchPosts } = useBlog()
 const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
-
-const mapContainer = ref(null)
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
@@ -178,33 +179,9 @@ const isVideoCover = (url) => {
   return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower) || urlLower.includes('video/')
 }
 
-onMounted(async () => {
+onMounted(() => {
   fetchPosts()
   fetchAlbums()
-
-  // Wait for DOM to be fully ready before loading widget
-  await nextTick()
-
-  // Load ClustrMaps 3D Globe Widget
-  // Using dynamic script loading since inline scripts don't execute on Vue Router navigation
-  if (mapContainer.value) {
-    // Remove any existing globe script to prevent conflicts
-    const existingScript = document.getElementById('clstr_globe')
-    if (existingScript) {
-      existingScript.remove()
-    }
-
-    // Small delay to ensure container is fully rendered
-    setTimeout(() => {
-      if (mapContainer.value) {
-        const script = document.createElement('script')
-        script.type = 'text/javascript'
-        script.id = 'clstr_globe'
-        script.src = 'https://cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
-        mapContainer.value.appendChild(script)
-      }
-    }, 100)
-  }
 })
 </script>
 

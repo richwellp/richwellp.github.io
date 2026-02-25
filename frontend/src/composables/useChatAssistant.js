@@ -53,6 +53,8 @@ const generateDynamicCache = (professionalInfo) => {
   if (!professionalInfo) return null
 
   const currentRole = professionalInfo.experience?.find(e => e.current)
+  const allExperience = professionalInfo.experience || []
+  const allProjects = professionalInfo.projects || []
   const skills = professionalInfo.skills || {}
 
   // Group skills by category for better presentation
@@ -78,6 +80,28 @@ const generateDynamicCache = (professionalInfo) => {
     educationResponse = `Richwell holds a **${degree.degree}** from **${degree.shortName}** (${degree.dates})${degree.gpa ? `, graduating with a ${degree.gpa} GPA` : ''}.`
   }
 
+  // Build experience summary
+  let experienceResponse = ''
+  if (allExperience.length > 0) {
+    const experienceList = allExperience.slice(0, 3).map(exp =>
+      `**${exp.title}** at **${exp.company}** (${exp.dates})${exp.current ? ' - Current' : ''}`
+    ).join('\n\n')
+    experienceResponse = `Richwell's professional experience includes:\n\n${experienceList}\n\nView [Experience](/experience) for full details.`
+  } else {
+    experienceResponse = "Richwell is building his professional experience."
+  }
+
+  // Build projects summary
+  let projectsResponse = ''
+  if (allProjects.length > 0) {
+    const projectList = allProjects.slice(0, 3).map(proj =>
+      `**${proj.title}** - ${proj.shortDescription}`
+    ).join('\n\n')
+    projectsResponse = `Here are some of Richwell's projects:\n\n${projectList}\n\nView [Projects](/projects) for complete list.`
+  } else {
+    projectsResponse = "Richwell has various projects showcased on his portfolio."
+  }
+
   return {
     // Contact information - friendly and helpful
     "contact": `You can reach Richwell through:\n\n📧 **Email:** ${professionalInfo.personal?.email}\n🔗 **LinkedIn:** ${professionalInfo.personal?.linkedIn}\n\nFeel free to reach out!`,
@@ -88,6 +112,12 @@ const generateDynamicCache = (professionalInfo) => {
     "current role": currentRole
       ? `Richwell is currently an **${currentRole.title}** at **${currentRole.company}** (${currentRole.dates}).\n\n${currentRole.description}`
       : "Richwell is currently seeking new opportunities.",
+
+    // Work experience summary
+    "experience": experienceResponse,
+
+    // Projects summary
+    "projects": projectsResponse,
 
     // Skills - organized by category
     "skills": `Richwell has expertise across several areas:\n\n${skillsByCategory.join('\n')}\n\nThese skills span full-stack development, AI/ML engineering, and cloud infrastructure.`,
@@ -106,6 +136,18 @@ const findCachedResponse = (userMessage) => {
   if (!_cacheGenerated || !_dynamicCache) return null
 
   const query = userMessage.toLowerCase().trim()
+
+  // FAST PATH: Quick action button messages - always use cache for instant responses
+  const quickButtonMatches = {
+    "what's richwell's work experience?": "experience",
+    "what technical skills does richwell have?": "skills",
+    "tell me about richwell's projects": "projects",
+    "how can i contact richwell?": "contact"
+  }
+
+  if (quickButtonMatches[query]) {
+    return _dynamicCache[quickButtonMatches[query]]
+  }
 
   // Exclude complex questions (multiple clauses, summaries, analysis, comparisons)
   const complexPatterns = [
@@ -153,6 +195,18 @@ const findCachedResponse = (userMessage) => {
   if (/^(what('| i)s )?((your|his|the) )?current (role|job|position)[?]?$/i.test(query) ||
       /^what (do|does) (you|he) do( now)?[?]?$/i.test(query)) {
     return _dynamicCache["current role"]
+  }
+
+  // Work experience - must be asking specifically about experience/work history
+  if (/^(what('| i)s )?((your|his|the) )?work experience[?]?$/i.test(query) ||
+      /^(what('| i)s )?((your|his|the) )?experience[?]?$/i.test(query)) {
+    return _dynamicCache["experience"]
+  }
+
+  // Projects - must be asking specifically about projects
+  if (/^(what('| i)s )?((your|his|the) )?projects?[?]?$/i.test(query) ||
+      /^(show|list) (me )?(your|his|the )?projects?[?]?$/i.test(query)) {
+    return _dynamicCache["projects"]
   }
 
   return null // No simple match - use API for better response
