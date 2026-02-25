@@ -64,14 +64,33 @@ const md = new MarkdownIt({
   typographer: true
 })
 
+// Custom renderer: Convert video files from <img> to <video>
+const defaultImageRenderer = md.renderer.rules.image
+md.renderer.rules.image = (tokens, idx, options, env, self) => {
+  const token = tokens[idx]
+  const src = token.attrGet('src')
+  const alt = token.content
+
+  // Check if source is a video file
+  if (src && /\.(mp4|webm|ogg|mov)$/i.test(src)) {
+    return `<video controls style="max-width: 100%; border-radius: 8px; margin: 2rem 0;">
+      <source src="${src}" type="video/${src.split('.').pop().toLowerCase()}">
+      ${alt}
+    </video>`
+  }
+
+  // Default image rendering
+  return defaultImageRenderer(tokens, idx, options, env, self)
+}
+
 const renderedContent = computed(() => {
   if (!post.value || !post.value.content) return ''
   const rendered = md.render(post.value.content)
   // Sanitize markdown output to prevent XSS attacks
   return sanitizeHtml(rendered, {
-    // Markdown doesn't need inline styles or dangerous attributes
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id'],
-    FORBID_ATTR: ['style', 'onerror', 'onclick']
+    // Allow video attributes and safe inline styles
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id', 'controls', 'type', 'style'],
+    FORBID_ATTR: ['onerror', 'onclick']
   })
 })
 

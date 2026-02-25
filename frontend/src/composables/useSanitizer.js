@@ -14,6 +14,7 @@ const defaultConfig = {
     'p', 'br', 'hr',
     'strong', 'em', 'u', 's', 'del', 'ins',
     'a', 'img',
+    'video', 'source',  // Allow video embeds
     'ul', 'ol', 'li',
     'blockquote', 'code', 'pre',
     'table', 'thead', 'tbody', 'tr', 'th', 'td',
@@ -25,7 +26,9 @@ const defaultConfig = {
     'href', 'src', 'alt', 'title',
     'class', 'id',
     'target', 'rel',
-    'width', 'height'
+    'width', 'height',
+    'controls', 'autoplay', 'loop', 'muted', 'poster', 'preload',  // Video attributes
+    'type', 'style'  // For video and styling
   ],
 
   // Ensure links are safe

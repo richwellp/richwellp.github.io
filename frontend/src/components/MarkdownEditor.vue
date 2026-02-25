@@ -97,6 +97,25 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   return self.renderToken(tokens, idx, options)
 }
 
+// Custom renderer: Convert video files from <img> to <video>
+const defaultImageRenderer = md.renderer.rules.image
+md.renderer.rules.image = (tokens, idx, options, env, self) => {
+  const token = tokens[idx]
+  const src = token.attrGet('src')
+  const alt = token.content
+
+  // Check if source is a video file
+  if (src && /\.(mp4|webm|ogg|mov)$/i.test(src)) {
+    return `<video controls style="max-width: 100%; border-radius: 8px;">
+      <source src="${src}" type="video/${src.split('.').pop().toLowerCase()}">
+      ${alt}
+    </video>`
+  }
+
+  // Default image rendering
+  return defaultImageRenderer(tokens, idx, options, env, self)
+}
+
 // Watch for external changes
 watch(() => props.modelValue, (newValue) => {
   if (newValue !== content.value) {
