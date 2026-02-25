@@ -264,6 +264,11 @@ onMounted(() => {
   fetchPosts()
   fetchAlbums()
 })
+
+onBeforeUnmount(() => {
+  // Clean up slideshow timer
+  clearTimeout(slideTimer)
+})
 </script>
 
 <style scoped>
@@ -375,27 +380,44 @@ h1 {
   margin-bottom: 4rem;
 }
 
-.albums-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-}
-
-.album-card {
+/* Album Cover Slideshow */
+.album-slideshow {
   position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
-  text-decoration: none;
-  display: block;
-  box-shadow: 0 4px 15px var(--shadow);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-  aspect-ratio: 4 / 3;
+  box-shadow: 0 4px 20px var(--shadow);
 }
 
-.album-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 25px var(--shadow);
+.slideshow-slide {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  background: var(--bg-tertiary);
+}
+
+.slideshow-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slideshow-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 .empty-albums {
@@ -405,37 +427,15 @@ h1 {
   font-size: 1.1rem;
 }
 
-.album-image {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
 
-.album-image :deep(img),
-.album-image video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-.album-image video {
-  background: #000;
-}
-
-.album-card:hover .album-image :deep(img),
-.album-card:hover .album-image video {
-  transform: scale(1.1);
-}
-
-.album-overlay {
+/* Slideshow Overlay */
+.slideshow-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7));
   display: flex;
   align-items: flex-end;
   padding: 2rem;
@@ -443,29 +443,30 @@ h1 {
   transition: opacity 0.3s ease;
 }
 
-.album-card:hover .album-overlay {
+.slideshow-slide:hover .slideshow-overlay {
   opacity: 1;
 }
 
-.overlay-content {
+.slideshow-info {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   color: white;
 }
 
-.album-title {
-  font-size: 1.8rem;
+.slideshow-title {
+  font-size: 2rem;
   font-weight: 700;
+  margin: 0;
 }
 
-.album-subtitle {
-  font-size: 0.95rem;
+.slideshow-subtitle {
+  font-size: 1rem;
   opacity: 0.9;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
 }
 
-.view-link {
+.slideshow-link {
   font-size: 1rem;
   font-weight: 600;
   color: var(--accent-primary);
@@ -474,36 +475,68 @@ h1 {
   transition: all 0.3s ease 0.1s;
 }
 
-.album-card:hover .view-link {
+.slideshow-slide:hover .slideshow-link {
   opacity: 1;
   transform: translateY(0);
 }
 
-.album-image.placeholder {
-  background: var(--bg-tertiary);
+/* Slideshow Controls */
+.slideshow-controls {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10;
+}
+
+.control-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.placeholder-content {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  color: var(--text-secondary);
-}
-
-.placeholder-content .album-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
   color: var(--text-primary);
 }
 
-.placeholder-content .album-subtitle {
-  font-size: 1rem;
-  opacity: 0.7;
+.control-btn:hover {
+  background: white;
+  transform: scale(1.1);
 }
+
+.slideshow-dots {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.dot.active {
+  background: white;
+  transform: scale(1.3);
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
 
 /* Interests Section */
 .interests-tags {
@@ -719,21 +752,29 @@ h1 {
     margin-bottom: 2rem;
   }
 
-  .albums-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .album-slideshow {
+    aspect-ratio: 4 / 3;
   }
 
-  .album-overlay {
+  .slideshow-overlay {
     padding: 1.5rem;
   }
 
-  .album-title {
+  .slideshow-title {
     font-size: 1.5rem;
   }
 
-  .album-subtitle {
+  .slideshow-subtitle {
     font-size: 0.85rem;
+  }
+
+  .slideshow-controls {
+    bottom: 1rem;
+  }
+
+  .control-btn {
+    width: 35px;
+    height: 35px;
   }
 
   .interests-tags {
