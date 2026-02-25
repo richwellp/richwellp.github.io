@@ -137,8 +137,8 @@
       <div class="container">
         <h2 class="section-title">Visitors</h2>
         <div class="map-container">
-          <!-- ClustrMaps widget with visitor count -->
-          <script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a"></script>
+          <!-- ClustrMaps 3D Globe Widget -->
+          <script type="text/javascript" id="clstr_globe" src="//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8"></script>
         </div>
       </div>
     </section>
