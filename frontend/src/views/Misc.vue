@@ -190,35 +190,77 @@ onMounted(() => {
   fetchPosts()
   fetchAlbums()
 
-  // Load ClustrMaps 2D widget (works better in restricted mode, no reload needed)
+  // Try 3D globe first, fallback to 2D map if blocked
   if (mapContainer.value) {
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.id = 'clustrmaps'
-    script.src = '//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a'
+    let attempt3DFailed = false
 
-    // Show fallback if script fails to load or times out
-    script.onerror = () => {
-      showMapFallback.value = true
+    const try3DGlobe = () => {
+      const script3D = document.createElement('script')
+      script3D.type = 'text/javascript'
+      script3D.id = 'clstr_globe'
+      script3D.src = '//cdn.clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+
+      // If 3D fails, try 2D
+      script3D.onerror = () => {
+        if (!attempt3DFailed) {
+          attempt3DFailed = true
+          try2DMap()
+        }
+      }
+
+      // Check if 3D rendered after 3 seconds, otherwise try 2D
+      const fallbackTo2D = setTimeout(() => {
+        const has3DWidget = mapContainer.value?.querySelector('canvas, iframe, a[href*="clustrmaps"]')
+        if (!has3DWidget && !attempt3DFailed) {
+          attempt3DFailed = true
+          // Remove failed 3D script
+          const oldScript = document.getElementById('clstr_globe')
+          if (oldScript) oldScript.remove()
+          try2DMap()
+        }
+      }, 3000)
+
+      // Clear fallback timer if 3D loads successfully
+      script3D.onload = () => {
+        setTimeout(() => {
+          clearTimeout(fallbackTo2D)
+        }, 500)
+      }
+
+      mapContainer.value.appendChild(script3D)
     }
 
-    // Show fallback after 5 seconds if nothing renders
-    const fallbackTimer = setTimeout(() => {
-      // Check if the widget loaded by looking for img, canvas, iframe, or link
-      const hasWidget = mapContainer.value?.querySelector('img, canvas, iframe, a[href*="clustrmaps"]')
-      if (!hasWidget) {
+    const try2DMap = () => {
+      const script2D = document.createElement('script')
+      script2D.type = 'text/javascript'
+      script2D.id = 'clustrmaps'
+      script2D.src = '//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a'
+
+      // Only show unavailable message if 2D also fails (very rare)
+      script2D.onerror = () => {
         showMapFallback.value = true
       }
-    }, 5000)
 
-    // Clear timer if script loads successfully
-    script.onload = () => {
-      setTimeout(() => {
-        clearTimeout(fallbackTimer)
-      }, 1000)
+      // Check if 2D rendered after 5 seconds
+      const finalFallback = setTimeout(() => {
+        const has2DWidget = mapContainer.value?.querySelector('img, canvas, iframe, a[href*="clustrmaps"]')
+        if (!has2DWidget) {
+          showMapFallback.value = true
+        }
+      }, 5000)
+
+      // Clear timer if 2D loads successfully
+      script2D.onload = () => {
+        setTimeout(() => {
+          clearTimeout(finalFallback)
+        }, 500)
+      }
+
+      mapContainer.value.appendChild(script2D)
     }
 
-    mapContainer.value.appendChild(script)
+    // Start with 3D globe
+    try3DGlobe()
   }
 })
 </script>
