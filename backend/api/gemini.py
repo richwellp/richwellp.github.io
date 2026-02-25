@@ -30,8 +30,9 @@ _context_cache = {}
 # Global thread pool for timeout handling
 _executor = ThreadPoolExecutor(max_workers=10)
 
-# API timeout configuration (30 seconds max for Gemini to respond)
-API_TIMEOUT = 30
+# API timeout configuration (5 minutes to allow slow but working responses)
+# Note: Gemini free tier can take 3-5 minutes during high load but still returns good answers
+API_TIMEOUT = 300  # 5 minutes = 300 seconds
 
 def build_system_prompt(site_context=None):
     """
