@@ -82,40 +82,61 @@ const generateDynamicCache = (professionalInfo) => {
   }
 }
 
-// Find cached response using fuzzy matching
+// Find cached response using conservative matching
+// Only matches very simple, direct questions - complex questions go to API
 const findCachedResponse = (userMessage) => {
   if (!_cacheGenerated || !_dynamicCache) return null
 
   const query = userMessage.toLowerCase().trim()
 
-  // Direct keyword matches
-  for (const [keyword, response] of Object.entries(_dynamicCache)) {
-    if (query.includes(keyword)) {
-      return response
+  // Exclude complex questions (multiple clauses, summaries, analysis, comparisons)
+  const complexPatterns = [
+    /\band\b.*\band\b/,  // Multiple "and" (e.g., "skills and experience")
+    /summary|summarize|tell me about|describe|explain|why|how/i,  // Requests for summaries/explanations
+    /years of|how many|how long/i,  // Calculations/counts
+    /professional summary|career|background/i,  // Complex career questions
+    /compare|difference|versus|vs/i,  // Comparisons
+    /should|would|recommend/i,  // Advice/recommendations
+  ]
+
+  for (const pattern of complexPatterns) {
+    if (pattern.test(query)) {
+      return null // Complex question - use API
     }
   }
 
-  // Pattern matching for common question variations
-  if (/email|contact|reach/.test(query)) {
+  // Very specific patterns for simple, direct questions only
+  // Contact info - must be asking specifically for email/contact
+  if (/^(what('| i)s )?((your|his|the) )?(email|contact)(\s*(address|info))?[?]?$/i.test(query) ||
+      /^how (can|do) (i|we) (contact|reach) (you|him)[?]?$/i.test(query)) {
     return _dynamicCache["contact"]
   }
-  if (/current (role|job|position)|what (does|do) (he|you) do/.test(query)) {
-    return _dynamicCache["current role"]
-  }
-  if (/skills?|technologies|tech stack/.test(query)) {
+
+  // Skills - must be asking specifically for skills/technologies
+  if (/^(what('| i)s )?((your|his|the) )?(skills?|technologies|tech stack)[?]?$/i.test(query) ||
+      /^what (skills?|technologies) (do|does) (you|he) (have|know|use)[?]?$/i.test(query)) {
     return _dynamicCache["skills"]
   }
-  if (/education|degree|university|college/.test(query)) {
-    return _dynamicCache["education"]
-  }
-  if (/where|location|based/.test(query)) {
+
+  // Location - must be asking specifically for location
+  if (/^(where|location)[?]?$/i.test(query) ||
+      /^where (is|are) (you|he)( located| based)?[?]?$/i.test(query)) {
     return _dynamicCache["location"]
   }
-  if (/experience|work history|background/.test(query)) {
-    return _dynamicCache["experience"]
+
+  // Education - must be asking specifically for education/degree
+  if (/^(what('| i)s )?((your|his|the) )?(education|degree)[?]?$/i.test(query) ||
+      /^where did (you|he) (study|graduate|go to school)[?]?$/i.test(query)) {
+    return _dynamicCache["education"]
   }
 
-  return null // No match - use API
+  // Current role - must be asking specifically about current job
+  if (/^(what('| i)s )?((your|his|the) )?current (role|job|position)[?]?$/i.test(query) ||
+      /^what (do|does) (you|he) do( now)?[?]?$/i.test(query)) {
+    return _dynamicCache["current role"]
+  }
+
+  return null // No simple match - use API for better response
 }
 
 // Enhanced preloadContext with cache generation
