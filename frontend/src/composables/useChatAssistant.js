@@ -126,7 +126,8 @@ const findCachedResponse = (userMessage) => {
   // Very specific patterns for simple, direct questions only
   // Contact info - must be asking specifically for email/contact
   if (/^(what('| i)s )?((your|his|the) )?(email|contact)(\s*(address|info))?[?]?$/i.test(query) ||
-      /^how (can|do) (i|we) (contact|reach) (you|him)[?]?$/i.test(query)) {
+      /^how (can|do) (i|we) (contact|reach) (you|him)[?]?$/i.test(query) ||
+      /^contact$/i.test(query)) {  // Also match just "contact"
     return _dynamicCache["contact"]
   }
 
@@ -308,11 +309,17 @@ export function useChatAssistant() {
 
       // Add cached response with typing animation and sources
       const responseId = generateUUID()
+      // Determine appropriate source based on query type
+      let sources = ['profile']
+      if (/contact|email/i.test(userInput)) {
+        sources = ['Contact']  // Contact page for contact-related queries
+      }
+
       messages.value.push({
         id: responseId,
         type: 'assistant',
         content: '',
-        sources: ['profile'],  // Indicate this came from cached profile data
+        sources: sources,
         timestamp: new Date(),
         isStreaming: true
       })

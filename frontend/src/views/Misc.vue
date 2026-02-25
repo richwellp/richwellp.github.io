@@ -137,10 +137,8 @@
       <div class="container">
         <h2 class="section-title">Visitors</h2>
         <div class="map-container">
-          <!-- ClustrMaps 2D widget - simple embed -->
-          <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
-            <img src='//clustrmaps.com/map_v2.png?cl=ffffff&w=a&t=n&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8' />
-          </a>
+          <!-- ClustrMaps widget with visitor count -->
+          <script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff&w=a"></script>
         </div>
       </div>
     </section>

@@ -63,13 +63,11 @@
           <div class="message-wrapper">
             <div
               v-if="message.type === 'assistant'"
-              class="message-content"
-              :class="{ 'markdown-body': !message.isStreaming }"
+              class="message-content markdown-body"
+              v-html="message.isStreaming ? sanitizeChatMessage(message.content) : renderMarkdown(message.content)"
             >
-              <span v-if="message.isStreaming" v-html="sanitizeChatMessage(message.content)"></span>
-              <span v-else v-html="renderMarkdown(message.content)"></span>
-              <span v-if="message.isStreaming" class="typing-cursor">▋</span>
             </div>
+            <span v-if="message.isStreaming && message.type === 'assistant'" class="typing-cursor">▋</span>
             <div v-else class="message-content">{{ message.content }}</div>
 
             <!-- Copy button for assistant messages -->
@@ -109,6 +107,7 @@
                 source === 'experience' ? '💼 Experience' :
                 source === 'projects' ? '🚀 Projects' :
                 source === 'blog' ? '📝 Blog' :
+                source === 'Contact' ? '✉️ Contact' :
                 source
               }}
             </router-link>
@@ -224,6 +223,23 @@ const {
   cancelRequest
 } = useChatAssistant()
 
+// Defensive: Watch for completed assistant messages and force clear isTyping
+watch(messages, (newMessages) => {
+  if (newMessages.length > 0) {
+    const lastMessage = newMessages[newMessages.length - 1]
+    // If last message is from assistant and not streaming, ensure typing is off
+    if (lastMessage.type === 'assistant' && !lastMessage.isStreaming) {
+      // Small delay to ensure any pending state updates complete
+      setTimeout(() => {
+        if (isTyping.value) {
+          console.warn('[Chat UI] Force clearing stuck isTyping indicator')
+          isTyping.value = false
+        }
+      }, 100)
+    }
+  }
+}, { deep: true })
+
 const userInput = ref('')
 const messagesContainer = ref(null)
 const inputField = ref(null)
@@ -302,6 +318,8 @@ const getSourceLink = (source) => {
       return '/projects'
     case 'blog':
       return '/misc/blog'
+    case 'Contact':
+      return '/contact'
     default:
       return '/'
   }
@@ -703,36 +721,22 @@ watch(isOpen, async (newValue) => {
 }
 
 /* Style links in all assistant messages - match About page styling exactly */
-.chat-message.assistant .message-content a {
-  color: var(--link-color) !important; /* Force link color to match AboutMe - #79c0ff in dark, #0969da in light */
-  text-decoration: none;
+.chat-message.assistant .message-content a,
+.chat-message.assistant .message-content a[href],
+.chat-message.assistant .message-content.markdown-body a,
+.chat-message.assistant .message-content.markdown-body a[href] {
+  color: var(--link-color) !important; /* #79c0ff in dark, #0969da in light */
+  text-decoration: none !important;
   transition: color 0.3s ease;
+  font-weight: 500;
 }
 
-.chat-message.assistant .message-content a:hover {
-  color: var(--link-hover) !important; /* Force hover color to match AboutMe - #a5d6ff in dark, #0550ae in light */
-  text-decoration: underline;
-}
-
-/* Also apply to markdown-body for additional coverage */
-.markdown-body a {
-  color: var(--link-color) !important;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.markdown-body a:hover {
-  color: var(--link-hover) !important;
-  text-decoration: underline;
-}
-
-/* Ensure links in markdown-rendered assistant messages use theme colors */
-.chat-message.assistant .message-content.markdown-body a {
-  color: var(--link-color) !important;
-}
-
-.chat-message.assistant .message-content.markdown-body a:hover {
-  color: var(--link-hover) !important;
+.chat-message.assistant .message-content a:hover,
+.chat-message.assistant .message-content a[href]:hover,
+.chat-message.assistant .message-content.markdown-body a:hover,
+.chat-message.assistant .message-content.markdown-body a[href]:hover {
+  color: var(--link-hover) !important; /* #a5d6ff in dark, #0550ae in light */
+  text-decoration: underline !important;
 }
 
 .markdown-body strong {
