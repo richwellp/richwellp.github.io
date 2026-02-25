@@ -3,35 +3,46 @@
     :to="`/misc/albums/${album.slug}`"
     class="album-card"
   >
-    <div v-if="currentPhoto" class="album-cover">
-      <!-- Photo -->
-      <img
-        v-if="!isVideoPhoto(currentPhoto)"
-        :src="currentPhoto.src"
-        :alt="currentPhoto.caption || album.name"
-        class="cover-media"
-      />
-      <!-- Video -->
-      <video
-        v-else
-        :src="currentPhoto.src"
-        muted
-        autoplay
-        loop
-        playsinline
-        preload="metadata"
-        class="cover-media"
-        @ended="nextPhoto"
-      />
-    </div>
-
-    <!-- Fallback to cover_photo if no photos loaded -->
-    <div v-else-if="album.cover_photo" class="album-cover">
-      <img
-        :src="album.cover_photo"
-        :alt="`${album.name} Album`"
-        class="cover-media"
-      />
+    <!-- Slideshow with fade transitions -->
+    <div class="album-cover">
+      <TransitionGroup name="fade-slide">
+        <div
+          v-if="currentPhoto"
+          :key="currentPhotoIndex"
+          class="slide-item"
+        >
+          <!-- Photo -->
+          <img
+            v-if="!isVideoPhoto(currentPhoto)"
+            :src="currentPhoto.src"
+            :alt="currentPhoto.caption || album.name"
+            class="cover-media"
+          />
+          <!-- Video -->
+          <video
+            v-else
+            :src="currentPhoto.src"
+            muted
+            autoplay
+            playsinline
+            preload="metadata"
+            class="cover-media"
+            @ended="nextPhoto"
+          />
+        </div>
+        <!-- Fallback to cover_photo if no photos loaded -->
+        <div
+          v-else-if="album.cover_photo"
+          key="fallback"
+          class="slide-item"
+        >
+          <img
+            :src="album.cover_photo"
+            :alt="`${album.name} Album`"
+            class="cover-media"
+          />
+        </div>
+      </TransitionGroup>
     </div>
 
     <!-- Album Info Overlay -->
@@ -89,17 +100,22 @@ const loadPhotos = async () => {
         : Object.values(fullAlbum.photos).flat()
 
       photos.value = albumPhotos
+      console.log(`[AlbumSlideshow] Loaded ${albumPhotos.length} photos for ${props.album.name}`)
       startPhotoTimer()
+    } else {
+      console.warn(`[AlbumSlideshow] No photos found for ${props.album.name}`)
     }
   } catch (error) {
-    console.error(`Failed to load photos for album ${props.album.slug}:`, error)
+    console.error(`[AlbumSlideshow] Failed to load photos for album ${props.album.slug}:`, error)
   }
 }
 
 // Move to next photo
 const nextPhoto = () => {
   if (photos.value.length === 0) return
-  currentPhotoIndex.value = (currentPhotoIndex.value + 1) % photos.value.length
+  const nextIndex = (currentPhotoIndex.value + 1) % photos.value.length
+  console.log(`[AlbumSlideshow] ${props.album.name}: ${currentPhotoIndex.value} → ${nextIndex} (${photos.value.length} total)`)
+  currentPhotoIndex.value = nextIndex
 }
 
 // Start timer for photo transitions (videos handle themselves)
@@ -159,6 +175,14 @@ import { computed } from 'vue'
   overflow: hidden;
 }
 
+.slide-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .cover-media {
   width: 100%;
   height: 100%;
@@ -168,6 +192,31 @@ import { computed } from 'vue'
 
 .album-card:hover .cover-media {
   transform: scale(1.1);
+}
+
+/* Fade transition animations */
+.fade-slide-enter-active {
+  transition: opacity 0.8s ease;
+}
+
+.fade-slide-leave-active {
+  transition: opacity 0.8s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+}
+
+.fade-slide-enter-to {
+  opacity: 1;
+}
+
+.fade-slide-leave-from {
+  opacity: 1;
 }
 
 .album-overlay {

@@ -20,44 +20,13 @@
         <p>Error loading albums: {{ error }}</p>
       </div>
 
-      <!-- Albums Grid -->
+      <!-- Albums Grid with Slideshows -->
       <div v-if="!loading && !error && albums.length > 0" class="albums-grid">
-        <router-link
+        <AlbumCoverSlideshow
           v-for="album in albums"
           :key="album.id"
-          :to="getAlbumRoute(album.slug)"
-          :class="['album-card', { 'coming-soon': !album.published }]"
-        >
-          <div v-if="album.cover_photo" class="album-image">
-            <img
-              v-if="!isVideoCover(album.cover_photo)"
-              :src="album.cover_photo"
-              :alt="`${album.name} Album`"
-              loading="lazy"
-              decoding="async"
-            />
-            <video
-              v-else
-              :src="album.cover_photo"
-              muted
-              autoplay
-              loop
-              playsinline
-              preload="metadata"
-            />
-          </div>
-          <div v-else class="album-image placeholder">
-            <div class="placeholder-text">No cover photo</div>
-          </div>
-          <div class="album-content">
-            <div class="album-header">
-              <h2>{{ album.name }}</h2>
-            </div>
-            <p class="album-description">{{ album.subtitle }}</p>
-            <span v-if="album.published" class="view-more">View Album →</span>
-            <span v-else class="coming-soon-badge">Coming Soon</span>
-          </div>
-        </router-link>
+          :album="album"
+        />
       </div>
 
       <!-- Empty State (No Albums) -->
@@ -70,23 +39,10 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import AlbumCoverSlideshow from '../components/AlbumCoverSlideshow.vue'
 import { useAlbums } from '../composables/useAlbums'
 
 const { albums, loading, error, fetchAlbums } = useAlbums()
-
-// All albums use dynamic route: /misc/albums/:slug
-function getAlbumRoute(slug) {
-  return `/misc/albums/${slug}`
-}
-
-// Check if cover photo URL is a video
-const isVideoCover = (url) => {
-  if (!url) return false
-  const urlLower = url.toLowerCase()
-  // Check for video extensions or video content-type in URL
-  return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower) || urlLower.includes('video/')
-}
 
 onMounted(async () => {
   try {
@@ -286,10 +242,7 @@ h1 {
 
   .albums-grid {
     grid-template-columns: 1fr;
-  }
-
-  .album-image {
-    height: 200px;
+    gap: 1.5rem;
   }
 }
 </style>
