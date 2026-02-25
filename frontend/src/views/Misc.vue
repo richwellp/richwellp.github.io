@@ -78,69 +78,13 @@
             <p>Loading albums...</p>
           </div>
 
-          <!-- Album Cover Slideshow -->
-          <div v-else-if="featuredAlbums.length > 0" class="album-slideshow">
-            <router-link
-              v-if="currentAlbum"
-              :to="`/misc/albums/${currentAlbum.slug}`"
-              class="slideshow-slide"
-            >
-              <!-- Photo Cover -->
-              <img
-                v-if="currentAlbum.cover_photo && !isVideoCover(currentAlbum.cover_photo)"
-                :src="currentAlbum.cover_photo"
-                :alt="`${currentAlbum.name} Album`"
-                class="slideshow-media"
-              />
-              <!-- Video Cover -->
-              <video
-                v-else-if="currentAlbum.cover_photo && isVideoCover(currentAlbum.cover_photo)"
-                ref="videoPlayer"
-                :src="currentAlbum.cover_photo"
-                muted
-                autoplay
-                playsinline
-                preload="metadata"
-                class="slideshow-media"
-                @ended="nextSlide"
-              />
-              <!-- Placeholder if no cover -->
-              <div v-else class="slideshow-placeholder">
-                <span class="placeholder-text">{{ currentAlbum.name }}</span>
-              </div>
-
-              <!-- Album Info Overlay -->
-              <div class="slideshow-overlay">
-                <div class="slideshow-info">
-                  <h3 class="slideshow-title">{{ currentAlbum.name }}</h3>
-                  <p class="slideshow-subtitle">{{ currentAlbum.subtitle }}</p>
-                  <span class="slideshow-link">View Album →</span>
-                </div>
-              </div>
-            </router-link>
-
-            <!-- Slideshow Controls -->
-            <div class="slideshow-controls">
-              <button @click="prevSlide" class="control-btn" aria-label="Previous album">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
-              <div class="slideshow-dots">
-                <button
-                  v-for="(album, index) in featuredAlbums"
-                  :key="album.id"
-                  @click="goToSlide(index)"
-                  :class="['dot', { active: currentSlideIndex === index }]"
-                  :aria-label="`Go to ${album.name}`"
-                ></button>
-              </div>
-              <button @click="nextSlide" class="control-btn" aria-label="Next album">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            </div>
+          <!-- Album Cards with Individual Slideshows -->
+          <div v-else-if="featuredAlbums.length > 0" class="albums-grid">
+            <AlbumCoverSlideshow
+              v-for="album in featuredAlbums"
+              :key="album.id"
+              :album="album"
+            />
           </div>
 
           <!-- Empty State -->
@@ -172,8 +116,9 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onMounted, onBeforeUnmount, computed, ref, watch } from 'vue'
+import { onMounted, computed } from 'vue'
 import OptimizedImage from '../components/OptimizedImage.vue'
+import AlbumCoverSlideshow from '../components/AlbumCoverSlideshow.vue'
 import { useBlog } from '../composables/useBlog'
 import { useAlbums } from '../composables/useAlbums'
 
@@ -182,64 +127,6 @@ const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
-
-// Album slideshow state
-const currentSlideIndex = ref(0)
-const videoPlayer = ref(null)
-let slideTimer = null
-
-const PHOTO_DURATION = 5000 // 5 seconds for photos
-
-// Current album being displayed
-const currentAlbum = computed(() => {
-  if (featuredAlbums.value.length === 0) return null
-  return featuredAlbums.value[currentSlideIndex.value]
-})
-
-// Navigate to next slide
-const nextSlide = () => {
-  if (featuredAlbums.value.length === 0) return
-  currentSlideIndex.value = (currentSlideIndex.value + 1) % featuredAlbums.value.length
-}
-
-// Navigate to previous slide
-const prevSlide = () => {
-  if (featuredAlbums.value.length === 0) return
-  currentSlideIndex.value = currentSlideIndex.value === 0
-    ? featuredAlbums.value.length - 1
-    : currentSlideIndex.value - 1
-}
-
-// Go to specific slide
-const goToSlide = (index) => {
-  currentSlideIndex.value = index
-}
-
-// Start timer for photo slides (videos handle themselves with @ended)
-const startPhotoTimer = () => {
-  clearTimeout(slideTimer)
-
-  const album = currentAlbum.value
-  if (!album || !album.cover_photo || isVideoCover(album.cover_photo)) {
-    return // Don't set timer for videos or missing covers
-  }
-
-  slideTimer = setTimeout(() => {
-    nextSlide()
-  }, PHOTO_DURATION)
-}
-
-// Watch for slide changes to reset timer
-watch(currentSlideIndex, () => {
-  startPhotoTimer()
-}, { immediate: true })
-
-// Watch for albums loading
-watch(featuredAlbums, (newAlbums) => {
-  if (newAlbums.length > 0) {
-    startPhotoTimer()
-  }
-})
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -252,22 +139,10 @@ const formatDate = (date) => {
   }
 }
 
-// Check if cover photo URL is a video
-const isVideoCover = (url) => {
-  if (!url) return false
-  const urlLower = url.toLowerCase()
-  // Check for video extensions or video content-type in URL
-  return /\.(mp4|mov|webm|avi|mkv)(\?|#|$)/i.test(urlLower) || urlLower.includes('video/')
-}
 
 onMounted(() => {
   fetchPosts()
   fetchAlbums()
-})
-
-onBeforeUnmount(() => {
-  // Clean up slideshow timer
-  clearTimeout(slideTimer)
 })
 </script>
 
@@ -380,44 +255,11 @@ h1 {
   margin-bottom: 4rem;
 }
 
-/* Album Cover Slideshow */
-.album-slideshow {
-  position: relative;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  aspect-ratio: 16 / 9;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px var(--shadow);
-}
-
-.slideshow-slide {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  text-decoration: none;
-  background: var(--bg-tertiary);
-}
-
-.slideshow-media {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.slideshow-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  font-size: 2rem;
-  font-weight: 600;
+/* Album Cards Grid */
+.albums-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
 }
 
 .empty-albums {
@@ -427,115 +269,6 @@ h1 {
   font-size: 1.1rem;
 }
 
-
-/* Slideshow Overlay */
-.slideshow-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7));
-  display: flex;
-  align-items: flex-end;
-  padding: 2rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.slideshow-slide:hover .slideshow-overlay {
-  opacity: 1;
-}
-
-.slideshow-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: white;
-}
-
-.slideshow-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.slideshow-subtitle {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin: 0 0 0.5rem 0;
-}
-
-.slideshow-link {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--accent-primary);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease 0.1s;
-}
-
-.slideshow-slide:hover .slideshow-link {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Slideshow Controls */
-.slideshow-controls {
-  position: absolute;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  z-index: 10;
-}
-
-.control-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--text-primary);
-}
-
-.control-btn:hover {
-  background: white;
-  transform: scale(1.1);
-}
-
-.slideshow-dots {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
-}
-
-.dot.active {
-  background: white;
-  transform: scale(1.3);
-}
-
-.dot:hover {
-  background: rgba(255, 255, 255, 0.8);
-}
 
 
 /* Interests Section */
@@ -752,29 +485,9 @@ h1 {
     margin-bottom: 2rem;
   }
 
-  .album-slideshow {
-    aspect-ratio: 4 / 3;
-  }
-
-  .slideshow-overlay {
-    padding: 1.5rem;
-  }
-
-  .slideshow-title {
-    font-size: 1.5rem;
-  }
-
-  .slideshow-subtitle {
-    font-size: 0.85rem;
-  }
-
-  .slideshow-controls {
-    bottom: 1rem;
-  }
-
-  .control-btn {
-    width: 35px;
-    height: 35px;
+  .albums-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
   .interests-tags {
