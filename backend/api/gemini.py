@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import caching
-from api.resume_parser import get_resume_summary
 from config import GEMINI_MODEL, get_contact_message
 import hashlib
 import json
@@ -29,169 +28,108 @@ _context_cache = {}
 
 def build_system_prompt(site_context=None):
     """
-    Build system prompt from frontend-provided context with caching.
+    Build system prompt with full professional context.
 
-    Caches prompts based on site_context + resume modification time to avoid rebuilding identical prompts.
+    Args:
+        site_context: Full professional context
+
+    Returns:
+        Optimized prompt with complete details
     """
-    # Include resume modification time in cache key to detect resume changes
-    from api.resume_parser import get_resume_path
-    resume_path = get_resume_path()
-    resume_mtime = resume_path.stat().st_mtime if resume_path and resume_path.exists() else None
-
-    # Create cache key from site_context + resume mtime
-    cache_data = {
-        'site_context': site_context,
-        'resume_mtime': resume_mtime
-    }
-    cache_key = hashlib.md5(json.dumps(cache_data, sort_keys=True).encode()).hexdigest()
-
-    # Check cache
+    # Check cache first
+    cache_key = hashlib.md5(json.dumps(site_context, sort_keys=True).encode()).hexdigest()
     if cache_key in _prompt_cache:
         return _prompt_cache[cache_key]
 
-    # Cache miss - build prompt
-    prompt = """You are a helpful AI assistant for Richwell Perez's professional portfolio website.
-
-Your role is to answer questions about Richwell's professional background, education, work experience, projects, skills, and blog posts using ONLY the information provided below. Be conversational, friendly, and concise.
+    # Build prompt with FULL details
+    prompt = """You are Richwell Perez's AI assistant. Answer briefly using info below.
 
 """
-
-    # Add resume content first (most authoritative source)
-    resume_content = get_resume_summary()
-    if resume_content:
-        prompt += resume_content
-        prompt += "\n" + "="*80 + "\n"
-        prompt += "ADDITIONAL CONTEXT FROM WEBSITE:\n"
-        prompt += "="*80 + "\n\n"
 
     if site_context:
         prof = site_context.get('professional', {})
 
-        # Personal info
+        # VALUE PROPOSITION (added at top for emphasis)
         if personal := prof.get('personal'):
-            prompt += f"NAME & CONTACT:\n"
-            prompt += f"{personal.get('name')}\n"
-            prompt += f"Email: {personal.get('email')}\n"
-            prompt += f"LinkedIn: {personal.get('linkedIn')}\n"
-            prompt += f"GitHub: {personal.get('github')}\n"
-            prompt += f"Location: {personal.get('location')}\n\n"
-            prompt += f"SUMMARY:\n{personal.get('summary')}\n"
-            prompt += f"{personal.get('tagline')}\n\n"
+            prompt += f"{personal.get('name')} | {personal.get('email')} | {personal.get('location')}\n"
+            prompt += f"{personal.get('summary')}\n\n"
+
+        # Add value proposition based on experience
+        if experience := prof.get('experience'):
+            current = next((exp for exp in experience if exp.get('current')), None)
+            if current:
+                prompt += "VALUE PROPOSITION:\n"
+                prompt += f"• Currently: {current.get('title')} at {current.get('company')}\n"
+                prompt += f"• Professional experience across {len(experience)} companies/roles\n"
+                if skills := prof.get('skills'):
+                    ai_ml = skills.get('ai_ml', [])
+                    if ai_ml:
+                        prompt += f"• AI/ML expertise: {', '.join(ai_ml[:3])}\n"
+                prompt += "• Full-stack + specialized technical skills (rare combination)\n"
+                prompt += "• Proven track record building production systems\n\n"
+
+        # Experience - FULL details always
+        if experience := prof.get('experience'):
+            prompt += "EXPERIENCE:\n"
+            for exp in experience:
+                prompt += f"• {exp.get('title')} at {exp.get('company')} ({exp.get('dates')})\n"
+                prompt += f"  {exp.get('description', '')}\n"
+                if highlights := exp.get('highlights'):
+                    prompt += "  Key achievements:\n"
+                    for h in highlights[:5]:
+                        prompt += f"    - {h}\n"
+                if tech := exp.get('technologies'):
+                    prompt += f"  Tech: {', '.join(tech)}\n"
+            prompt += "\n"
+
+        # Projects - FULL details always (top 8)
+        if projects := prof.get('projects'):
+            prompt += "PROJECTS:\n"
+            for proj in projects[:8]:
+                prompt += f"• {proj.get('name')} - {proj.get('subtitle', '')}\n"
+                prompt += f"  {proj.get('description', '')}\n"
+                if tech := proj.get('technologies'):
+                    prompt += f"  Tech: {', '.join(tech)}\n"
+                if links := proj.get('links'):
+                    for link in links:
+                        prompt += f"  Link: {link}\n"
+            prompt += "\n"
+
+        # Skills
+        if skills := prof.get('skills'):
+            prompt += "SKILLS:\n"
+            if langs := skills.get('languages'):
+                prompt += f"Languages: {', '.join(langs)}\n"
+            if frameworks := skills.get('frameworks'):
+                prompt += f"Frameworks: {', '.join(frameworks)}\n"
+            if ai_ml := skills.get('ai_ml'):
+                prompt += f"AI/ML: {', '.join(ai_ml)}\n"
+            if cloud := skills.get('cloud'):
+                prompt += f"Cloud: {', '.join(cloud)}\n"
+            if databases := skills.get('databases'):
+                prompt += f"Databases: {', '.join(databases)}\n"
+            if tools := skills.get('tools'):
+                prompt += f"Tools: {', '.join(tools)}\n"
+            prompt += "\n"
 
         # Education
         if education := prof.get('education'):
             prompt += "EDUCATION:\n"
             for edu in education:
-                prompt += f"- {edu.get('degree')} from {edu.get('shortName')} ({edu.get('dates')}, GPA: {edu.get('gpa')})\n"
-                if focus := edu.get('focus'):
-                    prompt += f"  Focus: {', '.join(focus)}\n"
-                if spec := edu.get('specializations'):
-                    prompt += f"  Specializations: {', '.join(spec)}\n"
-            prompt += "\n"
-
-        # Experience
-        if experience := prof.get('experience'):
-            # Current role first
-            current = next((exp for exp in experience if exp.get('current')), None)
-            if current:
-                prompt += f"CURRENT ROLE:\n"
-                prompt += f"{current.get('title')} at {current.get('company')} ({current.get('dates')})\n"
-                prompt += f"{current.get('description')}\n"
-                if highlights := current.get('highlights'):
-                    prompt += "Key achievements:\n"
-                    for highlight in highlights[:5]:
-                        prompt += f"- {highlight}\n"
-                prompt += f"Technologies: {', '.join(current.get('technologies', []))}\n\n"
-
-            # All experience
-            prompt += "WORK EXPERIENCE:\n"
-            for i, exp in enumerate(experience, 1):
-                prompt += f"{i}. {exp.get('title')} at {exp.get('company')} ({exp.get('dates')})\n"
-                prompt += f"   {exp.get('description')}\n"
-                prompt += f"   Technologies: {', '.join(exp.get('technologies', []))}\n\n"
-
-        # Skills
-        if skills := prof.get('skills'):
-            prompt += "TECHNICAL SKILLS:\n"
-            if langs := skills.get('languages'):
-                prompt += f"- Languages: {', '.join(langs)}\n"
-            if frameworks := skills.get('frameworks'):
-                prompt += f"- Frameworks: {', '.join(frameworks)}\n"
-            if dbs := skills.get('databases'):
-                prompt += f"- Databases: {', '.join(dbs)}\n"
-            if cloud := skills.get('cloud'):
-                prompt += f"- Cloud: {', '.join(cloud)}\n"
-            if ai_ml := skills.get('ai_ml'):
-                prompt += f"- AI/ML: {', '.join(ai_ml)}\n"
-            if tools := skills.get('tools'):
-                prompt += f"- Tools: {', '.join(tools)}\n"
-            prompt += "\n"
-
-        # Projects
-        if projects := prof.get('projects'):
-            prompt += "NOTABLE PROJECTS:\n"
-            for i, proj in enumerate(projects[:7], 1):
-                prompt += f"{i}. {proj.get('name')} - {proj.get('subtitle')}\n"
-                prompt += f"   {proj.get('description')}\n"
-                prompt += f"   Technologies: {', '.join(proj.get('technologies', []))}\n"
-                if links := proj.get('links'):
-                    for link in links:
-                        prompt += f"   Link: {link}\n"
-                prompt += "\n"
-
-        # Blog posts
-        if blogs := site_context.get('blogs'):
-            prompt += "BLOG POSTS:\n"
-            for blog in blogs:
-                prompt += f"- \"{blog.get('title')}\" ({blog.get('date')})"
-                if tags := blog.get('tags'):
-                    prompt += f" | Tags: {', '.join(tags)}"
-                prompt += "\n"
+                prompt += f"• {edu.get('degree')} - {edu.get('shortName')} ({edu.get('dates')}, GPA: {edu.get('gpa')})\n"
             prompt += "\n"
 
     prompt += f"""
-IMPORTANT INSTRUCTIONS:
-1. Answer questions using ONLY the information above
-2. PRIORITIZE the RESUME CONTENT as the most authoritative and up-to-date source
-3. If asked about something not covered, politely suggest contacting Richwell:
-   "For more details about that, {get_contact_message()}"
-4. Keep responses concise (2-3 sentences unless more detail is requested)
-5. Be conversational and friendly
-6. If asked about availability or hiring, say: "Richwell is currently working at RAVE Aerospace. {get_contact_message()} to discuss opportunities."
-7. Do not make up information or speculate beyond what's provided
-8. When answering questions, draw from the resume's detailed information about specific achievements, projects, and responsibilities
-
-SOURCE TRACKING:
-At the START of your response, include a special indicator line showing which sources you used:
-[SOURCES: resume, profile, experience, projects, blog]
-
-Only include sources you actually referenced:
-- Use "resume" if you cited the PDF resume content
-- Use "profile" if you used personal info (name, email, location, summary, education, skills)
-- Use "experience" if you mentioned work experience or job history
-- Use "projects" if you referenced specific projects or portfolio work
-- Use "blog" if you mentioned or referenced blog posts
-- For generic greetings or questions you can't answer, use: [SOURCES: none]
-
-Example responses:
-User: "What's your work experience?"
-[SOURCES: resume, experience]
-I'm currently an AI Engineer at RAVE Aerospace...
-
-User: "What projects have you built?"
-[SOURCES: projects]
-I've built several projects including...
-
-User: "Tell me about your blog posts"
-[SOURCES: blog]
-I've written several blog posts including...
-
-User: "Hi there!"
-[SOURCES: none]
-Hi! I'm Richwell's virtual assistant...
+INSTRUCTIONS:
+- Keep responses 2-3 sentences (brief but informative)
+- Use the detailed information above to give technical depth
+- Highlight achievements and impact (this is for technical recruiters!)
+- When users show hiring interest, suggest: "Check out the full resume on the site or {get_contact_message()}"
+- Add [SOURCES: resume/profile/experience/projects] at start
+- Be professional, confident, and impressive
 """
 
-    # Cache the prompt for future requests with same context
+    # Cache the prompt
     _prompt_cache[cache_key] = prompt
 
     return prompt
@@ -252,7 +190,6 @@ def determine_relevant_sources(user_message, site_context):
     - profile: Personal info, education (About Me page)
     - experience: Work history, job details
     - projects: Portfolio projects
-    - blog: Blog posts
 
     Uses keyword matching for instant display, refined by AI verification.
     """
@@ -263,13 +200,9 @@ def determine_relevant_sources(user_message, site_context):
 
     # Check what data is available
     has_professional = bool(site_context.get('professional'))
-    has_blogs = bool(site_context.get('blogs'))
 
     # Detect question type using keyword matching
     question_types = {
-        'blog': any(kw in message_lower for kw in [
-            'blog', 'post', 'article', 'wrote', 'written', 'published'
-        ]),
         'projects': any(kw in message_lower for kw in [
             'project', 'projects', 'built', 'build', 'building',
             'created', 'create', 'creating', 'developed', 'develop', 'developing',
@@ -298,10 +231,7 @@ def determine_relevant_sources(user_message, site_context):
     sources = []
 
     # Single-topic questions (most specific)
-    if question_types['blog'] and sum(question_types.values()) == 1:
-        if has_blogs:
-            sources = ['blog']
-    elif question_types['projects'] and sum(question_types.values()) == 1:
+    if question_types['projects'] and sum(question_types.values()) == 1:
         if has_professional:
             sources = ['projects']
     elif question_types['experience'] and sum(question_types.values()) == 1:
@@ -326,8 +256,6 @@ def determine_relevant_sources(user_message, site_context):
             # Add projects if project-related or generic
             if question_types['projects'] or sum(question_types.values()) == 0:
                 sources.append('projects')
-        if has_blogs and (question_types['blog'] or sum(question_types.values()) == 0):
-            sources.append('blog')
 
     # Remove duplicates while preserving order
     return list(dict.fromkeys(sources))
@@ -432,7 +360,7 @@ def call_gemini_stream(user_message, history=None, site_context=None):
             # Fallback to regular mode without caching
             model = genai.GenerativeModel(GEMINI_MODEL)
 
-        # Build conversation history (exclude system prompt if using cache)
+        # Build conversation history
         full_history = []
 
         # If not using cache, add system prompt manually
@@ -457,13 +385,13 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         print(f"[Gemini] Starting streaming...")
         start_time = time.time()
 
-        # Configure generation to complete -> goal within ~30 seconds
+        # Ultra-fast generation config
         generation_config = genai.types.GenerationConfig(
-            max_output_tokens=500,  # Shorter responses = guaranteed faster completion
-            temperature=0.6,        # Lower temperature = faster generation
-            top_p=0.85,             # More focused = faster
-            top_k=30,               # Fewer candidates = faster decisions
-            candidate_count=1       # Single response (no alternatives)
+            max_output_tokens=250,  # Very short = very fast
+            temperature=0.5,        # Deterministic = faster
+            top_p=0.8,              # Focused sampling
+            top_k=20,               # Minimal candidates
+            candidate_count=1
         )
 
         # Send message and stream response
@@ -504,8 +432,6 @@ def call_gemini_stream(user_message, history=None, site_context=None):
                                 verified_sources.append('experience')
                             if 'projects' in source_text or 'project' in source_text:
                                 verified_sources.append('projects')
-                            if 'blog' in source_text:
-                                verified_sources.append('blog')
 
                         # Update sources if AI provided different ones
                         if verified_sources and verified_sources != sources:

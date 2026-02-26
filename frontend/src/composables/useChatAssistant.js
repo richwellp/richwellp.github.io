@@ -628,7 +628,13 @@ export function useChatAssistant() {
       // If still no messages, add welcome message with streaming animation IMMEDIATELY
       if (messages.value.length === 0) {
         const welcomeId = generateUUID()
-        const welcomeContent = `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`
+        const welcomeContent = `Hi! I'm Richwell's AI assistant. I can answer questions about his:
+
+• AI/ML and software engineering experience
+• Technical skills and projects
+• Professional background and achievements
+
+Ask me anything, or use the quick actions below!`
 
         messages.value.push({
           id: welcomeId,
@@ -657,7 +663,13 @@ export function useChatAssistant() {
 
     // Re-add welcome message with streaming animation
     const welcomeId = generateUUID()
-    const welcomeContent = `Hi! I'm Richwell's virtual assistant. I can answer questions about his education, work experience, projects, skills, and background. What would you like to know?`
+    const welcomeContent = `Hi! I'm Richwell's AI assistant. I can answer questions about his:
+
+• AI/ML and software engineering experience
+• Technical skills and projects
+• Professional background and achievements
+
+Ask me anything, or use the quick actions below!`
 
     messages.value.push({
       id: welcomeId,
