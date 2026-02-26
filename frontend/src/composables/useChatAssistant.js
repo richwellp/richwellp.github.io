@@ -462,22 +462,17 @@ export function useChatAssistant() {
     }
   }
 
-  // Streaming implementation using fetch + SSE with timeout
+  // Streaming implementation using fetch + SSE
   const sendMessageStreaming = async (userInput, conversationHistory) => {
     let assistantMessageId = null
 
     try {
-      console.log('[Chat] Creating fetch request with 30s timeout')
+      console.log('[Chat] Starting streaming request')
 
-      // Create abort controller for manual cancel only (no automatic timeout)
-      // User can manually cancel with the red X button anytime
+      // Create abort controller for manual cancel only
       currentAbortController = new AbortController()
 
-      // REMOVED: Automatic timeout
-      // Reason: API can take 3-5 minutes but still gives good answers
-      // User has manual cancel button if they don't want to wait
-
-      const response = await fetch(`${API_ENDPOINTS.chatStream}`, {
+      const response = await fetch(`${API_ENDPOINTS.chat}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -490,7 +485,7 @@ export function useChatAssistant() {
         signal: currentAbortController.signal
       })
 
-      currentAbortController = null // Clear after successful request
+      currentAbortController = null
       console.log('[Chat] Got response:', response.status)
 
       if (!response.ok) {
@@ -612,107 +607,11 @@ export function useChatAssistant() {
         return
       }
 
-      // For other errors, fallback to regular mode
-      console.log('[Chat] Using fallback regular mode')
-      await sendMessageRegular(userInput, conversationHistory)
+      // For other errors, re-throw to be handled by outer catch block
+      throw error
     }
   }
 
-  // Regular (non-streaming) implementation
-  const sendMessageRegular = async (userInput, conversationHistory) => {
-    console.log('[Chat] Regular mode: Sending request to', API_ENDPOINTS.chat)
-
-    // Create abort controller for manual cancel only
-    currentAbortController = new AbortController()
-
-    const response = await fetch(`${API_ENDPOINTS.chat}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: userInput,
-        history: conversationHistory,
-        site_context: getSiteContext()
-      }),
-      signal: currentAbortController.signal
-    })
-
-    currentAbortController = null // Clear after successful request
-    console.log('[Chat] Regular mode: Got response', response.status)
-
-    // Parse response JSON first to get error details
-    let data
-    try {
-      data = await response.json()
-    } catch (parseError) {
-      console.error('Failed to parse response JSON:', {
-        status: response.status,
-        statusText: response.statusText,
-        parseError: parseError.message
-      })
-      throw new Error(`Server returned invalid response (${response.status})`)
-    }
-
-    // Check for rate limit or API errors
-    if (response.status === 429 || response.status === 500) {
-      console.error('Chat API error:', {
-        status: response.status,
-        error: data.error,
-        errorType: data.error_type,
-        details: data.error_details
-      })
-
-      // Use error message from backend, or provide default
-      const errorMessage = data.message || data.error ||
-        (data.error_type === 'rate_limit'
-          ? `I'm at my free API limit right now (resets daily at midnight Pacific time). Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for immediate assistance.`
-          : `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()}.`)
-
-      const errorId = generateUUID()
-      messages.value.push({
-        id: errorId,
-        type: 'assistant',
-        content: '',
-        timestamp: new Date(),
-        isStreaming: true
-      })
-
-      await simulateStreaming(errorId, errorMessage, 2)
-      return
-    }
-
-    // Check for other HTTP errors
-    if (!response.ok) {
-      console.error('Chat API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: data.error,
-        errorType: data.error_type,
-        details: data.error_details
-      })
-
-      throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`)
-    }
-
-    // Add successful assistant response with streaming animation
-    const responseId = generateUUID()
-    const responseContent = data.response || data.message || 'Sorry, I received an empty response.'
-
-    messages.value.push({
-      id: responseId,
-      type: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      isStreaming: true
-    })
-
-    await simulateStreaming(responseId, responseContent, 2)
-
-    // Defensive: Explicitly clear typing state
-    isTyping.value = false
-    console.log('[Chat] Regular mode completed, typing cleared')
-  }
 
   const toggleChat = async () => {
     isOpen.value = !isOpen.value

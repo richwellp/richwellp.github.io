@@ -7,7 +7,6 @@ from config import GEMINI_MODEL, get_contact_message
 import hashlib
 import json
 from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 import time
 
 # Load environment variables from .env file
@@ -27,12 +26,6 @@ _prompt_cache = {}
 # Cache for Gemini context caching (stores CachedContent objects)
 _context_cache = {}
 
-# Global thread pool for timeout handling
-_executor = ThreadPoolExecutor(max_workers=10)
-
-# API timeout configuration (5 minutes to allow slow but working responses)
-# Note: Gemini free tier can take 3-5 minutes during high load but still returns good answers
-API_TIMEOUT = 300  # 5 minutes = 300 seconds
 
 def build_system_prompt(site_context=None):
     """
@@ -249,97 +242,6 @@ def get_or_create_cached_context(site_context=None):
         return None
 
 
-def call_gemini(user_message, history=None, site_context=None):
-    """
-    Call Google Gemini API with professional context.
-
-    Args:
-        user_message (str): The user's message
-        history (list): Optional conversation history in format [{"role": "user"|"assistant", "content": "..."}]
-        site_context (dict): Optional site context with professional info and blog posts
-
-    Returns:
-        str: The assistant's response
-    """
-    if not GEMINI_API_KEY:
-        return f"Sorry, the chat service is not configured. {get_contact_message()}"
-
-    try:
-        # Initialize model (gemini-2.5-flash is the latest free tier model)
-        model = genai.GenerativeModel(GEMINI_MODEL)
-
-        # Build system prompt from site context
-        system_prompt = build_system_prompt(site_context)
-
-        # Build conversation history with system prompt
-        full_history = [
-            {"role": "user", "parts": [system_prompt]},
-            {"role": "model", "parts": ["Understood. I'll answer questions about Richwell's professional background using only the information provided, keeping responses concise and friendly."]}
-        ]
-
-        # Add conversation history if provided
-        if history:
-            for msg in history:
-                role = "model" if msg["role"] == "assistant" else "user"
-                full_history.append({
-                    "role": role,
-                    "parts": [msg["content"]]
-                })
-
-        # Add current user message
-        full_history.append({
-            "role": "user",
-            "parts": [user_message]
-        })
-
-        # Start chat with history
-        chat = model.start_chat(history=full_history[:-1])  # Exclude last message
-
-        # Send message with timeout
-        print(f"[Gemini] Sending message with {API_TIMEOUT}s timeout...")
-        start_time = time.time()
-
-        def _send_message():
-            return chat.send_message(user_message)
-
-        try:
-            future = _executor.submit(_send_message)
-            response = future.result(timeout=API_TIMEOUT)
-            elapsed = time.time() - start_time
-            print(f"[Gemini] Response received in {elapsed:.2f}s")
-            return response.text
-        except FutureTimeoutError:
-            elapsed = time.time() - start_time
-            print(f"[Gemini] TIMEOUT after {elapsed:.2f}s")
-            return {
-                "error": True,
-                "error_type": "timeout",
-                "message": f"The AI service took too long to respond ({API_TIMEOUT}s timeout). This usually means high API load or rate limits. {get_contact_message()}",
-                "details": f"Request timed out after {API_TIMEOUT} seconds"
-            }
-
-    except Exception as e:
-        error_msg = str(e).lower()
-        print(f"Gemini API error: {str(e)}")
-        print(f"Error type: {type(e).__name__}")
-
-        # Check for rate limit errors
-        if 'quota' in error_msg or 'rate limit' in error_msg or '429' in error_msg or 'resource_exhausted' in error_msg:
-            return {
-                "error": True,
-                "error_type": "rate_limit",
-                "message": f"I'm currently at my free API limit (resets daily at midnight Pacific time). {get_contact_message()}",
-                "details": str(e)
-            }
-
-        # Generic error
-        return {
-            "error": True,
-            "error_type": "api_error",
-            "message": f"I'm having trouble processing your request right now. {get_contact_message()}",
-            "details": str(e)
-        }
-
 
 def determine_relevant_sources(user_message, site_context):
     """
@@ -431,6 +333,73 @@ def determine_relevant_sources(user_message, site_context):
     return list(dict.fromkeys(sources))
 
 
+def select_relevant_context(message, full_context):
+    """
+    Analyze question and return only relevant context sections.
+    Keeps prompt small for faster responses.
+
+    Args:
+        message (str): The user's message
+        full_context (dict): Full site context with professional info
+
+    Returns:
+        dict: Filtered context with only relevant sections
+    """
+    if not full_context:
+        return {}
+
+    message_lower = message.lower()
+    prof = full_context.get('professional', {})
+    selected = {}
+
+    # Always include name and current role as baseline
+    if personal := prof.get('personal'):
+        selected['name'] = personal.get('name')
+        selected['email'] = personal.get('email')
+        selected['location'] = personal.get('location')
+
+    # Contact keywords
+    if any(kw in message_lower for kw in ['email', 'contact', 'reach', 'phone', 'linkedin', 'github']):
+        if personal := prof.get('personal'):
+            selected['contact'] = {
+                'email': personal.get('email'),
+                'linkedIn': personal.get('linkedIn'),
+                'github': personal.get('github'),
+                'location': personal.get('location')
+            }
+
+    # Experience keywords
+    if any(kw in message_lower for kw in ['experience', 'work', 'job', 'career', 'company', 'role', 'position']):
+        if experience := prof.get('experience'):
+            # Include current role and top 2 previous roles
+            selected['experience'] = experience[:3]
+
+    # Skills keywords
+    if any(kw in message_lower for kw in ['skill', 'technology', 'tech', 'programming', 'language', 'framework', 'tool']):
+        if skills := prof.get('skills'):
+            selected['skills'] = skills
+
+    # Projects keywords
+    if any(kw in message_lower for kw in ['project', 'portfolio', 'built', 'created', 'app', 'application']):
+        if projects := prof.get('projects'):
+            # Include top 3 projects
+            selected['projects'] = projects[:3]
+
+    # Education keywords
+    if any(kw in message_lower for kw in ['education', 'degree', 'university', 'school', 'study', 'college']):
+        if education := prof.get('education'):
+            selected['education'] = education
+
+    # If no specific match, include current role as baseline
+    if len(selected) <= 3:  # Only has name, email, location
+        if experience := prof.get('experience'):
+            current = next((exp for exp in experience if exp.get('current')), None)
+            if current:
+                selected['current_role'] = current
+
+    return {'professional': selected}
+
+
 def call_gemini_stream(user_message, history=None, site_context=None):
     """
     Call Google Gemini API with streaming support.
@@ -484,11 +453,11 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         # Start chat
         chat = model.start_chat(history=full_history)
 
-        # Stream response with timeout tracking
-        print(f"[Gemini] Streaming message with {API_TIMEOUT}s timeout...")
+        # Stream response
+        print(f"[Gemini] Starting streaming...")
         start_time = time.time()
 
-        # Send message (this returns immediately, but we track time during streaming)
+        # Send message and stream response
         response = chat.send_message(user_message, stream=True)
 
         # Use keyword matching for instant source display (better UX than waiting for AI)
@@ -498,21 +467,9 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         # Track response for source verification
         response_buffer = ""
         sources_verified = False
-        last_chunk_time = time.time()
 
-        # Stream text chunks with timeout
+        # Stream text chunks
         for chunk in response:
-            # Check if we've exceeded timeout
-            elapsed = time.time() - start_time
-            if elapsed > API_TIMEOUT:
-                print(f"[Gemini] STREAMING TIMEOUT after {elapsed:.2f}s")
-                yield {
-                    "error": True,
-                    "message": f"Streaming timed out after {API_TIMEOUT}s. {get_contact_message()}"
-                }
-                return
-
-            last_chunk_time = time.time()
             if chunk.text:
                 response_buffer += chunk.text
 
@@ -582,3 +539,5 @@ def call_gemini_stream(user_message, history=None, site_context=None):
                 "error_type": "api_error",
                 "message": f"I'm having trouble processing your request right now. {get_contact_message()}"
             }
+
+

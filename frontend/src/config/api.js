@@ -17,9 +17,8 @@ export const API_ENDPOINTS = {
   authStatus: `${API_BASE_URL}/auth/status`,
   authVerify: `${API_BASE_URL}/auth/verify`,
 
-  // Chat endpoints
+  // Chat endpoint (streaming)
   chat: `${API_BASE_URL}/chat`,
-  chatStream: `${API_BASE_URL}/chat/stream`,
 
   // Blog endpoints (public)
   blogPosts: `${API_BASE_URL}/blog/posts`,

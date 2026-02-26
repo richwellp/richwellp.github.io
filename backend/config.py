@@ -19,6 +19,7 @@ HISTORY_LIMIT = 20  # maximum conversation history to send
 # Options: 'gemini-2.5-flash' (explicit) or 'gemini-flash-latest' (auto-updates)
 GEMINI_MODEL = 'gemini-2.5-flash'  # Best free tier: 15 RPM, 1,500 RPD
 
+
 # Blog Configuration
 DEFAULT_PAGE_SIZE = 10
 WORDS_PER_MINUTE = 200  # Average reading speed

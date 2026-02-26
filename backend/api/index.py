@@ -61,6 +61,7 @@ def check_rate_limit(ip_address):
 
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
+    """Streaming chat endpoint using Server-Sent Events (SSE)"""
     if request.method == "OPTIONS":
         return "", 200
 
@@ -71,83 +72,6 @@ def chat():
             error="Too many requests. Please wait a moment before trying again.",
             error_type="rate_limit",
             message="Too many requests. Please wait a moment before trying again."
-        ), 429
-
-    try:
-        from api.gemini import call_gemini
-
-        data = request.get_json()
-        if not data or 'message' not in data:
-            return jsonify(
-                error="Message is required",
-                error_type="validation_error"
-            ), 400
-
-        user_message = data.get('message', '').strip()
-        if not user_message:
-            return jsonify(
-                error="Message cannot be empty",
-                error_type="validation_error"
-            ), 400
-
-        # Validate message length
-        if len(user_message) > MESSAGE_LENGTH_LIMIT:
-            return jsonify(
-                error=f"Message is too long. Please keep it under {MESSAGE_LENGTH_LIMIT} characters.",
-                error_type="validation_error"
-            ), 400
-
-        history = data.get('history', [])
-        site_context = data.get('site_context', {})
-
-        # Validate and limit history size
-        if not isinstance(history, list):
-            history = []
-        # Limit to last 20 messages to prevent context overflow
-        history = history[-HISTORY_LIMIT:]
-
-        response_text = call_gemini(user_message, history, site_context)
-
-        # Check if response is an error dictionary
-        if isinstance(response_text, dict) and response_text.get('error'):
-            error_type = response_text.get('error_type', 'api_error')
-            status_code = 429 if error_type == 'rate_limit' else 500
-
-            print(f"Gemini returned error: {error_type} - {response_text.get('details', 'No details')}")
-
-            return jsonify(
-                error=response_text.get('message', 'An error occurred'),
-                error_type=error_type,
-                error_details=response_text.get('details'),
-                response=response_text.get('message')  # For backward compatibility
-            ), status_code
-
-        return jsonify(response=response_text)
-
-    except Exception as e:
-        print(f"Chat error: {str(e)}")
-        print(f"Error type: {type(e).__name__}")
-        return jsonify(
-            error="An error occurred",
-            error_type="server_error",
-            error_details=str(e),
-            response=f"I'm having trouble right now. {get_contact_message()}"
-        ), 500
-
-
-@app.route("/chat/stream", methods=["POST", "OPTIONS"])
-def chat_stream():
-    """Streaming endpoint using Server-Sent Events (SSE)"""
-    if request.method == "OPTIONS":
-        return "", 200
-
-    # Rate limiting
-    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-    if not check_rate_limit(client_ip):
-        return jsonify(
-            error="Too many requests. Please wait a moment before trying again.",
-            error_type="rate_limit",
-            message="Too many requests. Please wait a moment, or contact Richwell directly at richwell.perez@gmail.com."
         ), 429
 
     try:
@@ -193,7 +117,7 @@ def chat_stream():
                 yield f"data: {json.dumps({'done': True})}\n\n"
             except Exception as e:
                 print(f"Streaming error: {str(e)}")
-                yield f"data: {json.dumps({'error': True, 'message': 'Streaming interrupted. Please contact Richwell at richwell.perez@gmail.com.'})}\n\n"
+                yield f"data: {json.dumps({'error': True, 'message': f'The AI is taking too long to respond. Please try again. {get_contact_message()}'})}\n\n"
 
         return Response(
             stream_with_context(generate()),
@@ -206,9 +130,9 @@ def chat_stream():
         )
 
     except Exception as e:
-        print(f"Stream setup error: {str(e)}")
+        print(f"Chat error: {str(e)}")
         return jsonify(
-            error="Failed to start streaming",
+            error="Failed to start chat",
             error_type="server_error",
             error_details=str(e),
             response=f"I'm having trouble right now. {get_contact_message()}"
