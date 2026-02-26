@@ -41,8 +41,8 @@ npm run dev  # http://localhost:5173
 ### Test
 
 ```bash
-cd backend && python -m pytest -v          # 50 tests
-cd frontend && npm test -- --run           # 47 tests
+cd backend && python -m pytest -v
+cd frontend && npm test -- --run
 ```
 
 ### Deploy
@@ -61,7 +61,7 @@ git push origin main  # Auto-deploys via GitHub Actions
 **Backend:** Flask, Google Gemini AI
 **Database:** Supabase (PostgreSQL + Storage)
 **Deploy:** GitHub Pages + Vercel
-**Tests:** Vitest (47) + pytest (50)
+**Tests:** Vitest + pytest
 
 ---
 
