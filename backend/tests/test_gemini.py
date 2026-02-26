@@ -7,36 +7,16 @@ from api.gemini import determine_relevant_sources
 
 # Test data
 FULL_CONTEXT = {
-    'professional': {'name': 'Test User'},
-    'blogs': [{'title': 'Test Blog'}]
+    'professional': {'name': 'Test User'}
 }
 
 PROFESSIONAL_ONLY = {
-    'professional': {'name': 'Test User'},
-    'blogs': []
-}
-
-BLOGS_ONLY = {
-    'professional': None,
-    'blogs': [{'title': 'Test Blog'}]
+    'professional': {'name': 'Test User'}
 }
 
 
 class TestSingleTopicQuestions:
     """Test single-topic questions return specific sources."""
-
-    def test_blog_questions_only(self):
-        """Blog-only questions should show only blog source."""
-        questions = [
-            "What blog posts have you written?",
-            "Show me your articles",
-            "What have you published?",
-            "Do you have any blog posts about Python?"
-        ]
-
-        for question in questions:
-            sources = determine_relevant_sources(question, FULL_CONTEXT)
-            assert sources == ['blog'], f"Failed for: {question}"
 
     def test_projects_questions_only(self):
         """Project-only questions should show only projects source."""
@@ -64,7 +44,6 @@ class TestSingleTopicQuestions:
             sources = determine_relevant_sources(question, FULL_CONTEXT)
             assert 'resume' in sources, f"Resume missing for: {question}"
             assert 'experience' in sources, f"Experience missing for: {question}"
-            assert 'blog' not in sources, f"Blog shouldn't appear for: {question}"
 
     def test_education_questions_only(self):
         """Education questions should show only profile."""
@@ -131,7 +110,6 @@ class TestMixedTopicQuestions:
             assert 'resume' in sources
             assert 'profile' in sources
             assert 'projects' in sources
-            assert 'blog' in sources
 
     def test_greeting_shows_all(self):
         """Greetings show all sources (AI will refine to none)."""
@@ -146,22 +124,14 @@ class TestMixedTopicQuestions:
 class TestPartialContext:
     """Test when only some data is available."""
 
-    def test_no_blogs_available(self):
-        """When no blogs exist, don't include blog source."""
+    def test_professional_data_available(self):
+        """When professional data exists, show professional sources."""
         question = "Tell me about yourself"
         sources = determine_relevant_sources(question, PROFESSIONAL_ONLY)
 
         assert 'resume' in sources
         assert 'profile' in sources
         assert 'projects' in sources
-        assert 'blog' not in sources
-
-    def test_no_professional_data(self):
-        """When no professional data exists, only show blogs."""
-        question = "What blog posts do you have?"
-        sources = determine_relevant_sources(question, BLOGS_ONLY)
-
-        assert sources == ['blog']
 
     def test_no_context_returns_empty(self):
         """When no context provided, return empty list."""
@@ -187,8 +157,8 @@ class TestEdgeCases:
         """Keyword matching should be case-insensitive."""
         questions = [
             "What PROJECTS have you built?",
-            "Tell me about your BLOG posts",
-            "What's your WORK experience?"
+            "What's your WORK experience?",
+            "Tell me about your SKILLS"
         ]
 
         for question in questions:
@@ -199,7 +169,6 @@ class TestEdgeCases:
         """Should match various keyword forms."""
         test_cases = [
             ("What have you developed?", 'projects'),  # 'developed' -> projects
-            ("Show me articles you wrote", 'blog'),    # 'wrote' -> blog
             ("Tell me about your employer", 'experience'),  # 'employer' -> experience
         ]
 
@@ -213,7 +182,7 @@ class TestSourceAvailability:
 
     def test_professional_sources_require_data(self):
         """Professional sources only appear when data exists."""
-        no_prof_context = {'professional': None, 'blogs': [{'title': 'Test'}]}
+        no_prof_context = {'professional': None}
 
         question = "What's your work experience?"
         sources = determine_relevant_sources(question, no_prof_context)
@@ -222,12 +191,3 @@ class TestSourceAvailability:
         assert 'profile' not in sources
         assert 'experience' not in sources
         assert 'projects' not in sources
-
-    def test_blog_source_requires_data(self):
-        """Blog source only appears when blogs exist."""
-        no_blog_context = {'professional': {'name': 'Test'}, 'blogs': []}
-
-        question = "What blog posts do you have?"
-        sources = determine_relevant_sources(question, no_blog_context)
-
-        assert 'blog' not in sources
