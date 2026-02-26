@@ -59,11 +59,52 @@ def check_rate_limit(ip_address):
     return True
 
 
+@app.route("/chat/warmup", methods=["POST", "OPTIONS"])
+def chat_warmup():
+    """Pre-warm the context cache to reduce first message latency"""
+    if request.method == "OPTIONS":
+        return "", 200
+
+    try:
+        from api.gemini import get_or_create_cached_context
+        import time
+
+        data = request.get_json()
+        site_context = data.get('site_context', {})
+
+        print(f"[Warmup] Starting cache warmup...")
+        start = time.time()
+
+        # Create cache in background
+        cached_context = get_or_create_cached_context(site_context)
+
+        elapsed = time.time() - start
+        print(f"[Warmup] Cache warmup completed in {elapsed:.2f}s (cached: {bool(cached_context)})")
+
+        return jsonify({
+            "success": True,
+            "cached": bool(cached_context),
+            "time": elapsed
+        })
+
+    except Exception as e:
+        print(f"[Warmup] Cache warmup failed: {str(e)}")
+        # Don't fail - just return success false
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
     """Streaming chat endpoint using Server-Sent Events (SSE)"""
     if request.method == "OPTIONS":
         return "", 200
+
+    import time
+    request_start = time.time()
+    print(f"\n[Endpoint] ===== CHAT REQUEST RECEIVED =====")
 
     # Rate limiting
     client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -78,6 +119,7 @@ def chat():
         from api.gemini import call_gemini_stream
 
         data = request.get_json()
+        print(f"[Endpoint] Request parsing took {time.time() - request_start:.2f}s")
         if not data or 'message' not in data:
             return jsonify(
                 error="Message is required",

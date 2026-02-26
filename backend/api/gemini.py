@@ -164,19 +164,21 @@ def get_or_create_cached_context(site_context=None):
 
     # Create new cached content (valid for 1 hour)
     try:
+        create_start = time.time()
         cached_content = caching.CachedContent.create(
             model=GEMINI_MODEL,
             display_name="portfolio_context",
             system_instruction=system_prompt,
             ttl=timedelta(hours=1)
         )
+        create_time = time.time() - create_start
 
         _context_cache[cache_key] = cached_content
-        print(f"Created new context cache (valid for 1 hour)")
+        print(f"[Cache] Created new context cache in {create_time:.2f}s (valid for 1 hour)")
         return cached_content
     except Exception as e:
         # If caching fails (e.g., API doesn't support it), continue without caching
-        print(f"Context caching not available: {e}")
+        print(f"[Cache] Context caching not available: {e}")
         return None
 
 
@@ -350,17 +352,27 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         return
 
     try:
-        # Try to use cached context for better latency
-        cached_context = get_or_create_cached_context(site_context)
+        print(f"[Gemini] ===== REQUEST START =====")
+        request_start = time.time()
 
+        # Try to use cached context for better latency
+        cache_start = time.time()
+        cached_context = get_or_create_cached_context(site_context)
+        cache_time = time.time() - cache_start
+        print(f"[Gemini] Cache operation took {cache_time:.2f}s (cached: {bool(cached_context)})")
+
+        model_start = time.time()
         if cached_context:
             # Use cached context (50-70% faster)
             model = genai.GenerativeModel.from_cached_content(cached_content=cached_context)
         else:
             # Fallback to regular mode without caching
             model = genai.GenerativeModel(GEMINI_MODEL)
+        model_time = time.time() - model_start
+        print(f"[Gemini] Model creation took {model_time:.2f}s")
 
         # Build conversation history
+        history_start = time.time()
         full_history = []
 
         # If not using cache, add system prompt manually
@@ -377,17 +389,24 @@ def call_gemini_stream(user_message, history=None, site_context=None):
                     "role": role,
                     "parts": [msg["content"]]
                 })
+        history_time = time.time() - history_start
+        print(f"[Gemini] History building took {history_time:.2f}s ({len(full_history)} messages)")
 
         # Start chat
+        chat_start = time.time()
         chat = model.start_chat(history=full_history)
+        chat_time = time.time() - chat_start
+        print(f"[Gemini] Chat initialization took {chat_time:.2f}s")
 
         # Stream response
-        print(f"[Gemini] Starting streaming...")
+        setup_time = time.time() - request_start
+        print(f"[Gemini] Total setup time: {setup_time:.2f}s")
+        print(f"[Gemini] Sending message to API...")
         start_time = time.time()
 
-        # Ultra-fast generation config
+        # Optimized generation config - balance speed with completeness
         generation_config = genai.types.GenerationConfig(
-            max_output_tokens=250,  # Very short = very fast
+            max_output_tokens=500,  # Enough for detailed answers, not too long
             temperature=0.5,        # Deterministic = faster
             top_p=0.8,              # Focused sampling
             top_k=20,               # Minimal candidates
@@ -395,70 +414,41 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         )
 
         # Send message and stream response
+        api_call_start = time.time()
+        print(f"[Gemini] Calling API with message: '{user_message[:50]}...'")
         response = chat.send_message(
             user_message,
             stream=True,
             generation_config=generation_config
         )
+        api_call_time = time.time() - api_call_start
+        print(f"[Gemini] API call returned iterator in {api_call_time:.2f}s")
 
         # Use keyword matching for instant source display (better UX than waiting for AI)
         sources = determine_relevant_sources(user_message, site_context)
         yield {"sources": sources}
 
-        # Track response for source verification
-        response_buffer = ""
-        sources_verified = False
+        # Stream text chunks with timing
+        first_token = True
+        first_token_time = None
 
-        # Stream text chunks
+        import re
         for chunk in response:
             if chunk.text:
-                response_buffer += chunk.text
+                # Track first token latency (time to first response)
+                if first_token:
+                    first_token_time = time.time() - start_time
+                    print(f"[Gemini] First token received in {first_token_time:.2f}s")
+                    first_token = False
 
-                # Verify sources from AI response (first chunk only)
-                if not sources_verified and '[SOURCES:' in response_buffer:
-                    import re
-                    match = re.search(r'\[SOURCES:\s*([^\]]+)\]', response_buffer)
-                    if match:
-                        source_text = match.group(1).strip()
-                        verified_sources = []
+                # Remove [SOURCES: ...] tag if present (keep response clean)
+                chunk_text = re.sub(r'\[SOURCES:[^\]]+\]\s*', '', chunk.text)
+                if chunk_text:
+                    yield {"text": chunk_text}
 
-                        # Parse sources from AI
-                        if 'none' not in source_text.lower():
-                            if 'resume' in source_text:
-                                verified_sources.append('resume')
-                            if 'profile' in source_text:
-                                verified_sources.append('profile')
-                            if 'experience' in source_text:
-                                verified_sources.append('experience')
-                            if 'projects' in source_text or 'project' in source_text:
-                                verified_sources.append('projects')
-
-                        # Update sources if AI provided different ones
-                        if verified_sources and verified_sources != sources:
-                            yield {"sources": verified_sources}
-
-                        sources_verified = True
-
-                        # Remove [SOURCES: ...] from visible response
-                        chunk_text = re.sub(r'\[SOURCES:[^\]]+\]\s*', '', chunk.text)
-                        if chunk_text:
-                            yield {"text": chunk_text}
-                    else:
-                        yield {"text": chunk.text}
-                else:
-                    # After sources are verified, strip them from all chunks
-                    if sources_verified:
-                        chunk_text = chunk.text
-                        if '[SOURCES:' in chunk_text:
-                            chunk_text = re.sub(r'\[SOURCES:[^\]]+\]\s*', '', chunk_text)
-                        if chunk_text:
-                            yield {"text": chunk_text}
-                    else:
-                        yield {"text": chunk.text}
-
-        # Log successful completion
+        # Log successful completion with timing breakdown
         total_elapsed = time.time() - start_time
-        print(f"[Gemini] Streaming completed successfully in {total_elapsed:.2f}s")
+        print(f"[Gemini] Streaming completed in {total_elapsed:.2f}s (first token: {first_token_time:.2f}s)")
 
     except Exception as e:
         error_msg = str(e).lower()

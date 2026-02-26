@@ -305,11 +305,19 @@ const simulateStreaming = (messageId, fullContent, delay = 2) => {
     let currentIndex = 0
 
     const interval = setInterval(() => {
+      // Check if message still exists (could be deleted during streaming)
+      const currentMessageIndex = messages.value.findIndex(m => m.id === messageId)
+      if (currentMessageIndex === -1) {
+        clearInterval(interval)
+        resolve()
+        return
+      }
+
       if (currentIndex >= fullContent.length) {
         clearInterval(interval)
         // Mark as not streaming
-        messages.value[messageIndex].content = fullContent
-        messages.value[messageIndex].isStreaming = false
+        messages.value[currentMessageIndex].content = fullContent
+        messages.value[currentMessageIndex].isStreaming = false
         saveMessages()
         resolve()
         return
@@ -317,7 +325,7 @@ const simulateStreaming = (messageId, fullContent, delay = 2) => {
 
       // Add next character (cursor is rendered separately in ChatAssistant.vue)
       currentIndex++
-      messages.value[messageIndex].content = fullContent.substring(0, currentIndex)
+      messages.value[currentMessageIndex].content = fullContent.substring(0, currentIndex)
     }, delay)
   })
 }
@@ -705,6 +713,32 @@ Ask me anything, or use the quick actions below!`
     })
   }
 
+  // Pre-warm the backend cache for faster first message
+  const warmupCache = async () => {
+    try {
+      console.log('[Chat] Warming up backend cache...')
+      const response = await fetch(API_ENDPOINTS.chatWarmup, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          site_context: getSiteContext()
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log(`[Chat] Cache warmup ${data.success ? 'successful' : 'failed'} (${data.time?.toFixed(2)}s)`)
+      } else {
+        console.warn('[Chat] Cache warmup request failed:', response.status)
+      }
+    } catch (error) {
+      // Silently fail - warmup is optional optimization
+      console.warn('[Chat] Cache warmup error:', error.message)
+    }
+  }
+
   const cancelRequest = () => {
     console.log('[Chat] User canceled request')
     if (currentAbortController) {
@@ -735,6 +769,7 @@ Ask me anything, or use the quick actions below!`
     sendQuickMessage,
     formatTime,
     cancelRequest,
+    warmupCache,    // Pre-warm backend cache for faster first message
     preloadContext  // Expose enhanced preloadContext with cache generation
   }
 }

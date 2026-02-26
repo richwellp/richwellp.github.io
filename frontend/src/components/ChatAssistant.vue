@@ -196,7 +196,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useChatAssistant } from '../composables/useChatAssistant'
 import { sanitizeHtml } from '../composables/useSanitizer'
@@ -226,7 +226,8 @@ const {
   clearChat,
   sendQuickMessage,
   formatTime,
-  cancelRequest
+  cancelRequest,
+  warmupCache
 } = useChatAssistant()
 
 // Scroll to bottom helper
@@ -266,6 +267,14 @@ watch(messages, (newMessages) => {
     }
   }
 }, { deep: true })
+
+// Pre-warm backend cache on mount for faster first message
+onMounted(() => {
+  // Wait a bit to avoid blocking initial page load
+  setTimeout(() => {
+    warmupCache()
+  }, 1000)
+})
 
 const userInput = ref('')
 const messagesContainer = ref(null)
