@@ -373,9 +373,13 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         request_start = time.time()
 
         # Create model (no caching - simpler and more reliable)
+        model_start = time.time()
         model = genai.GenerativeModel(GEMINI_MODEL)
+        model_time = time.time() - model_start
+        print(f"[Gemini] Model creation took {model_time:.3f}s", flush=True, file=sys.stderr)
 
         # Build conversation history with system prompt
+        history_start = time.time()
         full_history = []
         system_prompt = build_system_prompt(site_context)
         full_history.append({"role": "user", "parts": [system_prompt]})
@@ -389,9 +393,14 @@ def call_gemini_stream(user_message, history=None, site_context=None):
                     "role": role,
                     "parts": [msg["content"]]
                 })
+        history_time = time.time() - history_start
+        print(f"[Gemini] History building took {history_time:.3f}s (prompt size: {len(system_prompt)} chars)", flush=True, file=sys.stderr)
 
         # Start chat
+        chat_start = time.time()
         chat = model.start_chat(history=full_history)
+        chat_time = time.time() - chat_start
+        print(f"[Gemini] Chat initialization took {chat_time:.3f}s", flush=True, file=sys.stderr)
 
         # Stream response
         start_time = time.time()
@@ -407,14 +416,15 @@ def call_gemini_stream(user_message, history=None, site_context=None):
 
         # Send message and stream response
         api_call_start = time.time()
-        print(f"[Gemini] Calling API with message: '{user_message[:50]}...'")
+        print(f"[Gemini] Calling API with message: '{user_message[:50]}...'", flush=True, file=sys.stderr)
+
         response = chat.send_message(
             user_message,
             stream=True,
             generation_config=generation_config
         )
         api_call_time = time.time() - api_call_start
-        print(f"[Gemini] API call returned iterator in {api_call_time:.2f}s")
+        print(f"[Gemini] API call returned iterator in {api_call_time:.2f}s", flush=True, file=sys.stderr)
 
         # Use keyword matching for instant source display (better UX than waiting for AI)
         sources = determine_relevant_sources(user_message, site_context)
@@ -444,8 +454,8 @@ def call_gemini_stream(user_message, history=None, site_context=None):
 
     except Exception as e:
         error_msg = str(e).lower()
-        print(f"Gemini streaming error: {str(e)}")
-        print(f"Error type: {type(e).__name__}")
+        print(f"Gemini streaming error: {str(e)}", flush=True, file=sys.stderr)
+        print(f"Error type: {type(e).__name__}", flush=True, file=sys.stderr)
 
         # Check for rate limit errors
         if 'quota' in error_msg or 'rate limit' in error_msg or '429' in error_msg or 'resource_exhausted' in error_msg:

@@ -66,8 +66,9 @@ def chat():
         return "", 200
 
     import time
+    import sys
     request_start = time.time()
-    print(f"\n[Endpoint] ===== CHAT REQUEST RECEIVED =====")
+    print(f"\n[Endpoint] ===== CHAT REQUEST RECEIVED at {time.strftime('%H:%M:%S')} =====", file=sys.stderr, flush=True)
 
     # Rate limiting
     client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -81,8 +82,10 @@ def chat():
     try:
         from api.gemini import call_gemini_stream
 
+        parse_start = time.time()
         data = request.get_json()
-        print(f"[Endpoint] Request parsing took {time.time() - request_start:.2f}s")
+        parse_time = time.time() - parse_start
+        print(f"[Endpoint] Request parsing took {parse_time:.3f}s", file=sys.stderr, flush=True)
         if not data or 'message' not in data:
             return jsonify(
                 error="Message is required",
@@ -113,26 +116,32 @@ def chat():
 
         def generate():
             """Generator function for SSE"""
+            stream_start = time.time()
             try:
                 for chunk in call_gemini_stream(user_message, history, site_context):
                     # Format as SSE
                     yield f"data: {json.dumps(chunk)}\n\n"
 
-                # Send done signal
-                yield f"data: {json.dumps({'done': True})}\n\n"
+                # Send done signal with timing
+                total_time = time.time() - request_start
+                yield f"data: {json.dumps({'done': True, 'timing': {'total': round(total_time, 2), 'stream': round(time.time() - stream_start, 2)}})}\n\n"
             except Exception as e:
-                print(f"Streaming error: {str(e)}")
+                print(f"Streaming error: {str(e)}", file=sys.stderr, flush=True)
                 yield f"data: {json.dumps({'error': True, 'message': f'The AI is taking too long to respond. Please try again. {get_contact_message()}'})}\n\n"
 
-        return Response(
+        response = Response(
             stream_with_context(generate()),
             mimetype='text/event-stream',
             headers={
                 'Cache-Control': 'no-cache',
                 'X-Accel-Buffering': 'no',
-                'Connection': 'keep-alive'
+                'Connection': 'keep-alive',
+                'X-Request-Start': str(request_start)
             }
         )
+
+        print(f"[Endpoint] Returning response (setup took {time.time() - request_start:.2f}s)", file=sys.stderr, flush=True)
+        return response
 
     except Exception as e:
         print(f"Chat error: {str(e)}")

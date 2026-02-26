@@ -559,6 +559,11 @@ export function useChatAssistant() {
               } else if (data.done) {
                 // Streaming complete
                 messages.value[messageIndex].isStreaming = false
+
+                // Log timing breakdown if available
+                if (data.timing) {
+                  console.log(`[Chat] ⏱️  Backend timing: total=${data.timing.total}s, stream=${data.timing.stream}s`)
+                }
               }
             } catch (parseError) {
               console.error('Failed to parse SSE data:', parseError)
@@ -582,7 +587,10 @@ export function useChatAssistant() {
 
       // Defensive: Explicitly clear typing state here too
       isTyping.value = false
-      console.log('[Chat] Streaming completed, typing cleared')
+
+      // Log total frontend time
+      const totalTime = ((Date.now() - requestStart) / 1000).toFixed(1)
+      console.log(`[Chat] ✅ Streaming completed in ${totalTime}s total (frontend start to finish)`)
 
       // Save to localStorage
       saveMessages()
