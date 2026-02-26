@@ -457,8 +457,21 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         print(f"[Gemini] Starting streaming...")
         start_time = time.time()
 
+        # Configure generation to complete -> goal within ~30 seconds
+        generation_config = genai.types.GenerationConfig(
+            max_output_tokens=500,  # Shorter responses = guaranteed faster completion
+            temperature=0.6,        # Lower temperature = faster generation
+            top_p=0.85,             # More focused = faster
+            top_k=30,               # Fewer candidates = faster decisions
+            candidate_count=1       # Single response (no alternatives)
+        )
+
         # Send message and stream response
-        response = chat.send_message(user_message, stream=True)
+        response = chat.send_message(
+            user_message,
+            stream=True,
+            generation_config=generation_config
+        )
 
         # Use keyword matching for instant source display (better UX than waiting for AI)
         sources = determine_relevant_sources(user_message, site_context)
