@@ -713,35 +713,6 @@ Ask me anything, or use the quick actions below!`
     })
   }
 
-  // Pre-warm the backend cache for faster first message
-  const warmupCache = async () => {
-    try {
-      const context = getSiteContext()
-      const hasData = context.professional && Object.keys(context.professional).length > 0
-      console.log(`[Chat] Warming up backend cache... (has professional data: ${hasData})`)
-
-      const response = await fetch(API_ENDPOINTS.chatWarmup, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          site_context: context
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        console.log(`[Chat] Cache warmup ${data.success ? 'successful' : 'failed'} (${data.time?.toFixed(2)}s, cached: ${data.cached})`)
-      } else {
-        console.warn('[Chat] Cache warmup request failed:', response.status)
-      }
-    } catch (error) {
-      // Silently fail - warmup is optional optimization
-      console.warn('[Chat] Cache warmup error:', error.message)
-    }
-  }
-
   const cancelRequest = () => {
     console.log('[Chat] User canceled request')
     if (currentAbortController) {
@@ -772,7 +743,6 @@ Ask me anything, or use the quick actions below!`
     sendQuickMessage,
     formatTime,
     cancelRequest,
-    warmupCache,    // Pre-warm backend cache for faster first message
-    preloadContext  // Expose enhanced preloadContext with cache generation
+    preloadContext
   }
 }

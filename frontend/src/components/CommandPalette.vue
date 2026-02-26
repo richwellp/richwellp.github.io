@@ -27,7 +27,8 @@ async function loadBlogPosts() {
     const data = await fetchPosts()
     blogPosts.value = data.posts || []
   } catch (error) {
-    console.error('Error loading blog posts:', error)
+    // Silently fail in development (expected)
+    console.debug('Blog posts unavailable:', error.message)
     blogPosts.value = []
   }
 }

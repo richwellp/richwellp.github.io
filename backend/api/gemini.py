@@ -119,14 +119,23 @@ def build_system_prompt(site_context=None):
                 prompt += f"• {edu.get('degree')} - {edu.get('shortName')} ({edu.get('dates')}, GPA: {edu.get('gpa')})\n"
             prompt += "\n"
 
+    # Add current date for accurate calculations
+    from datetime import datetime
+    current_date = datetime.now().strftime('%B %d, %Y')
+
     prompt += f"""
+CURRENT DATE: {current_date}
+
 INSTRUCTIONS:
-- Keep responses 2-3 sentences (brief but informative)
+- Keep responses brief and complete (2-4 sentences maximum)
 - Use the detailed information above to give technical depth
+- For date/time calculations: think step by step, show your work
+  Example: "Started June 2025, current is {current_date}, so that's X months"
 - Highlight achievements and impact (this is for technical recruiters!)
 - When users show hiring interest, suggest: "Check out the full resume on the site or {get_contact_message()}"
 - Add [SOURCES: resume/profile/experience/projects] at start
 - Be professional, confident, and impressive
+- ALWAYS complete your sentences - never stop mid-thought
 """
 
     # Cache the prompt
@@ -363,31 +372,14 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         print(f"[Gemini] ===== REQUEST START =====", flush=True, file=sys.stderr)
         request_start = time.time()
 
-        # Try to use cached context for better latency
-        cache_start = time.time()
-        cached_context = get_or_create_cached_context(site_context)
-        cache_time = time.time() - cache_start
-        print(f"[Gemini] Cache operation took {cache_time:.2f}s (cached: {bool(cached_context)})")
+        # Create model (no caching - simpler and more reliable)
+        model = genai.GenerativeModel(GEMINI_MODEL)
 
-        model_start = time.time()
-        if cached_context:
-            # Use cached context (50-70% faster)
-            model = genai.GenerativeModel.from_cached_content(cached_content=cached_context)
-        else:
-            # Fallback to regular mode without caching
-            model = genai.GenerativeModel(GEMINI_MODEL)
-        model_time = time.time() - model_start
-        print(f"[Gemini] Model creation took {model_time:.2f}s")
-
-        # Build conversation history
-        history_start = time.time()
+        # Build conversation history with system prompt
         full_history = []
-
-        # If not using cache, add system prompt manually
-        if not cached_context:
-            system_prompt = build_system_prompt(site_context)
-            full_history.append({"role": "user", "parts": [system_prompt]})
-            full_history.append({"role": "model", "parts": ["Understood. I'll answer questions about Richwell's professional background using only the information provided, keeping responses concise and friendly."]})
+        system_prompt = build_system_prompt(site_context)
+        full_history.append({"role": "user", "parts": [system_prompt]})
+        full_history.append({"role": "model", "parts": ["Understood. I'll answer questions about Richwell's professional background using only the information provided, keeping responses concise and friendly."]})
 
         # Add conversation history
         if history:
@@ -397,27 +389,19 @@ def call_gemini_stream(user_message, history=None, site_context=None):
                     "role": role,
                     "parts": [msg["content"]]
                 })
-        history_time = time.time() - history_start
-        print(f"[Gemini] History building took {history_time:.2f}s ({len(full_history)} messages)")
 
         # Start chat
-        chat_start = time.time()
         chat = model.start_chat(history=full_history)
-        chat_time = time.time() - chat_start
-        print(f"[Gemini] Chat initialization took {chat_time:.2f}s")
 
         # Stream response
-        setup_time = time.time() - request_start
-        print(f"[Gemini] Total setup time: {setup_time:.2f}s")
-        print(f"[Gemini] Sending message to API...")
         start_time = time.time()
 
-        # Optimized generation config - balance speed with completeness
+        # Generation config - prevent truncation, maximize accuracy
         generation_config = genai.types.GenerationConfig(
-            max_output_tokens=500,  # Enough for detailed answers, not too long
-            temperature=0.5,        # Deterministic = faster
-            top_p=0.8,              # Focused sampling
-            top_k=20,               # Minimal candidates
+            max_output_tokens=2000,  # Prevent truncation (Gemini 2.5 Flash issue)
+            temperature=1.0,         # Required for Gemini 2.5+ models
+            top_p=0.3,              # Low = more factual
+            top_k=1,                # Deterministic = most accurate
             candidate_count=1
         )
 

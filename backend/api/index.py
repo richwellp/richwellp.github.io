@@ -59,47 +59,6 @@ def check_rate_limit(ip_address):
     return True
 
 
-@app.route("/chat/warmup", methods=["POST", "OPTIONS"])
-def chat_warmup():
-    """Pre-warm the context cache to reduce first message latency"""
-    if request.method == "OPTIONS":
-        return "", 200
-
-    try:
-        from api.gemini import get_or_create_cached_context
-        import time
-        import sys
-
-        data = request.get_json()
-        site_context = data.get('site_context', {})
-
-        # Check if we have actual data
-        has_professional = bool(site_context.get('professional'))
-        print(f"[Warmup] Starting cache warmup... (has_professional: {has_professional})", file=sys.stderr, flush=True)
-
-        start = time.time()
-
-        # Create cache in background
-        cached_context = get_or_create_cached_context(site_context)
-
-        elapsed = time.time() - start
-        print(f"[Warmup] Cache warmup completed in {elapsed:.2f}s (cached: {bool(cached_context)})", file=sys.stderr, flush=True)
-
-        return jsonify({
-            "success": True,
-            "cached": bool(cached_context),
-            "time": elapsed
-        })
-
-    except Exception as e:
-        print(f"[Warmup] Cache warmup failed: {str(e)}", file=sys.stderr, flush=True)
-        # Don't fail - just return success false
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        })
-
-
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
     """Streaming chat endpoint using Server-Sent Events (SSE)"""

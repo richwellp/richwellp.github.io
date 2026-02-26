@@ -227,8 +227,7 @@ const {
   clearChat,
   sendQuickMessage,
   formatTime,
-  cancelRequest,
-  warmupCache
+  cancelRequest
 } = useChatAssistant()
 
 // Scroll to bottom helper
@@ -269,17 +268,10 @@ watch(messages, (newMessages) => {
   }
 }, { deep: true })
 
-// Pre-warm backend cache on mount for faster first message
+// Load professional info on mount
 onMounted(async () => {
-  // Wait for professional info to load first
   const { loadProfessionalInfo } = useProfessionalInfo()
   await loadProfessionalInfo()
-
-  // Small delay to avoid blocking initial page render
-  setTimeout(() => {
-    console.log('[Chat] Starting cache warmup with full context')
-    warmupCache()
-  }, 500)
 })
 
 const userInput = ref('')
