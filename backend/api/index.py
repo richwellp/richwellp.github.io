@@ -9,8 +9,19 @@ from config import RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW, MESSAGE_LENGTH_LIMIT,
 
 app = Flask(__name__)
 
-# Enable gzip compression for all responses
-Compress(app)
+# Enable gzip compression for all responses (but not SSE streams)
+compress = Compress()
+compress.init_app(app)
+
+# Configure compression to skip text/event-stream (SSE)
+app.config['COMPRESS_MIMETYPES'] = [
+    'text/html',
+    'text/css',
+    'text/xml',
+    'application/json',
+    'application/javascript'
+    # Notably EXCLUDING 'text/event-stream' to allow true streaming
+]
 
 # Register blueprints
 from api.blog import blog_bp
@@ -134,9 +145,10 @@ def chat():
             mimetype='text/event-stream',
             headers={
                 'Cache-Control': 'no-cache',
-                'X-Accel-Buffering': 'no',
+                'X-Accel-Buffering': 'no',  # Disable nginx buffering
                 'Connection': 'keep-alive',
-                'X-Request-Start': str(request_start)
+                'X-Request-Start': str(request_start),
+                'Content-Encoding': 'identity'  # Disable compression explicitly
             }
         )
 
