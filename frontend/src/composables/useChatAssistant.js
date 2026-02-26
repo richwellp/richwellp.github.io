@@ -450,9 +450,9 @@ export function useChatAssistant() {
 
       // Specific message for cancellations
       if (error.name === 'AbortError') {
-        errorContent = `Request canceled. Feel free to ask another question.`
+        errorContent = `Request canceled. Feel free to ask me something else!`
       } else {
-        errorContent = `I'm having trouble right now. Please reach out to Richwell directly at ${CONTACT.getContactMessage()} for assistance.`
+        errorContent = `I'm having trouble right now. Please ${CONTACT.getContactMessage()} for assistance.`
       }
 
       messages.value.push({
@@ -476,6 +476,7 @@ export function useChatAssistant() {
 
     try {
       console.log('[Chat] Starting streaming request')
+      const requestStart = Date.now()
 
       // Create abort controller for manual cancel only
       currentAbortController = new AbortController()
@@ -493,8 +494,9 @@ export function useChatAssistant() {
         signal: currentAbortController.signal
       })
 
+      const requestTime = ((Date.now() - requestStart) / 1000).toFixed(1)
       currentAbortController = null
-      console.log('[Chat] Got response:', response.status)
+      console.log(`[Chat] Got response in ${requestTime}s:`, response.status)
 
       if (!response.ok) {
         // Try to get error details

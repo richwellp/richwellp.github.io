@@ -1,0 +1,23 @@
+name: API Health Check
+
+# Run every 5 minutes to keep backend responsive and prevent cold starts
+on:
+  schedule:
+    # Every 5 minutes (GitHub Actions minimum is 5 minutes)
+    - cron: '*/5 * * * *'
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check API Health
+        run: |
+          echo "Checking backend API health..."
+          curl -sf https://richwellp-github-io.vercel.app/ || echo "Health check failed (backend might be down)"
+
+      - name: Log Status
+        run: echo "Health check completed at $(date)"
