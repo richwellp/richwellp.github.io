@@ -68,18 +68,22 @@ def chat_warmup():
     try:
         from api.gemini import get_or_create_cached_context
         import time
+        import sys
 
         data = request.get_json()
         site_context = data.get('site_context', {})
 
-        print(f"[Warmup] Starting cache warmup...")
+        # Check if we have actual data
+        has_professional = bool(site_context.get('professional'))
+        print(f"[Warmup] Starting cache warmup... (has_professional: {has_professional})", file=sys.stderr, flush=True)
+
         start = time.time()
 
         # Create cache in background
         cached_context = get_or_create_cached_context(site_context)
 
         elapsed = time.time() - start
-        print(f"[Warmup] Cache warmup completed in {elapsed:.2f}s (cached: {bool(cached_context)})")
+        print(f"[Warmup] Cache warmup completed in {elapsed:.2f}s (cached: {bool(cached_context)})", file=sys.stderr, flush=True)
 
         return jsonify({
             "success": True,
@@ -88,7 +92,7 @@ def chat_warmup():
         })
 
     except Exception as e:
-        print(f"[Warmup] Cache warmup failed: {str(e)}")
+        print(f"[Warmup] Cache warmup failed: {str(e)}", file=sys.stderr, flush=True)
         # Don't fail - just return success false
         return jsonify({
             "success": False,

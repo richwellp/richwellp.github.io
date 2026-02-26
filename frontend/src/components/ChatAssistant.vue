@@ -199,6 +199,7 @@
 import { ref, watch, nextTick, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useChatAssistant } from '../composables/useChatAssistant'
+import { useProfessionalInfo } from '../composables/useProfessionalInfo'
 import { sanitizeHtml } from '../composables/useSanitizer'
 import MarkdownIt from 'markdown-it'
 
@@ -269,11 +270,16 @@ watch(messages, (newMessages) => {
 }, { deep: true })
 
 // Pre-warm backend cache on mount for faster first message
-onMounted(() => {
-  // Wait a bit to avoid blocking initial page load
+onMounted(async () => {
+  // Wait for professional info to load first
+  const { loadProfessionalInfo } = useProfessionalInfo()
+  await loadProfessionalInfo()
+
+  // Small delay to avoid blocking initial page render
   setTimeout(() => {
+    console.log('[Chat] Starting cache warmup with full context')
     warmupCache()
-  }, 1000)
+  }, 500)
 })
 
 const userInput = ref('')

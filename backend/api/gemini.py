@@ -156,15 +156,21 @@ def get_or_create_cached_context(site_context=None):
         try:
             # Verify cache is still valid (not expired)
             if cached and hasattr(cached, 'name'):
+                import sys
+                print(f"[Cache] ✅ Using existing cache (key: {cache_key[:12]}...)", file=sys.stderr, flush=True)
                 return cached
         except Exception as e:
             # Cache expired or invalid, remove it
-            print(f"Cache expired or invalid: {e}")
+            import sys
+            print(f"[Cache] ❌ Cache expired or invalid: {e}", file=sys.stderr, flush=True)
             del _context_cache[cache_key]
 
     # Create new cached content (valid for 1 hour)
     try:
+        import sys
         create_start = time.time()
+        print(f"[Cache] Creating new cache with {len(system_prompt)} character prompt...", file=sys.stderr, flush=True)
+
         cached_content = caching.CachedContent.create(
             model=GEMINI_MODEL,
             display_name="portfolio_context",
@@ -174,11 +180,12 @@ def get_or_create_cached_context(site_context=None):
         create_time = time.time() - create_start
 
         _context_cache[cache_key] = cached_content
-        print(f"[Cache] Created new context cache in {create_time:.2f}s (valid for 1 hour)")
+        print(f"[Cache] ✅ Created new context cache in {create_time:.2f}s (valid for 1 hour, prompt size: {len(system_prompt)} chars)", file=sys.stderr, flush=True)
         return cached_content
     except Exception as e:
         # If caching fails (e.g., API doesn't support it), continue without caching
-        print(f"[Cache] Context caching not available: {e}")
+        import sys
+        print(f"[Cache] ❌ Context caching not available: {e}", file=sys.stderr, flush=True)
         return None
 
 
@@ -352,7 +359,8 @@ def call_gemini_stream(user_message, history=None, site_context=None):
         return
 
     try:
-        print(f"[Gemini] ===== REQUEST START =====")
+        import sys
+        print(f"[Gemini] ===== REQUEST START =====", flush=True, file=sys.stderr)
         request_start = time.time()
 
         # Try to use cached context for better latency
