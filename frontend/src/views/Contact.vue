@@ -240,28 +240,36 @@ const handleSubmit = async () => {
 <style scoped>
 .contact {
   width: 100%;
+  padding: 5rem 2rem;
+  background: var(--bg-primary);
+  min-height: 100vh;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 2rem;
 }
 
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
+  margin-bottom: 1.25rem;
   text-align: center;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.025em;
 }
 
 .page-intro {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
   text-align: center;
-  max-width: 600px;
-  margin: 0 auto 3rem;
+  font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 4rem;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 400;
 }
 
 .contact-content {
@@ -269,6 +277,19 @@ h1 {
   grid-template-columns: 1.5fr 1fr;
   gap: 3rem;
   align-items: start;
+  opacity: 0;
+  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Contact Form Section */
@@ -277,14 +298,31 @@ h1 {
   padding: 2.5rem;
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  box-shadow: 0 2px 10px var(--shadow);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
+              0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-form-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0.8;
 }
 
 .contact-form-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
+  font-size: clamp(1.5rem, 2vw, 1.875rem);
+  margin-bottom: 1.75rem;
   color: var(--text-primary);
   text-align: left;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 /* Status Messages */
@@ -292,16 +330,17 @@ h1 {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.25rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  animation: slideDown 0.3s ease-out;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.75rem;
+  animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -310,64 +349,78 @@ h1 {
 }
 
 .status-message.success {
-  background: rgba(35, 134, 54, 0.1);
-  border: 1px solid var(--accent-primary);
+  background: linear-gradient(135deg, rgba(200, 108, 74, 0.12) 0%, rgba(212, 165, 116, 0.12) 100%);
+  border: 1.5px solid var(--accent-primary);
   color: var(--accent-primary);
+  border-left: 5px solid var(--accent-primary);
 }
 
 .status-message.error {
-  background: rgba(220, 38, 38, 0.1);
-  border: 1px solid #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1.5px solid rgba(220, 38, 38, 0.5);
   color: #dc2626;
+  border-left: 5px solid #dc2626;
 }
 
 .status-message svg {
   flex-shrink: 0;
+  opacity: 0.9;
 }
 
 .status-message p {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 /* Form Styles */
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
   position: relative;
 }
 
 .form-group label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
-  font-size: 0.95rem;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  letter-spacing: -0.01em;
 }
 
 .form-group input,
 .form-group textarea {
-  padding: 0.875rem 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 1rem;
-  font-family: inherit;
-  transition: all 0.2s ease;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.7;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.1);
+  box-shadow: 0 0 0 4px rgba(200, 108, 74, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .form-group input:disabled,
@@ -378,114 +431,187 @@ h1 {
 
 .form-group textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 150px;
+  line-height: 1.65;
 }
 
 .char-count {
-  font-size: 0.85rem;
+  font-size: clamp(0.8125rem, 1vw, 0.875rem);
   color: var(--text-tertiary);
   text-align: right;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .submit-btn {
-  padding: 1rem 2rem;
-  background: var(--accent-primary);
-  color: white;
+  padding: 1.125rem 2.5rem;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: var(--bg-primary);
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   align-self: flex-start;
+  letter-spacing: -0.01em;
+  box-shadow: 0 3px 12px rgba(200, 108, 74, 0.25),
+              0 1px 3px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(200, 108, 74, 0.35),
+              0 4px 8px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
+}
+
+.submit-btn:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(200, 108, 74, 0.3);
 }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 /* Contact Info */
 .contact-info {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .contact-info h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.375rem, 1.8vw, 1.625rem);
+  margin-bottom: 0.75rem;
   color: var(--text-primary);
   text-align: left;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .info-card {
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem;
+  gap: 1.25rem;
+  padding: 1.5rem 1.75rem;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 10px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .info-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow);
+  transform: translateX(8px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1),
+              0 3px 8px rgba(0, 0, 0, 0.06);
+  border-color: var(--accent-primary)40;
+}
+
+.info-card:hover::before {
+  opacity: 1;
 }
 
 .info-card svg {
   flex-shrink: 0;
   color: var(--accent-primary);
+  margin-top: 0.25rem;
 }
 
 .info-card h3 {
-  font-size: 1.1rem;
+  font-size: clamp(1.0625rem, 1.3vw, 1.1875rem);
   margin: 0 0 0.5rem 0;
   color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 .info-card a {
   color: var(--link-color);
   text-decoration: none;
-  font-size: 0.95rem;
-  transition: color 0.2s ease;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   word-break: break-word;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  display: inline-block;
 }
 
 .info-card a:hover {
-  color: var(--link-hover);
-  text-decoration: underline;
+  color: var(--accent-hover);
+  text-decoration: none;
+  transform: translateX(3px);
 }
 
 .response-time {
-  padding: 1.25rem;
-  background: var(--bg-secondary);
-  border-left: 4px solid var(--accent-primary);
-  border-radius: 8px;
-  margin-top: 1rem;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+  border-left: 5px solid var(--accent-primary);
+  border-radius: 10px;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
+  border-left-width: 5px;
 }
 
 .response-time p {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  line-height: 1.7;
   color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.response-time strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 /* Responsive */
 @media (max-width: 968px) {
+  .contact {
+    padding: 3.5rem 1.5rem;
+  }
+
   .contact-content {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 2.5rem;
   }
 
   .contact-info {
@@ -494,16 +620,43 @@ h1 {
 }
 
 @media (max-width: 768px) {
-  h1 {
-    font-size: 2rem;
+  .contact {
+    padding: 3rem 1.25rem;
+  }
+
+  .page-intro {
+    margin-bottom: 3rem;
+  }
+
+  .contact-form-section {
+    padding: 2rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+
+  .info-card {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact {
+    padding: 2.5rem 1rem;
   }
 
   .contact-form-section {
     padding: 1.5rem;
   }
 
+  .form-group input,
+  .form-group textarea {
+    padding: 0.875rem 1rem;
+  }
+
   .submit-btn {
-    width: 100%;
+    padding: 1rem 2rem;
   }
 }
 </style>

@@ -424,69 +424,102 @@ watch(isOpen, async (newValue) => {
   position: fixed;
   bottom: calc(24px + env(safe-area-inset-bottom));
   right: calc(24px + env(safe-area-inset-right));
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  background: var(--accent-primary);
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 16px var(--shadow);
+  box-shadow: 0 4px 20px rgba(200, 108, 74, 0.3),
+              0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  /* Ensure it's always on top and tappable */
+  color: var(--bg-primary);
   pointer-events: auto;
   touch-action: manipulation;
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-fab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
 }
 
 .chat-fab:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 8px 24px var(--shadow);
-  background: var(--accent-hover);
+  transform: translateY(-4px) scale(1.08);
+  box-shadow: 0 8px 32px rgba(200, 108, 74, 0.4),
+              0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
+}
+
+.chat-fab:hover::before {
+  left: 100%;
 }
 
 .chat-fab:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(-2px) scale(1.02);
 }
 
 .chat-fab:focus-visible {
   outline: 3px solid var(--accent-primary);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 .chat-icon {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.3s ease;
+  width: 26px;
+  height: 26px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .chat-fab-active {
-  background: var(--text-secondary);
+  background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-tertiary) 100%);
 }
 
 .chat-fab-active:hover {
-  background: var(--text-primary);
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
 }
 
 /* Chat Panel */
 .chat-panel {
   position: fixed;
-  bottom: 92px;
+  bottom: 96px;
   right: 24px;
-  width: min(420px, calc(100vw - 48px));
-  max-height: min(640px, calc(100vh - 140px));
+  width: min(440px, calc(100vw - 48px));
+  max-height: min(660px, calc(100vh - 140px));
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid var(--border-color);
   border-radius: 16px;
-  box-shadow: 0 12px 48px var(--shadow), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12),
+              0 4px 16px rgba(0, 0, 0, 0.08),
+              0 0 0 1px rgba(0, 0, 0, 0.05);
   z-index: 999;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  position: relative;
+}
+
+.chat-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  z-index: 10;
 }
 
 /* Panel transitions */
@@ -639,29 +672,34 @@ watch(isOpen, async (newValue) => {
 }
 
 .message-content {
-  padding: 0.875rem 1.125rem;
+  padding: 1rem 1.25rem;
   border-radius: 12px;
-  line-height: 1.6;
+  line-height: 1.65;
   word-wrap: break-word;
   word-break: break-word;
-  font-size: 0.9375rem;
-  transition: transform 0.2s ease;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .chat-message.user .message-content {
-  background: var(--accent-primary);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: var(--bg-primary);
   border-bottom-right-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 12px rgba(200, 108, 74, 0.25),
+              0 1px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
 }
 
 .chat-message.assistant .message-content {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border-bottom-left-radius: 4px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  padding-right: 2.5rem; /* Make room for copy button */
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding-right: 2.75rem; /* Make room for copy button */
 }
 
 /* CRITICAL: Links must override the text-primary color above */
@@ -907,28 +945,32 @@ watch(isOpen, async (newValue) => {
 
 .chat-quick-actions button {
   flex-shrink: 0;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 0.5rem 1rem;
+  background: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.625rem 1.125rem;
   border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .chat-quick-actions button:hover:not(:disabled) {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: var(--bg-primary);
   border-color: var(--accent-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(200, 108, 74, 0.25),
+              0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .chat-quick-actions button:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(200, 108, 74, 0.2);
 }
 
 .chat-quick-actions button:focus-visible {
@@ -953,25 +995,31 @@ watch(isOpen, async (newValue) => {
 
 .chat-input-area input {
   flex: 1;
-  padding: 0.875rem 1rem;
-  border: 2px solid var(--border-color);
+  padding: 1rem 1.25rem;
+  border: 1.5px solid var(--border-color);
   border-radius: 10px;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 0.9375rem;
-  font-family: inherit;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .chat-input-area input:focus {
   outline: none;
   border-color: var(--accent-primary);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.1);
+  box-shadow: 0 0 0 4px rgba(200, 108, 74, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .chat-input-area input::placeholder {
   color: var(--text-tertiary);
+  opacity: 0.7;
 }
 
 .chat-input-area input:disabled {
@@ -980,28 +1028,50 @@ watch(isOpen, async (newValue) => {
 }
 
 .send-btn {
-  padding: 0.875rem 1.125rem;
-  background: var(--accent-primary);
-  color: white;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: var(--bg-primary);
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  min-width: 48px;
+  min-width: 50px;
+  font-weight: 600;
+  box-shadow: 0 3px 12px rgba(200, 108, 74, 0.25),
+              0 1px 3px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.send-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
 }
 
 .send-btn:hover:not(:disabled) {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(200, 108, 74, 0.35),
+              0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.send-btn:hover:not(:disabled)::before {
+  left: 100%;
 }
 
 .send-btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(200, 108, 74, 0.3);
 }
 
 .send-btn:focus-visible {

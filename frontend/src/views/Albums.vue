@@ -55,7 +55,7 @@ onMounted(async () => {
 
 <style scoped>
 .albums-page {
-  padding: 4rem 2rem;
+  padding: 5rem 2rem;
   background: var(--bg-primary);
   min-height: 100vh;
 }
@@ -63,36 +63,59 @@ onMounted(async () => {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+  opacity: 0;
+  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Header */
 .albums-header {
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .back-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--link-color);
   text-decoration: none;
   font-weight: 600;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  margin-bottom: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: -0.01em;
 }
 
 .back-link:hover {
-  color: var(--link-hover);
+  color: var(--accent-hover);
+  transform: translateX(-3px);
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.025em;
 }
 
 .albums-subtitle {
-  font-size: 1.1rem;
+  font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   color: var(--text-secondary);
-  max-width: 800px;
+  line-height: 1.7;
+  max-width: 720px;
+  font-weight: 400;
 }
 
 /* Loading & Error States */
@@ -102,11 +125,17 @@ h1 {
   text-align: center;
   padding: 4rem 2rem;
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 1.2vw, 1.0625rem);
+  font-weight: 400;
 }
 
 .error {
-  color: #ef4444;
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1.5px solid rgba(220, 38, 38, 0.3);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
 }
 
 /* Albums Grid */
@@ -120,25 +149,46 @@ h1 {
   background: var(--bg-card);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 10px var(--shadow);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
+              0 1px 3px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--border-color);
   text-decoration: none;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.album-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 2;
 }
 
 .album-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px var(--shadow);
-  border-color: var(--accent-primary);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12),
+              0 6px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-primary)60;
+}
+
+.album-card:hover::before {
+  opacity: 1;
 }
 
 .album-image {
   width: 100%;
-  height: 240px;
+  height: 280px;
   overflow: hidden;
   background: var(--bg-secondary);
+  position: relative;
 }
 
 .album-image :deep(img),
@@ -146,7 +196,7 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .album-image video {
@@ -155,24 +205,25 @@ h1 {
 
 .album-card:hover .album-image :deep(img),
 .album-card:hover .album-image video {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .album-image.placeholder {
-  background: var(--bg-tertiary);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .placeholder-text {
-  font-size: 1.2rem;
+  font-size: clamp(1.125rem, 1.4vw, 1.25rem);
   color: var(--text-secondary);
-  opacity: 0.7;
+  opacity: 0.6;
+  font-weight: 500;
 }
 
 .album-content {
-  padding: 1.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -181,68 +232,111 @@ h1 {
 .album-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
 }
 
 .album-content h2 {
-  font-size: 1.5rem;
+  font-size: clamp(1.375rem, 1.8vw, 1.625rem);
   color: var(--text-primary);
   margin: 0;
   line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+
+.album-card:hover .album-content h2 {
+  color: var(--accent-primary);
 }
 
 .album-description {
   color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
   flex: 1;
+  font-weight: 400;
 }
 
 .view-more {
   color: var(--link-color);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
   margin-top: auto;
+  letter-spacing: -0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .album-card:hover .view-more {
-  color: var(--link-hover);
+  color: var(--accent-hover);
+  transform: translateX(3px);
 }
 
 .coming-soon-badge {
   display: inline-block;
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
   font-weight: 500;
   margin-top: auto;
+  border: 1px solid var(--border-color);
+  letter-spacing: -0.01em;
 }
 
 .album-card.coming-soon {
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 .album-card.coming-soon:hover {
-  opacity: 1;
+  opacity: 0.95;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .albums-page {
-    padding: 2rem 1rem;
+    padding: 3.5rem 1.5rem;
   }
 
-  h1 {
-    font-size: 2rem;
+  .albums-header {
+    margin-bottom: 3rem;
   }
 
   .albums-grid {
     grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .album-image {
+    height: 240px;
+  }
+
+  .album-content {
+    padding: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .albums-page {
+    padding: 3rem 1.25rem;
+  }
+
+  .albums-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .albums-grid {
     gap: 1.5rem;
+  }
+
+  .album-image {
+    height: 220px;
+  }
+
+  .album-content {
+    padding: 1.5rem;
   }
 }
 </style>

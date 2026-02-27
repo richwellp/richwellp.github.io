@@ -148,26 +148,48 @@ onUnmounted(() => {
 .toc-toggle {
   width: 100%;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.125rem 1.25rem;
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
   font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  transition: all 0.3s ease;
+  gap: 0.875rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.toc-toggle::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .toc-toggle:hover {
   background: var(--bg-tertiary);
   border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.toc-toggle:hover::before {
+  opacity: 1;
 }
 
 .toc-icon {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
 }
 
 .toc-label {
@@ -176,44 +198,72 @@ onUnmounted(() => {
 }
 
 .toc-arrow {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  transition: transform 0.3s ease;
+  font-size: 0.875rem;
+  color: var(--accent-primary);
+  font-weight: 700;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toc-toggle[aria-expanded="true"] .toc-arrow {
-  transform: none;
+  transform: rotate(90deg);
 }
 
 /* Desktop TOC (Sticky Sidebar) */
 .toc-nav.desktop {
   position: absolute;
   top: 0;
-  right: -280px;
-  width: 250px;
+  right: -300px;
+  width: 260px;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.75rem;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
+              0 1px 3px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.toc-nav.desktop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 12px 12px 0 0;
 }
 
 .toc-nav.desktop.sticky {
   position: fixed;
-  top: 80px;
+  top: 90px;
   right: auto;
-  left: calc(50% + 480px);
+  left: calc(50% + 500px);
 }
 
 .toc-title {
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.075em;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+  position: relative;
+}
+
+.toc-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--accent-primary);
 }
 
 .toc-list {
@@ -223,7 +273,7 @@ onUnmounted(() => {
 }
 
 .toc-list li {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .toc-list li.level-2 > a {
@@ -231,65 +281,73 @@ onUnmounted(() => {
 }
 
 .toc-list li.level-3 > a {
-  padding-left: 1rem;
-  font-size: 0.9rem;
+  padding-left: 1.25rem;
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
 }
 
 .toc-list a {
   display: block;
   color: var(--text-secondary);
   text-decoration: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  border-left: 2px solid transparent;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
-  line-height: 1.4;
+  padding: 0.625rem 0.875rem;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .toc-list a:hover {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
+  background: linear-gradient(90deg, rgba(200, 108, 74, 0.08), transparent);
+  border-left-color: var(--accent-primary);
+  transform: translateX(2px);
 }
 
 .toc-list a.active {
   color: var(--accent-primary);
   border-left-color: var(--accent-primary);
-  background: rgba(var(--accent-primary-rgb), 0.1);
+  background: linear-gradient(90deg, rgba(200, 108, 74, 0.12), transparent);
   font-weight: 600;
 }
 
 /* Mobile Navigation */
 .toc-nav.mobile {
   background: var(--bg-tertiary);
-  border-radius: 8px;
-  padding: 1rem 0;
-  margin-top: 0.5rem;
-  animation: slideDown 0.3s ease;
+  border-radius: 10px;
+  padding: 1.25rem 0;
+  margin-top: 0.75rem;
+  animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .toc-nav.mobile .toc-list {
-  max-height: 300px;
+  max-height: 320px;
   overflow-y: auto;
 }
 
 .toc-nav.mobile a {
-  padding: 0.5rem 1.5rem;
-  border-left: 3px solid transparent;
+  padding: 0.75rem 1.5rem;
+  border-left: 4px solid transparent;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
 }
 
 .toc-nav.mobile a.active {
   border-left-color: var(--accent-primary);
+  background: linear-gradient(90deg, rgba(200, 108, 74, 0.12), transparent);
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-20px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -299,17 +357,18 @@ onUnmounted(() => {
 }
 
 .toc-nav::-webkit-scrollbar-track {
-  background: var(--bg-tertiary);
-  border-radius: 3px;
+  background: transparent;
+  margin: 4px 0;
 }
 
 .toc-nav::-webkit-scrollbar-thumb {
   background: var(--accent-primary);
-  border-radius: 3px;
+  border-radius: 10px;
+  transition: background 0.3s ease;
 }
 
 .toc-nav::-webkit-scrollbar-thumb:hover {
-  background: var(--link-hover);
+  background: var(--accent-hover);
 }
 
 /* Responsive: Hide desktop TOC and show mobile */

@@ -152,15 +152,35 @@ import { computed } from 'vue'
   overflow: hidden;
   text-decoration: none;
   display: block;
-  box-shadow: 0 4px 15px var(--shadow);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
+              0 1px 3px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   aspect-ratio: 4 / 3;
 }
 
+.album-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 3;
+}
+
 .album-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 25px var(--shadow);
+  transform: translateY(-10px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12),
+              0 8px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-primary)40;
+}
+
+.album-card:hover::before {
+  opacity: 1;
 }
 
 .album-cover {
@@ -182,20 +202,20 @@ import { computed } from 'vue'
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .album-card:hover .cover-media {
-  transform: scale(1.1);
+  transform: scale(1.12);
 }
 
 /* Fade transition animations */
 .fade-slide-enter-active {
-  transition: opacity 0.8s ease;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fade-slide-leave-active {
-  transition: opacity 0.8s ease;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fade-slide-enter-from {
@@ -220,12 +240,16 @@ import { computed } from 'vue'
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8));
+  background: linear-gradient(to bottom,
+    rgba(15, 20, 25, 0.1) 0%,
+    rgba(15, 20, 25, 0.6) 50%,
+    rgba(15, 20, 25, 0.9) 100%);
   display: flex;
   align-items: flex-end;
-  padding: 2rem;
+  padding: 2.25rem;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
 }
 
 .album-card:hover .album-overlay {
@@ -235,33 +259,46 @@ import { computed } from 'vue'
 .overlay-content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
   color: white;
 }
 
 .album-title {
-  font-size: 1.8rem;
+  font-size: clamp(1.5rem, 2vw, 1.875rem);
   font-weight: 700;
   margin: 0;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .album-subtitle {
-  font-size: 0.95rem;
-  opacity: 0.9;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  opacity: 0.95;
   margin: 0 0 0.5rem 0;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .view-link {
-  font-size: 1rem;
+  font-size: clamp(0.9375rem, 1.1vw, 1rem);
   font-weight: 600;
-  color: var(--accent-primary);
+  color: var(--accent-secondary);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease 0.1s;
+  transform: translateY(15px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+  letter-spacing: -0.01em;
+  text-shadow: none;
+  display: inline-block;
 }
 
 .album-card:hover .view-link {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) translateX(3px);
 }
 </style>
