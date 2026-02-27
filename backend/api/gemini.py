@@ -346,26 +346,23 @@ def select_relevant_context(message, full_context):
     return {'professional': selected}
 
 
-def call_gemini_stream(user_message, history=None, site_context=None):
+def call_gemini(user_message, history=None, site_context=None):
     """
-    Call Google Gemini API with streaming support.
-
-    Yields response chunks as they arrive.
+    Call Google Gemini API and return complete response.
 
     Args:
         user_message (str): The user's message
         history (list): Optional conversation history
         site_context (dict): Optional site context
 
-    Yields:
-        dict: Response chunks with 'text', 'sources', or 'error' keys
+    Returns:
+        dict: Response with 'text', 'sources', or 'error' keys
     """
     if not GEMINI_API_KEY:
-        yield {
+        return {
             "error": True,
             "message": f"Sorry, the chat service is not configured. {get_contact_message()}"
         }
-        return
 
     try:
         import sys
@@ -414,58 +411,49 @@ def call_gemini_stream(user_message, history=None, site_context=None):
             candidate_count=1
         )
 
-        # Send message and stream response
+        # Send message and get complete response
         api_call_start = time.time()
         print(f"[Gemini] Calling API with message: '{user_message[:50]}...'", flush=True, file=sys.stderr)
 
         response = chat.send_message(
             user_message,
-            stream=True,
             generation_config=generation_config
         )
         api_call_time = time.time() - api_call_start
-        print(f"[Gemini] API call returned iterator in {api_call_time:.2f}s", flush=True, file=sys.stderr)
+        print(f"[Gemini] API call completed in {api_call_time:.2f}s", flush=True, file=sys.stderr)
 
-        # Use keyword matching for instant source display (better UX than waiting for AI)
+        # Use keyword matching for sources
         sources = determine_relevant_sources(user_message, site_context)
-        yield {"sources": sources}
 
-        # Stream text chunks with timing
-        first_token = True
-        first_token_time = None
-
+        # Extract and clean response text
         import re
-        for chunk in response:
-            if chunk.text:
-                # Track first token latency (time to first response)
-                if first_token:
-                    first_token_time = time.time() - start_time
-                    print(f"[Gemini] First token received in {first_token_time:.2f}s")
-                    first_token = False
+        response_text = response.text if hasattr(response, 'text') else str(response)
+        # Remove [SOURCES: ...] tag if present
+        response_text = re.sub(r'\[SOURCES:[^\]]+\]\s*', '', response_text)
 
-                # Remove [SOURCES: ...] tag if present (keep response clean)
-                chunk_text = re.sub(r'\[SOURCES:[^\]]+\]\s*', '', chunk.text)
-                if chunk_text:
-                    yield {"text": chunk_text}
-
-        # Log successful completion with timing breakdown
+        # Log successful completion
         total_elapsed = time.time() - start_time
-        print(f"[Gemini] Streaming completed in {total_elapsed:.2f}s (first token: {first_token_time:.2f}s)")
+        print(f"[Gemini] Request completed in {total_elapsed:.2f}s", flush=True, file=sys.stderr)
+
+        return {
+            "text": response_text,
+            "sources": sources
+        }
 
     except Exception as e:
         error_msg = str(e).lower()
-        print(f"Gemini streaming error: {str(e)}", flush=True, file=sys.stderr)
+        print(f"Gemini error: {str(e)}", flush=True, file=sys.stderr)
         print(f"Error type: {type(e).__name__}", flush=True, file=sys.stderr)
 
         # Check for rate limit errors
         if 'quota' in error_msg or 'rate limit' in error_msg or '429' in error_msg or 'resource_exhausted' in error_msg:
-            yield {
+            return {
                 "error": True,
                 "error_type": "rate_limit",
                 "message": f"I'm currently at my free API limit (resets daily at midnight Pacific time). {get_contact_message()}"
             }
         else:
-            yield {
+            return {
                 "error": True,
                 "error_type": "api_error",
                 "message": f"I'm having trouble processing your request right now. {get_contact_message()}"

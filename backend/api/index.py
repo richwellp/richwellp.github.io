@@ -72,7 +72,7 @@ def check_rate_limit(ip_address):
 
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
-    """Streaming chat endpoint using Server-Sent Events (SSE)"""
+    """Chat endpoint returning complete JSON response"""
     if request.method == "OPTIONS":
         return "", 200
 
@@ -91,7 +91,7 @@ def chat():
         ), 429
 
     try:
-        from api.gemini import call_gemini_stream
+        from api.gemini import call_gemini
 
         parse_start = time.time()
         data = request.get_json()
@@ -125,35 +125,20 @@ def chat():
             history = []
         history = history[-HISTORY_LIMIT:]
 
-        def generate():
-            """Generator function for SSE"""
-            stream_start = time.time()
-            try:
-                for chunk in call_gemini_stream(user_message, history, site_context):
-                    # Format as SSE
-                    yield f"data: {json.dumps(chunk)}\n\n"
+        # Call Gemini and get complete response
+        gemini_start = time.time()
+        result = call_gemini(user_message, history, site_context)
+        gemini_time = time.time() - gemini_start
 
-                # Send done signal with timing
-                total_time = time.time() - request_start
-                yield f"data: {json.dumps({'done': True, 'timing': {'total': round(total_time, 2), 'stream': round(time.time() - stream_start, 2)}})}\n\n"
-            except Exception as e:
-                print(f"Streaming error: {str(e)}", file=sys.stderr, flush=True)
-                yield f"data: {json.dumps({'error': True, 'message': f'The AI is taking too long to respond. Please try again. {get_contact_message()}'})}\n\n"
+        # Add timing info
+        total_time = time.time() - request_start
+        result['timing'] = {
+            'total': round(total_time, 2),
+            'gemini': round(gemini_time, 2)
+        }
 
-        response = Response(
-            stream_with_context(generate()),
-            mimetype='text/event-stream',
-            headers={
-                'Cache-Control': 'no-cache',
-                'X-Accel-Buffering': 'no',  # Disable nginx buffering
-                'Connection': 'keep-alive',
-                'X-Request-Start': str(request_start),
-                'Content-Encoding': 'identity'  # Disable compression explicitly
-            }
-        )
-
-        print(f"[Endpoint] Returning response (setup took {time.time() - request_start:.2f}s)", file=sys.stderr, flush=True)
-        return response
+        print(f"[Endpoint] Returning response (total took {total_time:.2f}s)", file=sys.stderr, flush=True)
+        return jsonify(result)
 
     except Exception as e:
         print(f"Chat error: {str(e)}")

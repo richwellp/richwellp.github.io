@@ -432,10 +432,9 @@ export function useChatAssistant() {
           content: msg.content
         }))
 
-      console.log('[Chat] Attempting streaming...')
-      // Use streaming with automatic fallback to regular mode if it fails
-      await sendMessageStreaming(userInput, conversationHistory)
-      console.log('[Chat] Streaming complete')
+      console.log('[Chat] Sending to API...')
+      await sendMessageJSON(userInput, conversationHistory)
+      console.log('[Chat] Response complete')
 
     } catch (error) {
       console.error('[Chat] ERROR in sendMessage:', {
@@ -470,15 +469,13 @@ export function useChatAssistant() {
     }
   }
 
-  // Streaming implementation using fetch + SSE
-  const sendMessageStreaming = async (userInput, conversationHistory) => {
-    let assistantMessageId = null
-
+  // JSON implementation with frontend typing animation
+  const sendMessageJSON = async (userInput, conversationHistory) => {
     try {
-      console.log('[Chat] Starting streaming request')
+      console.log('[Chat] Starting request')
       const requestStart = Date.now()
 
-      // Create abort controller for manual cancel only
+      // Create abort controller for manual cancel
       currentAbortController = new AbortController()
 
       const response = await fetch(`${API_ENDPOINTS.chat}`, {
@@ -500,118 +497,64 @@ export function useChatAssistant() {
 
       if (!response.ok) {
         // Try to get error details
-        try {
-          const data = await response.json()
-          throw new Error(data.error || data.message || 'Streaming failed')
-        } catch {
-          throw new Error('Streaming failed')
-        }
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || data.message || 'Request failed')
       }
 
-      // Create a placeholder message for streaming
-      assistantMessageId = generateUUID()
+      const data = await response.json()
+
+      // Log timing breakdown if available
+      if (data.timing) {
+        console.log(`[Chat] ⏱️ Backend timing: total=${data.timing.total}s, gemini=${data.timing.gemini}s`)
+      }
+
+      // Check for error response
+      if (data.error) {
+        const errorId = generateUUID()
+        messages.value.push({
+          id: errorId,
+          type: 'assistant',
+          content: '',
+          timestamp: new Date(),
+          isStreaming: true
+        })
+        await simulateStreaming(errorId, data.message || 'An error occurred.', 2)
+        return
+      }
+
+      // Create message and animate typing
+      const assistantMessageId = generateUUID()
       messages.value.push({
         id: assistantMessageId,
         type: 'assistant',
         content: '',
-        sources: [],
+        sources: data.sources || [],
         timestamp: new Date(),
         isStreaming: true
       })
 
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-
-        if (done) break
-
-        // Decode chunk and add to buffer
-        buffer += decoder.decode(value, { stream: true })
-
-        // Process complete SSE messages
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || '' // Keep incomplete line in buffer
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6))
-
-              // Find the message we're streaming to
-              const messageIndex = messages.value.findIndex(m => m.id === assistantMessageId)
-              if (messageIndex === -1) continue
-
-              if (data.text) {
-                // Append text chunk
-                messages.value[messageIndex].content += data.text
-              } else if (data.sources) {
-                // Set sources
-                messages.value[messageIndex].sources = data.sources
-              } else if (data.error) {
-                // Handle streaming error - show error message
-                messages.value[messageIndex].content = data.message || 'An error occurred during streaming.'
-                messages.value[messageIndex].isStreaming = false
-                saveMessages()
-                return
-              } else if (data.done) {
-                // Streaming complete
-                messages.value[messageIndex].isStreaming = false
-
-                // Log timing breakdown if available
-                if (data.timing) {
-                  console.log(`[Chat] ⏱️  Backend timing: total=${data.timing.total}s, stream=${data.timing.stream}s`)
-                }
-              }
-            } catch (parseError) {
-              console.error('Failed to parse SSE data:', parseError)
-            }
-          }
-        }
-      }
-
-      // Mark streaming complete if not already marked
-      const messageIndex = messages.value.findIndex(m => m.id === assistantMessageId)
-      if (messageIndex !== -1) {
-        if (messages.value[messageIndex].isStreaming) {
-          messages.value[messageIndex].isStreaming = false
-        }
-
-        // If no content was received, add fallback message
-        if (!messages.value[messageIndex].content || messages.value[messageIndex].content.trim() === '') {
-          messages.value[messageIndex].content = `Sorry, I received an empty response. Please try again or contact Richwell at ${CONTACT.email}.`
-        }
-      }
-
-      // Defensive: Explicitly clear typing state here too
-      isTyping.value = false
+      // Animate the response typing out
+      await simulateStreaming(assistantMessageId, data.text || '', 2)
 
       // Log total frontend time
       const totalTime = ((Date.now() - requestStart) / 1000).toFixed(1)
-      console.log(`[Chat] ✅ Streaming completed in ${totalTime}s total (frontend start to finish)`)
+      console.log(`[Chat] ✅ Response complete in ${totalTime}s total (frontend start to finish)`)
+
+      // Defensive: Explicitly clear typing state
+      isTyping.value = false
 
       // Save to localStorage
       saveMessages()
 
     } catch (error) {
-      console.error('[Chat] Streaming error:', error.name, error.message)
+      console.error('[Chat] Request error:', error.name, error.message)
 
-      // Remove placeholder message if it was created
-      if (assistantMessageId) {
-        const index = messages.value.findIndex(m => m.id === assistantMessageId)
-        if (index !== -1) {
-          messages.value.splice(index, 1)
-        }
-      }
-
-      // If manually canceled, show message
+      // If manually canceled
       if (error.name === 'AbortError') {
-        console.error('[Chat] Request manually canceled by user')
+        console.log('[Chat] Request manually canceled by user')
 
         const errorId = generateUUID()
-        const errorContent = `Request canceled. Feel free to ask another question or contact Richwell at ${CONTACT.email}.`
+        const errorContent = `Request canceled. Feel free to ask another question!`
 
         messages.value.push({
           id: errorId,
