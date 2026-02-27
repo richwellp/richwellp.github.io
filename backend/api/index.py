@@ -50,6 +50,12 @@ rate_limit_storage = defaultdict(list)
 def root():
     return jsonify(message="Hello from Flask on Vercel!")
 
+@app.route("/favicon.ico", methods=["GET"])
+@app.route("/favicon.png", methods=["GET"])
+def favicon():
+    # Return 204 No Content instead of 404
+    return "", 204
+
 def check_rate_limit(ip_address):
     """Check if IP has exceeded rate limit."""
     now = datetime.now()
