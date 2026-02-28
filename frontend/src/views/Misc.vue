@@ -229,6 +229,13 @@ onMounted(async () => {
       globeObserver = null
       mapState.value = 'image'
     }
+    script.onload = () => {
+      // Globe.js defers init via window.addEventListener('load',...).
+      // In a SPA that event has already fired, so dispatch it to unblock rendering.
+      if (!document.querySelector('.clstrm_outer')) {
+        window.dispatchEvent(new Event('load'))
+      }
+    }
     el.appendChild(script)
 
     // Last-resort timeout: if no .clstrm_outer in 8s, fall back to static image
