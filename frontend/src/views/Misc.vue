@@ -196,18 +196,23 @@ onMounted(async () => {
   document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
 
   const el = mapContainerRef.value
-  console.log('[globe] el:', el, 'isConnected:', el?.isConnected)
   if (!el) { mapState.value = 'image' }
   else {
-    // Clean up any orphaned globe element from a prior SPA visit
+    // Clean up prior visit: orphaned widget, old script tag, and any global
+    // singleton state globe.js may have set to prevent re-initialization
     document.querySelector('.clstrm_outer')?.remove()
+    document.getElementById('clstr_globe')?.remove()
+    delete window.embed_clustrmaps
 
     const commitGlobe = (globe) => {
-      // Always use the live ref in case Vue replaced the element since mount
       const container = mapContainerRef.value
-      console.log('[globe] commitGlobe — container:', container, 'isConnected:', container?.isConnected)
       if (!container) return
-      if (!container.contains(globe)) container.appendChild(globe)
+      if (!container.contains(globe)) {
+        container.appendChild(globe)
+        // Globe computed its dimensions against document.body (full width).
+        // Dispatch resize so globe.js recalculates for the smaller container.
+        window.dispatchEvent(new Event('resize'))
+      }
       container.closest('.map-container')?.classList.add('visible')
       clearTimeout(globeTimer)
       globeObserver?.disconnect()
@@ -216,7 +221,6 @@ onMounted(async () => {
 
     globeObserver = new MutationObserver(() => {
       const globe = document.querySelector('.clstrm_outer')
-      console.log('[globe] MutationObserver fired — .clstrm_outer found:', !!globe)
       if (globe) commitGlobe(globe)
     })
     globeObserver.observe(document.body, { childList: true, subtree: true })
@@ -224,26 +228,23 @@ onMounted(async () => {
     const script = document.createElement('script')
     script.type = 'text/javascript'
     script.id = 'clstr_globe'
-    script.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+    // Cache-bust with a per-session counter so the browser treats each SPA
+    // navigation as a fresh script execution (avoids browser deduplication).
+    script.src = `//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&_t=${Date.now()}`
     script.onerror = () => {
-      console.log('[globe] script.onerror fired')
       clearTimeout(globeTimer)
       globeObserver?.disconnect()
       globeObserver = null
       mapState.value = 'image'
     }
     script.onload = () => {
-      const found = !!document.querySelector('.clstrm_outer')
-      console.log('[globe] script.onload — .clstrm_outer already exists:', found)
-      if (!found) window.dispatchEvent(new Event('load'))
+      // Globe.js defers init via window.addEventListener('load',...).
+      // In a SPA that event has already fired, so dispatch it to unblock rendering.
+      if (!document.querySelector('.clstrm_outer')) window.dispatchEvent(new Event('load'))
     }
-    // Append to body (not el) — ensures script is always in a connected DOM node
     document.body.appendChild(script)
-    console.log('[globe] script appended to body, isConnected:', script.isConnected)
 
     globeTimer = setTimeout(() => {
-      const found = !!document.querySelector('.clstrm_outer')
-      console.log('[globe] 8s timer fired — .clstrm_outer exists:', found)
       globeObserver?.disconnect()
       globeObserver = null
       if (!mapContainerRef.value?.querySelector('.clstrm_outer')) {
@@ -725,8 +726,9 @@ h1::after {
 .globe-container {
   width: 100%;
   max-width: 500px;
+  height: 500px;
   margin: 0 auto;
-  min-height: 300px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
