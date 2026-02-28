@@ -198,16 +198,24 @@ onMounted(async () => {
   const el = mapContainerRef.value
   if (!el) { mapState.value = 'image' }
   else {
+    // Clean up any orphaned globe element from a prior SPA visit
+    document.querySelector('.clstrm_outer')?.remove()
+
+    const commitGlobe = (globe) => {
+      if (!el.contains(globe)) el.appendChild(globe)
+      // Force map-container visible immediately — don't wait for scroll reveal,
+      // since on SPA nav the page starts at the top and map-container is opacity:0
+      el.closest('.map-container')?.classList.add('visible')
+      clearTimeout(globeTimer)
+      globeObserver?.disconnect()
+      globeObserver = null
+    }
+
     // Globe.js appends .clstrm_outer to document.body by default (not to the script's parent).
     // Watch body; when it appears, relocate into our container so layout/cleanup works.
     globeObserver = new MutationObserver(() => {
       const globe = document.querySelector('.clstrm_outer')
-      if (globe) {
-        if (!el.contains(globe)) el.appendChild(globe)
-        clearTimeout(globeTimer)
-        globeObserver.disconnect()
-        globeObserver = null
-      }
+      if (globe) commitGlobe(globe)
     })
     globeObserver.observe(document.body, { childList: true, subtree: true })
 
@@ -705,7 +713,9 @@ h1::after {
 
 .globe-container {
   width: 100%;
-  min-height: 400px;
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
