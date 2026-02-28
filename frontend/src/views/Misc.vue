@@ -142,6 +142,8 @@ const mapState = ref('globe')   // 'globe' | 'image' | 'blocked'
 const mapContainerRef = ref(null)
 let globeTimer = null
 let globeObserver = null
+let origBodyAppend = null
+let origBodyInsert = null
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -198,20 +200,29 @@ onMounted(async () => {
   const el = mapContainerRef.value
   if (!el) { mapState.value = 'image' }
   else {
-    // Clean up prior visit: orphaned widget, old script tag, and any global
-    // singleton state globe.js may have set to prevent re-initialization
+    // Clean up any remnants from prior visits (incl. #clstr_a guard element globe.js checks)
+    document.getElementById('clstr_a')?.remove()
     document.querySelector('.clstrm_outer')?.remove()
     document.getElementById('clstr_globe')?.remove()
     delete window.embed_clustrmaps
 
     const commitGlobe = (globe) => {
+      // Restore intercepted DOM methods first so any subsequent appends work normally
+      if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
+      if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
+
       const container = mapContainerRef.value
       if (!container) return
       if (!container.contains(globe)) {
         container.appendChild(globe)
-        // Globe computed its dimensions against document.body (full width).
-        // Dispatch resize so globe.js recalculates for the smaller container.
-        window.dispatchEvent(new Event('resize'))
+        // Scale globe to fit container using zoom (affects layout, unlike transform:scale)
+        requestAnimationFrame(() => {
+          const globeW = parseFloat(globe.style.width) || globe.offsetWidth
+          const containerW = container.offsetWidth || window.innerWidth
+          if (globeW && containerW && globeW > containerW) {
+            globe.style.zoom = String(containerW / globeW)
+          }
+        })
       }
       container.closest('.map-container')?.classList.add('visible')
       clearTimeout(globeTimer)
@@ -219,34 +230,54 @@ onMounted(async () => {
       globeObserver = null
     }
 
+    // Intercept document.body.appendChild and insertBefore to capture globe.js output
+    // regardless of which event (load, DOMContentLoaded, or immediate) it uses to init.
+    origBodyAppend = document.body.appendChild.bind(document.body)
+    origBodyInsert = document.body.insertBefore.bind(document.body)
+
+    const interceptNode = (node) => {
+      if (node?.classList?.contains('clstrm_outer')) {
+        commitGlobe(node)
+        return true
+      }
+      return false
+    }
+
+    document.body.appendChild = function (node) {
+      if (interceptNode(node)) return node
+      return origBodyAppend(node)
+    }
+    document.body.insertBefore = function (node, ref) {
+      if (interceptNode(node)) return node
+      return origBodyInsert(node, ref)
+    }
+
+    // MutationObserver as secondary fallback (jQuery's DOM methods may bypass the intercept)
     globeObserver = new MutationObserver(() => {
       const globe = document.querySelector('.clstrm_outer')
-      if (globe) commitGlobe(globe)
+      if (globe && !mapContainerRef.value?.contains(globe)) commitGlobe(globe)
     })
     globeObserver.observe(document.body, { childList: true, subtree: true })
 
     const script = document.createElement('script')
     script.type = 'text/javascript'
     script.id = 'clstr_globe'
-    // Cache-bust with a per-session counter so the browser treats each SPA
-    // navigation as a fresh script execution (avoids browser deduplication).
     script.src = `//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&_t=${Date.now()}`
     script.onerror = () => {
       clearTimeout(globeTimer)
       globeObserver?.disconnect()
       globeObserver = null
+      if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
+      if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
       mapState.value = 'image'
-    }
-    script.onload = () => {
-      // Globe.js defers init via window.addEventListener('load',...).
-      // In a SPA that event has already fired, so dispatch it to unblock rendering.
-      if (!document.querySelector('.clstrm_outer')) window.dispatchEvent(new Event('load'))
     }
     document.body.appendChild(script)
 
     globeTimer = setTimeout(() => {
       globeObserver?.disconnect()
       globeObserver = null
+      if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
+      if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
       if (!mapContainerRef.value?.querySelector('.clstrm_outer')) {
         document.querySelector('.clstrm_outer')?.remove()
         mapState.value = 'image'
@@ -271,6 +302,8 @@ onUnmounted(() => {
   revealObserver?.disconnect()
   clearTimeout(globeTimer)
   globeObserver?.disconnect()
+  if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
+  if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
   document.querySelector('.clstrm_outer')?.remove()
   document.getElementById('clstr_globe')?.remove()
 })
@@ -725,13 +758,8 @@ h1::after {
 
 .globe-container {
   width: 100%;
-  max-width: 500px;
-  height: 500px;
   margin: 0 auto;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 200px;
 }
 
 .map-blocked {
