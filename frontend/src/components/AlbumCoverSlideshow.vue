@@ -239,9 +239,9 @@ onBeforeUnmount(() => {
   right: 0;
   bottom: 0;
   background: linear-gradient(to bottom,
-    rgba(15, 20, 25, 0.1) 0%,
-    rgba(15, 20, 25, 0.6) 50%,
-    rgba(15, 20, 25, 0.9) 100%);
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.55) 50%,
+    rgba(0, 0, 0, 0.93) 100%);
   display: flex;
   align-items: flex-end;
   padding: 2.25rem;
@@ -266,7 +266,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.95);
 }
 
 .album-subtitle {
@@ -276,7 +276,7 @@ onBeforeUnmount(() => {
   line-height: 1.5;
   font-weight: 400;
   letter-spacing: -0.01em;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.95);
 }
 
 .view-link {

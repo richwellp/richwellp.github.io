@@ -20,7 +20,7 @@
         </div>
         <p class="section-description">Thoughts, reflections, and technical write-ups</p>
 
-        <div v-if="loading" class="loading-state">
+        <div v-if="loading && !recentPosts.length" class="loading-state">
           <p>Loading posts...</p>
         </div>
 
@@ -71,7 +71,7 @@
           </div>
 
           <!-- Album Cards with Individual Slideshows -->
-          <div v-else-if="featuredAlbums.length > 0" class="albums-grid">
+          <div v-else-if="featuredAlbums.length > 0" class="albums-grid" :class="{ visible: albumsVisible }">
             <AlbumCoverSlideshow
               v-for="album in featuredAlbums"
               :key="album.id"
@@ -108,7 +108,7 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import OptimizedImage from '../components/OptimizedImage.vue'
 import AlbumCoverSlideshow from '../components/AlbumCoverSlideshow.vue'
 import { useBlog } from '../composables/useBlog'
@@ -119,6 +119,7 @@ const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
 
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
+const albumsVisible = ref(false)
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -171,22 +172,18 @@ onMounted(async () => {
 
   // Elements that may already be loaded (cached data)
   document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
-  const albumsGrid = document.querySelector('.albums-grid')
-  if (albumsGrid) observeEl(albumsGrid, 0)
 })
 
 // Re-observe when async data loads after mount
-watch(() => recentPosts.value, async (posts) => {
+watch(() => recentPosts.value, (posts) => {
   if (!posts?.length || !revealObserver) return
-  await nextTick()
   document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
-})
+}, { flush: 'post' })
 
 watch(() => featuredAlbums.value, async (albums) => {
-  if (!albums?.length || !revealObserver) return
+  if (!albums?.length) return
   await nextTick()
-  const grid = document.querySelector('.albums-grid')
-  if (grid) observeEl(grid, 0)
+  albumsVisible.value = true
 })
 
 onUnmounted(() => {

@@ -15,12 +15,7 @@ export function useAlbums() {
    */
   async function fetchAlbums() {
     return await execute(async () => {
-      const response = await fetch(API_ENDPOINTS.albums, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
+      const response = await fetch(API_ENDPOINTS.albums)
 
       if (!response.ok) {
         throw new Error(`Failed to fetch albums: ${response.statusText}`)
@@ -42,12 +37,7 @@ export function useAlbums() {
    */
   async function fetchAlbumBySlug(slug) {
     return await execute(async () => {
-      const response = await fetch(API_ENDPOINTS.album(slug), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
+      const response = await fetch(API_ENDPOINTS.album(slug))
 
       if (!response.ok) {
         if (response.status === 404) {
