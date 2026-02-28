@@ -266,16 +266,17 @@ onBeforeUnmount(() => {
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
+  color: #ffffff;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.95);
 }
 
 .album-subtitle {
   font-size: clamp(0.9375rem, 1.1vw, 1rem);
-  opacity: 0.95;
   margin: 0 0 0.5rem 0;
   line-height: 1.5;
   font-weight: 400;
   letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.95);
 }
 
