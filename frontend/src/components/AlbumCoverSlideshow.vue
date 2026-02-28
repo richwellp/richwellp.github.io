@@ -282,8 +282,8 @@ onBeforeUnmount(() => {
 .view-link {
   font-size: clamp(0.9375rem, 1.1vw, 1rem);
   font-weight: 600;
-  color: var(--accent-secondary);
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: #a78bfa;
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
