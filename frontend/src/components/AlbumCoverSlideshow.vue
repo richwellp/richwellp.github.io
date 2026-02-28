@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useAlbums } from '../composables/useAlbums'
 
 const props = defineProps({
@@ -139,10 +139,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearTimeout(photoTimer)
 })
-</script>
-
-<script>
-import { computed } from 'vue'
 </script>
 
 <style scoped>
