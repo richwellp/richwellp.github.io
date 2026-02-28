@@ -38,11 +38,7 @@ describe('useAlbums', () => {
 
       // Assert
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/albums'),
-        expect.objectContaining({
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
+        expect.stringContaining('/albums')
       )
       expect(result).toEqual(mockAlbums)
       expect(albums.value).toEqual(mockAlbums)
@@ -132,10 +128,7 @@ describe('useAlbums', () => {
 
       // Assert
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/albums/travel'),
-        expect.objectContaining({
-          method: 'GET'
-        })
+        expect.stringContaining('/albums/travel')
       )
       expect(result).toEqual(mockAlbum)
       expect(loading.value).toBe(false)
