@@ -96,10 +96,16 @@
           Thanks for visiting! See where other visitors have connected from around the world.
         </p>
         <div class="map-container">
-          <!-- Simple ClustrMaps image - large native size for crisp display -->
-          <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
-            <img src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=800&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff' alt='Visitor map' />
+          <a v-if="!mapError" href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
+            <img
+              src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=800&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff'
+              alt='Visitor map'
+              @error="mapError = true"
+            />
           </a>
+          <div v-else class="map-blocked">
+            <p>Map unavailable — enable third-party content or <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker' class="map-blocked-link" target="_blank" rel="noopener noreferrer">view on ClustrMaps</a>.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -120,6 +126,7 @@ const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
 const albumsVisible = ref(false)
+const mapError = ref(false)
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -636,6 +643,33 @@ h1::after {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   border-radius: 12px;
+}
+
+.map-blocked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  color: var(--text-tertiary);
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
+  font-weight: 400;
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  width: 100%;
+  text-decoration: none;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.map-blocked:hover {
+  border-color: var(--accent-primary);
+}
+
+.map-blocked-link {
+  color: var(--link-color);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-primary);
+  text-underline-offset: 3px;
 }
 
 /* Responsive */

@@ -1,5 +1,6 @@
 <template>
   <router-link
+    ref="cardRef"
     :to="`/misc/albums/${album.slug}`"
     class="album-card"
   >
@@ -25,9 +26,10 @@
             muted
             autoplay
             playsinline
-            preload="metadata"
+            preload="auto"
             class="cover-media"
             @ended="nextPhoto"
+            @canplay="onVideoCanPlay"
           />
         </div>
         <!-- Fallback to cover_photo if no photos loaded -->
@@ -37,10 +39,15 @@
           class="slide-item"
         >
           <img
+            v-if="!coverPhotoError"
             :src="album.cover_photo"
             :alt="`${album.name} Album`"
             class="cover-media"
+            @error="coverPhotoError = true"
           />
+          <div v-else class="cover-placeholder">
+            <span>{{ album.name }}</span>
+          </div>
         </div>
       </TransitionGroup>
     </div>
@@ -69,9 +76,12 @@ const props = defineProps({
 
 const { fetchAlbumBySlug } = useAlbums()
 
+const cardRef = ref(null)
 const photos = ref([])
 const currentPhotoIndex = ref(0)
+const coverPhotoError = ref(false)
 let photoTimer = null
+let visibilityObserver = null
 
 const PHOTO_DURATION = 5000 // 5 seconds per photo
 
@@ -113,18 +123,28 @@ const nextPhoto = () => {
   currentPhotoIndex.value = (currentPhotoIndex.value + 1) % photos.value.length
 }
 
-// Start timer for photo transitions (videos handle themselves)
+// Attempt to play the current video element
+const onVideoCanPlay = (e) => {
+  e.target.play().catch(() => {
+    // Autoplay blocked — fall back to timer-based advance
+    photoTimer = setTimeout(nextPhoto, PHOTO_DURATION)
+  })
+}
+
+// Start timer for photo transitions
 const startPhotoTimer = () => {
   clearTimeout(photoTimer)
 
   const photo = currentPhoto.value
-  if (!photo || isVideoPhoto(photo)) {
-    return // Videos handle timing with @ended
+  if (!photo) return
+
+  if (isVideoPhoto(photo)) {
+    // Timeout fallback: if @ended never fires (autoplay blocked, etc.) still advance
+    photoTimer = setTimeout(nextPhoto, PHOTO_DURATION)
+    return
   }
 
-  photoTimer = setTimeout(() => {
-    nextPhoto()
-  }, PHOTO_DURATION)
+  photoTimer = setTimeout(nextPhoto, PHOTO_DURATION)
 }
 
 // Watch for photo changes
@@ -133,11 +153,27 @@ watch(currentPhotoIndex, () => {
 })
 
 onMounted(() => {
-  loadPhotos()
+  const el = cardRef.value?.$el ?? cardRef.value
+  if (!el) {
+    loadPhotos()
+    return
+  }
+  visibilityObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        loadPhotos()
+        visibilityObserver.disconnect()
+        visibilityObserver = null
+      }
+    },
+    { threshold: 0.1 }
+  )
+  visibilityObserver.observe(el)
 })
 
 onBeforeUnmount(() => {
   clearTimeout(photoTimer)
+  visibilityObserver?.disconnect()
 })
 </script>
 
