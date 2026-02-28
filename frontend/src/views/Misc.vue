@@ -198,15 +198,18 @@ onMounted(async () => {
   const el = mapContainerRef.value
   if (!el) { mapState.value = 'image' }
   else {
-    // Cancel the timeout the moment a canvas/iframe appears — avoids racing against async render
+    // Globe.js appends .clstrm_outer to document.body by default (not to the script's parent).
+    // Watch body; when it appears, relocate into our container so layout/cleanup works.
     globeObserver = new MutationObserver(() => {
-      if (el.querySelector('canvas, iframe')) {
+      const globe = document.querySelector('.clstrm_outer')
+      if (globe) {
+        if (!el.contains(globe)) el.appendChild(globe)
         clearTimeout(globeTimer)
         globeObserver.disconnect()
         globeObserver = null
       }
     })
-    globeObserver.observe(el, { childList: true, subtree: true })
+    globeObserver.observe(document.body, { childList: true, subtree: true })
 
     const script = document.createElement('script')
     script.type = 'text/javascript'
@@ -220,11 +223,12 @@ onMounted(async () => {
     }
     el.appendChild(script)
 
-    // Last-resort timeout: if no canvas/iframe in 8s, fall back to static image
+    // Last-resort timeout: if no .clstrm_outer in 8s, fall back to static image
     globeTimer = setTimeout(() => {
       globeObserver?.disconnect()
       globeObserver = null
-      if (!el.querySelector('canvas, iframe')) {
+      if (!el.querySelector('.clstrm_outer')) {
+        document.querySelector('.clstrm_outer')?.remove()
         mapState.value = 'image'
       }
     }, 8000)
@@ -247,6 +251,8 @@ onUnmounted(() => {
   revealObserver?.disconnect()
   clearTimeout(globeTimer)
   globeObserver?.disconnect()
+  // Vue removes globe-container from DOM on unmount; clean up any orphan still in body
+  document.querySelector('.clstrm_outer')?.remove()
 })
 </script>
 
