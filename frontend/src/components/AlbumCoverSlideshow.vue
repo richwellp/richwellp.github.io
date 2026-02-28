@@ -104,12 +104,12 @@ const loadPhotos = async () => {
   try {
     const fullAlbum = await fetchAlbumBySlug(props.album.slug)
     if (fullAlbum && fullAlbum.photos) {
-      // Extract photos array
+      // Extract photos array and sort by order_index
       const albumPhotos = Array.isArray(fullAlbum.photos)
         ? fullAlbum.photos
         : Object.values(fullAlbum.photos).flat()
 
-      photos.value = albumPhotos
+      photos.value = [...albumPhotos].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
       startPhotoTimer()
     }
   } catch (error) {
