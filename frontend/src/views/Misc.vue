@@ -96,15 +96,27 @@
           Thanks for visiting! See where other visitors have connected from around the world.
         </p>
         <div class="map-container">
-          <a v-if="!mapError" href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
+          <!-- Primary: globe widget -->
+          <div v-if="mapState === 'globe'" ref="mapContainerRef" class="globe-container"></div>
+
+          <!-- Fallback 1: static image -->
+          <a v-else-if="mapState === 'image'"
+             href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
             <img
               src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=800&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff'
               alt='Visitor map'
-              @error="mapError = true"
+              @error="mapState = 'blocked'"
             />
           </a>
+
+          <!-- Fallback 2: text placeholder -->
           <div v-else class="map-blocked">
-            <p>Map unavailable — enable third-party content or <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker' class="map-blocked-link" target="_blank" rel="noopener noreferrer">view on ClustrMaps</a>.</p>
+            <p>Map unavailable — enable third-party content.
+              <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'
+                 class="map-blocked-link" target="_blank" rel="noopener noreferrer">
+                I am using ClustrMaps
+              </a>.
+            </p>
           </div>
         </div>
       </div>
@@ -126,7 +138,9 @@ const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
 const albumsVisible = ref(false)
-const mapError = ref(false)
+const mapState = ref('globe')   // 'globe' | 'image' | 'blocked'
+const mapContainerRef = ref(null)
+let globeTimer = null
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -179,6 +193,27 @@ onMounted(async () => {
 
   // Elements that may already be loaded (cached data)
   document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
+
+  const el = mapContainerRef.value
+  if (!el) { mapState.value = 'image' }
+  else {
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.id = 'clstr_globe'
+    script.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
+    script.onerror = () => {
+      clearTimeout(globeTimer)
+      mapState.value = 'image'
+    }
+    el.appendChild(script)
+
+    // Timeout: if no canvas/iframe appears within 4s, fall back to static image
+    globeTimer = setTimeout(() => {
+      if (!el.querySelector('canvas, iframe')) {
+        mapState.value = 'image'
+      }
+    }, 4000)
+  }
 })
 
 // Re-observe when async data loads after mount
@@ -195,6 +230,7 @@ watch(() => featuredAlbums.value, async (albums) => {
 
 onUnmounted(() => {
   revealObserver?.disconnect()
+  clearTimeout(globeTimer)
 })
 </script>
 
@@ -643,6 +679,14 @@ h1::after {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   border-radius: 12px;
+}
+
+.globe-container {
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .map-blocked {
