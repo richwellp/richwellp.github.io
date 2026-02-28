@@ -141,6 +141,7 @@ export function useAdminAuth() {
     logout,
     checkAuthStatus,
     getAuthHeaders,
-    getAuthFetchOptions
+    getAuthFetchOptions,
+    getToken
   }
 }

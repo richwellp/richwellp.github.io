@@ -136,7 +136,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save'])
 const route = useRoute()
-const { adminToken } = useAdminAuth()
+const { getToken } = useAdminAuth()
 
 const isEditing = computed(() => !!props.photo)
 
@@ -241,7 +241,7 @@ const handleSubmit = async () => {
       }, 100)
 
       // Upload file (using backend API with admin auth)
-      const { url } = await uploadFile(selectedFile.value, albumSlug, adminToken.value)
+      const { url } = await uploadFile(selectedFile.value, albumSlug, getToken())
 
       clearInterval(progressInterval)
       uploadProgress.value = 100
