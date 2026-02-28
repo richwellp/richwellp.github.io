@@ -4,9 +4,9 @@
       <!-- Header -->
       <div class="albums-header">
         <router-link to="/misc" class="back-link">← Back to Misc</router-link>
-        <h1>📸 Photo Albums</h1>
+        <h1>Photo Albums</h1>
         <p class="albums-subtitle">
-          Moments captured through my lens—adventures, milestones, and memories from around the world
+          Moments captured through my lens: adventures, milestones, and memories from around the world
         </p>
       </div>
 
@@ -68,14 +68,18 @@ onMounted(async () => {
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes headingReveal {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lineExpand {
+  from { width: 0; opacity: 0; }
+  to   { width: 48px; opacity: 1; }
 }
 
 /* Header */
@@ -104,18 +108,38 @@ onMounted(async () => {
 h1 {
   font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 1rem;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  margin-bottom: 2rem;
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  position: relative;
+  padding-bottom: 1.25rem;
+  opacity: 0;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  animation: lineExpand 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.65s both;
 }
 
 .albums-subtitle {
   font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   color: var(--text-secondary);
   line-height: 1.7;
-  max-width: 720px;
+  max-width: 620px;
   font-weight: 400;
+  text-align: left;
+  opacity: 0;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both;
 }
 
 /* Loading & Error States */
@@ -149,8 +173,8 @@ h1 {
   background: var(--bg-card);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18);
   border: 1px solid var(--border-color);
   text-decoration: none;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -174,9 +198,11 @@ h1 {
 
 .album-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12),
-              0 6px 12px rgba(0, 0, 0, 0.08);
-  border-color: var(--accent-primary)60;
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
+              0 8px 20px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(129, 140, 248, 0.08),
+              0 0 40px rgba(129, 140, 248, 0.06);
+  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
 }
 
 .album-card:hover::before {

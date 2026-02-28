@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="blog-header">
         <router-link to="/misc" class="back-link">← Back to Misc</router-link>
-        <h1>📝 Blog</h1>
+        <h1>Blog</h1>
         <p class="blog-subtitle">
           Thoughts, reflections, and technical write-ups about AI, software engineering, and
           personal experiences
@@ -53,27 +53,61 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useBlog } from '../../composables/useBlog'
 import { injectStructuredData, generateBlogListSchema } from '../../composables/useStructuredData'
 
 const { posts, loading, error, fetchPosts } = useBlog()
 
+let cardObserver = null
+
+const setupCardObserver = () => {
+  if (cardObserver) cardObserver.disconnect()
+  cardObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const idx = parseInt(entry.target.dataset.idx || 0)
+          entry.target.style.transitionDelay = `${idx * 0.12}s`
+          entry.target.classList.add('visible')
+          entry.target.addEventListener('transitionend', () => {
+            entry.target.style.transitionDelay = '0s'
+          }, { once: true })
+          cardObserver.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+  )
+  document.querySelectorAll('.post-card').forEach((el, i) => {
+    el.dataset.idx = i
+    cardObserver.observe(el)
+  })
+}
+
 onMounted(() => {
   fetchPosts()
 })
 
-// Inject blog list schema when posts are loaded
+// Inject schema + set up scroll-triggered reveals when posts load
 watch(
   () => posts.value,
-  (newPosts) => {
+  async (newPosts) => {
     if (newPosts && newPosts.length > 0) {
       const blogListSchema = generateBlogListSchema(newPosts)
       injectStructuredData(blogListSchema, 'blog-list-schema')
+
+      await nextTick()
+      await nextTick()
+      setupCardObserver()
     }
   }
 )
+
+onUnmounted(() => {
+  cardObserver?.disconnect()
+})
 
 const formatDate = (date) => {
   if (!date) return 'No date'
@@ -134,10 +168,23 @@ const formatDate = (date) => {
 h1 {
   font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 1rem;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  margin-bottom: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  position: relative;
+  padding-bottom: 1.25rem;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
 }
 
 .blog-subtitle {
@@ -205,8 +252,9 @@ h1 {
   max-width: 680px;
   margin: 0 auto;
   text-align: left;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18),
+              0 0 0 1px rgba(129, 140, 248, 0.04);
   border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
@@ -274,29 +322,26 @@ h1 {
   background: var(--bg-card);
   border-radius: 12px;
   padding: 2.25rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18);
   border: 1px solid var(--border-color);
   text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform: translateY(36px) scale(0.965);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Staggered animation */
-.post-card:nth-child(1) { animation-delay: 0.1s; }
-.post-card:nth-child(2) { animation-delay: 0.2s; }
-.post-card:nth-child(3) { animation-delay: 0.3s; }
-.post-card:nth-child(4) { animation-delay: 0.4s; }
-.post-card:nth-child(5) { animation-delay: 0.5s; }
-.post-card:nth-child(6) { animation-delay: 0.6s; }
-.post-card:nth-child(7) { animation-delay: 0.7s; }
-.post-card:nth-child(8) { animation-delay: 0.8s; }
-.post-card:nth-child(9) { animation-delay: 0.9s; }
+.post-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
 
 .post-card::before {
   content: '';
@@ -310,14 +355,16 @@ h1 {
   transition: opacity 0.4s ease;
 }
 
-.post-card:hover {
+.post-card.visible:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12),
-              0 6px 12px rgba(0, 0, 0, 0.08);
-  border-color: var(--accent-primary)60;
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
+              0 8px 20px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(129, 140, 248, 0.08),
+              0 0 40px rgba(129, 140, 248, 0.06);
+  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
 }
 
-.post-card:hover::before {
+.post-card.visible:hover::before {
   opacity: 1;
 }
 
@@ -330,10 +377,12 @@ h1 {
 }
 
 .post-date {
-  color: var(--accent-primary);
-  font-size: clamp(0.875rem, 1vw, 0.9375rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.9;
 }
 
 .reading-time {
@@ -394,7 +443,7 @@ h1 {
 
 .tag:hover {
   background: var(--accent-primary);
-  color: var(--bg-card);
+  color: #05060f;
   border-color: var(--accent-primary);
 }
 

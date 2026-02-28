@@ -4,6 +4,7 @@
  */
 
 import { SITE_URL } from '../config/site'
+import { CONTACT } from '../config/contact'
 
 /**
  * Generate Person Schema (For homepage/about page)
@@ -22,15 +23,15 @@ export function generatePersonSchema() {
       'url': 'https://www.linkedin.com/company/rave-aerospace'
     },
     'sameAs': [
-      'https://www.linkedin.com/in/richwell-perez',
-      'https://github.com/richwellp'
+      CONTACT.linkedin,
+      CONTACT.github
     ],
     'alumniOf': {
       '@type': 'EducationalOrganization',
       'name': 'University of Illinois Urbana-Champaign'
     },
-    'email': 'richwell.perez@gmail.com',
-    'description': 'AI Engineer with BS/MCS in Computer Science from UIUC, specializing in Data and Artificial Intelligence. Building full-stack applications, ML models, and AI solutions.'
+    'email': CONTACT.email,
+    'description': 'AI Engineer at RAVE Aerospace building production RAG systems and multi-agent architectures. MCS and BS in Computer Science from UIUC, specializing in Intelligence and Data.'
   }
 }
 
@@ -44,16 +45,15 @@ export function generateOrganizationSchema() {
     'name': 'Richwell Perez',
     'url': SITE_URL,
     'logo': `${SITE_URL}/assets/photos/professional_1.jpg`,
-    'description': 'Portfolio and blog of Richwell Perez, AI Engineer',
+    'description': 'Portfolio and blog of Richwell Perez, AI Engineer at RAVE Aerospace.',
     'sameAs': [
-      'https://www.linkedin.com/in/richwell-perez',
-      'https://github.com/richwellp'
+      CONTACT.linkedin,
+      CONTACT.github
     ],
     'contact': {
       '@type': 'ContactPoint',
-      'telephone': '+1-833-774-2963',
       'contactType': 'General Inquiry',
-      'email': 'richwell.perez@gmail.com'
+      'email': CONTACT.email
     }
   }
 }
@@ -126,7 +126,7 @@ export function generateBlogListSchema(posts) {
     '@type': 'CollectionPage',
     'name': 'Blog',
     'url': `${SITE_URL}/misc/blog`,
-    'description': 'Blog posts by Richwell Perez about AI, software engineering, and technology',
+    'description': 'Blog posts by Richwell Perez about AI engineering, software development, and technology.',
     'mainEntity': {
       '@type': 'ItemList',
       'numberOfItems': posts.length,
@@ -217,7 +217,7 @@ export function generateProjectsListSchema(projects) {
     '@type': 'CollectionPage',
     'name': 'Projects',
     'url': `${SITE_URL}/projects`,
-    'description': 'Portfolio projects by Richwell Perez',
+    'description': 'Software and AI projects by Richwell Perez.',
     'creator': {
       '@type': 'Person',
       'name': 'Richwell Perez'

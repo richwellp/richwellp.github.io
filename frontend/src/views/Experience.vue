@@ -2,49 +2,57 @@
   <div class="experience">
     <div class="container">
       <h1>Experience</h1>
-      <p class="page-intro">
-        A chronological overview of my professional work experience, showcasing my journey
-        in AI and software engineering.
-      </p>
+      <p class="page-intro">{{ content.experiencePageIntro }}</p>
 
-      <!-- Timeline -->
-      <section class="timeline">
+      <section class="entries">
         <div
           v-for="(exp, index) in experience"
           :key="index"
-          class="experience-card"
-          :class="{ collapsed: !expandedCards[index] }"
+          class="entry-card"
+          :class="{ expanded: isExpanded(index) }"
+          :style="{ '--idx': index }"
         >
-          <div class="timeline-marker"></div>
-          <div class="card-header" @click="toggleCard(index)">
-            <div>
+          <!-- Header: always visible, click to toggle -->
+          <div class="entry-header" @click="toggleCard(index)" role="button" :aria-expanded="isExpanded(index)">
+            <div class="title-group">
               <h3>{{ exp.title }}</h3>
-              <p class="company">{{ exp.company }} | {{ exp.location }}</p>
+              <p class="company">{{ exp.company }}<span class="sep"> · </span>{{ exp.location }}</p>
             </div>
             <div class="header-right">
               <span class="date">{{ exp.dates }}</span>
-              <button class="collapse-btn" aria-label="Toggle details">
-                <span class="collapse-icon">{{ expandedCards[index] ? '▼' : '▶' }}</span>
-              </button>
-            </div>
-          </div>
-          <div class="card-content" v-show="expandedCards[index]">
-            <p class="description">{{ exp.description }}</p>
-            <ul class="achievements">
-              <li v-for="(highlight, hIndex) in exp.highlights" :key="hIndex">
-                {{ highlight }}
-              </li>
-            </ul>
-            <div class="tech-stack">
-              <span
-                v-for="tech in exp.technologies"
-                :key="tech"
-                class="tech-tag"
-              >
-                {{ tech }}
+              <span class="expand-btn" :class="{ open: isExpanded(index) }">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
               </span>
             </div>
           </div>
+
+          <!-- Expandable: description + highlights + tech stack -->
+          <div class="entry-expandable" :class="{ open: isExpanded(index) }">
+            <div class="expandable-inner">
+              <p class="description">{{ exp.description }}</p>
+              <ul class="achievements">
+                <li v-for="(highlight, hIndex) in exp.highlights" :key="hIndex">
+                  <template v-if="highlight.includes(': ')">
+                    <strong>{{ highlight.split(': ')[0] }}:</strong>
+                    {{ highlight.slice(highlight.indexOf(': ') + 2) }}
+                  </template>
+                  <template v-else>{{ highlight }}</template>
+                </li>
+              </ul>
+              <div class="tech-stack">
+                <span
+                  v-for="tech in exp.technologies"
+                  :key="tech"
+                  class="tech-tag"
+                >
+                  {{ tech }}
+                </span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
     </div>
@@ -52,35 +60,29 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { injectStructuredData, generateWorkExperienceSchema } from '../composables/useStructuredData'
 import { useProfessionalInfo } from '../composables/useProfessionalInfo'
 
-// Load professional info
-const { experience, loadProfessionalInfo } = useProfessionalInfo()
+const { experience, content, loadProfessionalInfo } = useProfessionalInfo()
 
-// Card expansion state - dynamically managed
-const expandedCards = reactive({})
+// Tracks which cards are expanded. First card (index 0) starts expanded.
+const expandedCards = ref(new Set([0]))
 
-// Initialize expanded state when experience loads
-watch(experience, (newExperience) => {
-  if (newExperience) {
-    newExperience.forEach((_, index) => {
-      if (!(index in expandedCards)) {
-        expandedCards[index] = true // All cards start expanded
-      }
-    })
+const isExpanded = (index) => expandedCards.value.has(index)
+
+const toggleCard = (index) => {
+  const updated = new Set(expandedCards.value)
+  if (updated.has(index)) {
+    updated.delete(index)
+  } else {
+    updated.add(index)
   }
-}, { immediate: true })
-
-const toggleCard = (cardIndex) => {
-  expandedCards[cardIndex] = !expandedCards[cardIndex]
+  expandedCards.value = updated
 }
 
 onMounted(async () => {
   await loadProfessionalInfo()
-
-  // Inject work experience schema
   const workExperienceSchema = generateWorkExperienceSchema()
   injectStructuredData(workExperienceSchema, 'work-experience-schema')
 })
@@ -94,227 +96,263 @@ onMounted(async () => {
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 900px;
   margin: 0 auto;
+}
+
+@keyframes headingReveal {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lineExpand {
+  from { width: 0; opacity: 0; }
+  to   { width: 48px; opacity: 1; }
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 h1 {
   font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 1.25rem;
-  text-align: center;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  margin-bottom: 2rem;
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  position: relative;
+  padding-bottom: 1.25rem;
+  opacity: 0;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  animation: lineExpand 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.65s both;
 }
 
 .page-intro {
-  text-align: center;
+  text-align: left;
   font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 4rem;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
   font-weight: 400;
+  opacity: 0;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both;
 }
 
-/* Timeline */
-.timeline {
-  position: relative;
-  padding-left: 3rem;
-  margin-top: 2.5rem;
+/* ── Entry list ── */
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 2rem;
-  bottom: 2rem;
-  width: 2px;
-  background: linear-gradient(180deg,
-    var(--accent-primary) 0%,
-    var(--accent-secondary) 50%,
-    var(--border-color) 100%
-  );
-  opacity: 0.7;
-}
-
-/* Experience Card */
-.experience-card {
-  position: relative;
+/* ── Entry card ── */
+.entry-card {
   background: var(--bg-card);
   border-radius: 12px;
-  padding: 2.25rem;
-  margin-bottom: 2.5rem;
-  margin-left: 1.5rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 0;
   border: 1px solid var(--border-color);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  border-left: 3px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28), 0 1px 4px rgba(0, 0, 0, 0.15);
+  animation: cardReveal 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: calc(var(--idx, 0) * 0.1s + 0.3s);
+  transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
-/* Staggered entrance */
-.experience-card:nth-child(1) { animation-delay: 0.1s; }
-.experience-card:nth-child(2) { animation-delay: 0.2s; }
-.experience-card:nth-child(3) { animation-delay: 0.3s; }
-.experience-card:nth-child(4) { animation-delay: 0.4s; }
-.experience-card:nth-child(5) { animation-delay: 0.5s; }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.entry-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.18);
+  border-left-color: var(--accent-primary);
 }
 
-.experience-card:hover {
-  transform: translateX(8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1),
-              0 4px 8px rgba(0, 0, 0, 0.06);
-  border-color: var(--accent-primary)60;
+.entry-card.expanded {
+  border-left-color: var(--accent-primary);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.18),
+              0 0 0 1px rgba(129, 140, 248, 0.05);
 }
 
-.timeline-marker {
-  position: absolute;
-  left: -3rem;
-  top: 2.25rem;
-  width: 18px;
-  height: 18px;
-  background: var(--accent-primary);
-  border: 4px solid var(--bg-primary);
-  border-radius: 50%;
-  z-index: 1;
-  box-shadow: 0 0 0 4px var(--accent-primary)30;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.experience-card:hover .timeline-marker {
-  transform: scale(1.35);
-  box-shadow: 0 0 0 8px var(--accent-primary)40;
-  background: var(--accent-hover);
-}
-
-.card-header {
+/* ── Card header (clickable) ── */
+.entry-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
   gap: 1.25rem;
+  padding: 1.875rem 2rem 0;
   cursor: pointer;
   user-select: none;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color)40;
+  border-radius: 12px 12px 0 0;
+  transition: background-color 0.2s ease;
 }
 
-.card-header:hover h3 {
+.entry-header:hover {
+  background: color-mix(in srgb, var(--accent-primary) 3%, transparent);
+}
+
+.entry-header:hover .title-group h3 {
   color: var(--accent-primary);
 }
 
-.card-header h3 {
-  font-size: clamp(1.375rem, 1.8vw, 1.625rem);
+/* Left side: title + company — allowed to shrink/wrap naturally */
+.title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.title-group h3 {
+  font-size: clamp(1.125rem, 1.7vw, 1.375rem);
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.3;
+  line-height: 1.25;
+  margin: 0 0 0.3rem;
+  transition: color 0.25s ease;
 }
 
 .company {
-  font-size: clamp(1rem, 1.2vw, 1.0625rem);
+  font-size: clamp(0.875rem, 1.05vw, 0.9375rem);
   color: var(--text-tertiary);
   font-weight: 500;
   letter-spacing: -0.01em;
+  margin: 0;
 }
 
-.date {
-  font-size: 0.9375rem;
-  color: var(--accent-primary);
-  font-weight: 600;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
+.sep {
+  opacity: 0.4;
 }
 
+/* Right side: date + expand btn — never shrinks, always stays on the right */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 1.125rem;
+  gap: 0.875rem;
+  flex-shrink: 0;
 }
 
-/* Collapsible Cards */
-.collapse-btn {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  color: var(--accent-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
+.date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  opacity: 0.9;
+}
+
+/* ── Expand icon button ── */
+.expand-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent-primary) 8%, var(--bg-tertiary));
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 22%, transparent);
+  color: var(--accent-primary);
+  flex-shrink: 0;
+  user-select: none;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
-.collapse-btn:hover {
-  transform: scale(1.1);
-  background: var(--accent-primary);
-  color: var(--bg-card);
-  border-color: var(--accent-primary);
+.expand-btn svg {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.collapse-icon {
-  display: inline-block;
-  transition: transform 0.3s ease;
-  font-size: 0.75rem;
+.expand-btn.open {
+  background: color-mix(in srgb, var(--accent-primary) 18%, var(--bg-tertiary));
+  border-color: color-mix(in srgb, var(--accent-primary) 45%, transparent);
 }
 
-.experience-card.collapsed {
-  opacity: 0.7;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+.expand-btn.open svg {
+  transform: rotate(180deg);
 }
 
-.experience-card.collapsed:hover {
-  opacity: 1;
+.entry-header:hover .expand-btn {
+  background: color-mix(in srgb, var(--accent-primary) 15%, var(--bg-tertiary));
+  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
 }
 
-.card-content {
-  padding-top: 1rem;
-}
-
-.card-content .description {
-  font-size: clamp(1.0625rem, 1.2vw, 1.09375rem);
+/* ── Description (inside expandable) ── */
+.description {
+  font-size: clamp(0.9375rem, 1.15vw, 1rem);
   color: var(--text-secondary);
-  margin-bottom: 1.25rem;
+  margin: 0 0 1.125rem;
+  padding-bottom: 1.125rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
   line-height: 1.7;
   font-weight: 400;
 }
 
+/* ── Expandable content (highlights + tech) ── */
+.entry-expandable {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.entry-expandable.open {
+  grid-template-rows: 1fr;
+}
+
+.expandable-inner {
+  overflow: hidden;
+  /* Static padding — grid-template-rows handles all height animation */
+  padding: 1.25rem 2rem 1.875rem;
+  position: relative;
+}
+
+/* Gradient separator — teal-tinted, fades at both ends, visible in both themes */
+.expandable-inner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2rem;
+  right: 2rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary) 45%, var(--border-color)) 20%,
+    color-mix(in srgb, var(--accent-primary) 45%, var(--border-color)) 80%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.entry-expandable.open .expandable-inner::before {
+  opacity: 1;
+}
+
+/* ── Achievements ── */
 .achievements {
   list-style: none;
   padding: 0;
-  margin: 1.25rem 0;
+  margin: 0 0 1.5rem;
 }
 
 .achievements li {
-  padding-left: 1.75rem;
-  margin-bottom: 0.875rem;
+  padding-left: 1.375rem;
+  margin-bottom: 0.625rem;
   position: relative;
   color: var(--text-secondary);
   line-height: 1.65;
-  font-size: clamp(0.9375rem, 1.1vw, 1rem);
+  font-size: clamp(0.875rem, 1.05vw, 0.9375rem);
 }
 
 .achievements li:last-child {
@@ -325,12 +363,12 @@ h1 {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.625em;
-  width: 6px;
-  height: 6px;
+  top: 0.6em;
+  width: 5px;
+  height: 5px;
   background: var(--accent-primary);
   border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--accent-primary)30;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 18%, transparent);
 }
 
 .achievements li strong {
@@ -338,38 +376,38 @@ h1 {
   font-weight: 600;
 }
 
-/* Tech Stack */
+/* ── Tech stack ── */
 .tech-stack {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.625rem;
-  margin-top: 1.75rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color)60;
+  gap: 0.4375rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
 }
 
 .tech-tag {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  padding: 0.4375rem 0.875rem;
-  border-radius: 6px;
-  font-size: 0.8125rem;
+  padding: 0.3125rem 0.6875rem;
+  border-radius: 5px;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: -0.01em;
   border: 1px solid var(--border-color);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: default;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .tech-tag:hover {
   background: var(--accent-primary);
-  color: var(--bg-card);
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  color: #05060f;
   border-color: var(--accent-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(129, 140, 248, 0.22);
 }
 
-/* Responsive */
+/* ── Responsive ── */
 @media (max-width: 768px) {
   .experience {
     padding: 3.5rem 1.5rem;
@@ -378,36 +416,6 @@ h1 {
   .page-intro {
     margin-bottom: 3rem;
   }
-
-  .timeline {
-    padding-left: 2.5rem;
-  }
-
-  .timeline-marker {
-    left: -2.5rem;
-    width: 14px;
-    height: 14px;
-    border: 3px solid var(--bg-primary);
-  }
-
-  .experience-card {
-    margin-left: 1rem;
-    padding: 1.875rem;
-  }
-
-  .card-header {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .header-right {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .date {
-    align-self: flex-start;
-  }
 }
 
 @media (max-width: 480px) {
@@ -415,22 +423,15 @@ h1 {
     padding: 3rem 1.25rem;
   }
 
-  .timeline {
-    padding-left: 2rem;
+  .entry-header,
+  .description {
+    padding-left: 1.375rem;
+    padding-right: 1.375rem;
   }
 
-  .timeline-marker {
-    left: -2rem;
-  }
-
-  .experience-card {
-    margin-left: 0.75rem;
-    padding: 1.5rem;
-  }
-
-  .tech-tag {
-    font-size: 0.75rem;
-    padding: 0.375rem 0.75rem;
+  .expandable-inner {
+    padding-left: 1.375rem;
+    padding-right: 1.375rem;
   }
 }
 </style>

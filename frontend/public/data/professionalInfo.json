@@ -5,8 +5,8 @@
     "linkedIn": "linkedin.com/in/richwell-perez",
     "github": "github.com/richwellp",
     "location": "Laramie, WY / Brea, CA",
-    "summary": "AI Engineer specializing in full-stack development, AI and ML systems, and data engineering. Experienced in building production-grade RAG solutions, predictive maintenance systems, and scalable web applications. Passionate about leveraging technology to solve real-world problems and drive innovation.",
-    "tagline": "I build software, data, and AI systems that solve real-world problems"
+    "summary": "AI Engineer at RAVE Aerospace building production RAG systems and multi-agent architectures for aerospace and IFEC applications. Background in full-stack development, data engineering, and ML research. MCS from UIUC.",
+    "tagline": "I ship production AI: multi-agent RAG for aerospace, mainframe-scale data engineering, and full-stack systems built from scratch."
   },
   "education": [
     {
@@ -34,17 +34,17 @@
       "dates": "June 2025 - Present",
       "current": true,
       "description": "Developing AI initiatives in aerospace and in-flight entertainment and connectivity (IFEC) systems at RAVE Aerospace (formerly Safran Passenger Innovations, rebranded February 2026 following acquisition by Kingswood Capital Management). Building production-grade RAG solutions with multi-agent architectures and predictive maintenance systems.",
+      "timelineDescription": "Building production RAG systems and multi-agent architectures for aerospace and IFEC applications. Full-stack development, data engineering at scale, and ML-based predictive maintenance.",
       "highlights": [
         "Multi-Agent RAG System: Architected and deployed a hierarchical LangGraph-based chatbot for aviation Master Data Management, serving 600+ internal users via Azure App Services",
         "Full-Stack Development: Built end-to-end solution with Quart (async Python) backend, Vue 3 + Vuex frontend, dual PostgreSQL databases (operational + knowledge base), and Azure OpenAI integration",
         "Performance Optimization: Reduced response latency by 50% (2x faster) through optimization of multi-agent orchestration, prompt engineering, intelligent caching strategies, and prompt distillation",
         "Production Infrastructure: Deployed scalable ASGI APIs with Hypercorn, implemented conversation persistence with message ratings and reasoning trace storage, structured JSONL logging, comprehensive pytest suites, and Azure OpenTelemetry monitoring",
         "ML Analytics & Insights: Applied unsupervised machine learning (K-Means, DBSCAN, UMAP, HDBSCAN) and topic modeling to cluster 10,000+ RAG conversation interactions, built analytical dashboards with matplotlib",
-        "Predictive Maintenance: Developing ML-based predictive maintenance system to forecast RDU (Removable Display Unit) resets in in-flight entertainment (IFE) systems using historical telemetry and scikit-learn models",
-        "Data Engineering: Built distributed PySpark ETL pipelines to process 5M+ log lines per flight into structured Delta Lake datasets, enabling 30x log compression and reducing searchable volume by 500-1000x.",
-        "IFE Log Analysis System: Developing an LLM-powered log analyzer and an ML-based predictive maintenance system to forecast resets in IFE systems."
+        "Data Engineering: Built distributed PySpark ETL pipelines to process 5M+ log lines per flight into structured Delta Lake datasets, enabling 30x log compression and reducing searchable volume by 500-1000x",
+        "IFE Intelligence: Building an LLM-powered log analysis system and ML-based predictive maintenance model to forecast RDU resets in IFE systems using historical flight telemetry and scikit-learn"
       ],
-      "technologies": ["Python", "LangChain", "Vue.js", "Quart", "PostgreSQL", "Azure OpenAI", "Azure App Services", "SSE", "RAG", "Scikit-learn", "Microsoft Fabric", "Pyspark", "Delta Lake"]
+      "technologies": ["Python", "LangChain", "LangGraph", "Vue.js", "Quart", "PostgreSQL", "Azure OpenAI", "Azure App Services", "SSE", "RAG", "Scikit-learn", "Microsoft Fabric", "PySpark", "Delta Lake"]
     },
     {
       "title": "Database Administrator",
@@ -53,6 +53,7 @@
       "dates": "February 2025 - June 2025",
       "current": false,
       "description": "Managed high-throughput DB2 databases on z/OS mainframe systems, supporting statewide digital initiatives.",
+      "timelineDescription": "Managed high-throughput DB2 databases (5B+ records) on z/OS mainframe. Optimized critical queries, built ETL pipelines, and supported statewide digital initiatives including mobile driver's licenses and REAL ID.",
       "highlights": [
         "Database Optimization: Managed high-throughput DB2 databases (5B+ records) on z/OS mainframe systems, optimizing queries and schemas to support statewide applications",
         "Performance Tuning: Improved query performance by designing and tuning complex SQL queries and schemas, reducing lookup time from 20 seconds to instantaneous for critical backend application queries",
@@ -176,10 +177,40 @@
   ],
   "skills": {
     "languages": ["Python", "JavaScript", "TypeScript", "SQL", "C", "C#", "Java"],
-    "frameworks": ["Vue.js", "Flask", "Quart", "LangChain", "PyTorch", "TensorFlow", "Node.js", "Express"],
+    "frameworks": ["Vue.js", "Flask", "Quart", "LangChain", "LangGraph", "PyTorch", "TensorFlow", "Node.js", "Express"],
     "databases": ["PostgreSQL", "MongoDB", "DB2"],
     "cloud": ["Azure", "Azure OpenAI", "Azure App Services", "Vercel", "GitHub Actions"],
     "ai_ml": ["RAG", "LLMs", "Computer Vision", "Deep Learning", "Scikit-learn", "Transformers", "YOLO", "Faster R-CNN"],
-    "tools": ["Git", "Docker", "OpenCV", "Vite", "Pytest", "OpenTelemetry", "Vuex"]
+    "tools": ["Git", "Docker", "OpenCV", "Vite", "Pytest", "OpenTelemetry", "Vuex", "PySpark"]
+  },
+  "content": {
+    "availabilityLabel": "Open to new opportunities",
+    "experiencePageIntro": "Software design and databases at UIUC. State government mainframes. Production AI for aerospace. Every role was a different problem.",
+    "projectsPageIntro": "Side projects, research, and one that won a prize. Built to solve real problems.",
+    "cvPageIntro": "Here is my one-page resume. View inline or download using your browser's PDF controls.",
+    "contactHeroSub": "Open to full-time roles, freelance work, side projects, and conversations worth having.",
+    "heroBio": "I'm an AI engineer who builds things end to end, including multi-agent LLM systems, ML models, full-stack applications and large-scale data pipelines. My work has taken me across aerospace, state government databases, and teaching CS at UIUC, where I earned a BS and MCS in Computer Science and won 3rd place at the Ashby Prize at NCSA.",
+    "storyParagraphs": [
+      "I'm a CS graduate from UIUC with both a Bachelor's and Master's degree, specializing in Intelligence and Data. My time at Illinois built a rigorous foundation in algorithms, systems, and applied AI that carries into every problem I work on today.",
+      "The work I find most interesting sits at the intersection of AI and production infrastructure. I've built multi-agent RAG systems serving 600+ users, optimized billion-record databases at the state government level, won the Ashby Prize at the NCSA AI Innovation Hackathon, and taught software engineering and database concepts to 800+ students. Each role pushed me into unfamiliar territory, and I kept going back for more.",
+      "I am currently building AI at RAVE Aerospace: LLM-powered pipelines for aircraft data management, predictive maintenance models for in-flight entertainment systems, full-stack and data engineering infrastructure. I enjoy working in a collaborative, fast-paced environment where I can learn new technologies and make a meaningful, positive impact. I'm always open to connecting with others who are passionate about AI, software engineering, and solving interesting problems."
+    ],
+    "showcaseItems": [
+      {
+        "label": "Current Role",
+        "title": "AI Engineer",
+        "text": "RAVE Aerospace · Multi-agent RAG, full-stack development, applied ML, data engineering"
+      },
+      {
+        "label": "Graduate Degree",
+        "title": "Master of Computer Science",
+        "text": "University of Illinois Urbana-Champaign · 2022-2023, GPA: 3.52"
+      },
+      {
+        "label": "Undergraduate",
+        "title": "B.S. Computer Science with Honors",
+        "text": "University of Illinois Urbana-Champaign · 2018-2023, GPA: 3.81"
+      }
+    ]
   }
 }

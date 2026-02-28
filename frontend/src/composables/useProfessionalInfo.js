@@ -44,6 +44,7 @@ export function useProfessionalInfo() {
   const experience = computed(() => professionalInfo.value?.experience || [])
   const projects = computed(() => professionalInfo.value?.projects || [])
   const skills = computed(() => professionalInfo.value?.skills || {})
+  const content = computed(() => professionalInfo.value?.content || {})
 
   return {
     // State
@@ -59,6 +60,7 @@ export function useProfessionalInfo() {
     education,
     experience,
     projects,
-    skills
+    skills,
+    content
   }
 }

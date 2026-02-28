@@ -5,7 +5,7 @@
       <div class="container">
         <h1>Miscellaneous</h1>
         <p class="page-intro">
-          Random things I want to share—photos, thoughts, and other stuff that doesn't quite fit
+          Random things I want to share: photos, thoughts, and other stuff that doesn't quite fit
           elsewhere.
         </p>
       </div>
@@ -56,15 +56,7 @@
     <section class="beyond-cs">
       <div class="container">
         <h2 class="section-title">Beyond Computer Science</h2>
-        <p class="section-intro">When I'm not coding, you'll find me staying active, gaming, or exploring the world.</p>
-
-        <!-- Interests - Simple Tags -->
-        <div class="interests-tags">
-          <span class="interest-tag">🏐 Volleyball</span>
-          <span class="interest-tag">💪 Powerlifting</span>
-          <span class="interest-tag">🎮 Gaming</span>
-          <span class="interest-tag">📚 Learning</span>
-        </div>
+        <p class="section-intro">Outside of work, I stay active through volleyball and powerlifting, wind down with games, and try to read more than I actually do.</p>
 
         <!-- Photo Albums - Featured Section -->
         <div class="albums-section">
@@ -116,7 +108,7 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import OptimizedImage from '../components/OptimizedImage.vue'
 import AlbumCoverSlideshow from '../components/AlbumCoverSlideshow.vue'
 import { useBlog } from '../composables/useBlog'
@@ -139,10 +131,66 @@ const formatDate = (date) => {
   }
 }
 
+let revealObserver = null
 
-onMounted(() => {
+const observeEl = (el, idx) => {
+  if (!el || el.dataset.observed || el.classList.contains('visible')) return
+  el.dataset.idx = idx
+  el.dataset.observed = '1'
+  revealObserver?.observe(el)
+}
+
+onMounted(async () => {
   fetchPosts()
   fetchAlbums()
+
+  revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const idx = parseInt(entry.target.dataset.idx || 0)
+          entry.target.style.transitionDelay = `${idx * 0.12}s`
+          entry.target.classList.add('visible')
+          entry.target.addEventListener('transitionend', () => {
+            entry.target.style.transitionDelay = '0s'
+          }, { once: true })
+          revealObserver.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+  )
+
+  await nextTick()
+  await nextTick()
+
+  // Static elements always in DOM
+  document.querySelectorAll('.section-title, .map-container').forEach((el, i) => {
+    observeEl(el, i)
+  })
+
+  // Elements that may already be loaded (cached data)
+  document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
+  const albumsGrid = document.querySelector('.albums-grid')
+  if (albumsGrid) observeEl(albumsGrid, 0)
+})
+
+// Re-observe when async data loads after mount
+watch(() => recentPosts.value, async (posts) => {
+  if (!posts?.length || !revealObserver) return
+  await nextTick()
+  document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
+})
+
+watch(() => featuredAlbums.value, async (albums) => {
+  if (!albums?.length || !revealObserver) return
+  await nextTick()
+  const grid = document.querySelector('.albums-grid')
+  if (grid) observeEl(grid, 0)
+})
+
+onUnmounted(() => {
+  revealObserver?.disconnect()
 })
 </script>
 
@@ -175,41 +223,52 @@ onMounted(() => {
   margin: 0 auto;
 }
 
+@keyframes headingReveal {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lineExpand {
+  from { width: 0; opacity: 0; }
+  to   { width: 48px; opacity: 1; }
+}
+
 h1 {
   font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 1.25rem;
-  text-align: center;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  margin-bottom: 2rem;
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  position: relative;
+  padding-bottom: 1.25rem;
   opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  animation: lineExpand 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.65s both;
 }
 
 .page-intro {
-  text-align: center;
+  text-align: left;
   font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 0;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
   font-weight: 400;
   opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both;
 }
 
 /* Section Backgrounds */
@@ -244,24 +303,32 @@ h1 {
   font-size: clamp(1.875rem, 3vw, 2.25rem);
   color: var(--text-primary);
   margin-bottom: 2.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 3px solid var(--accent-primary);
+  padding-bottom: 1rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   position: relative;
   width: fit-content;
   opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+  transform: translateX(-18px) translateY(18px);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section-title.visible {
+  opacity: 1;
+  transform: translateX(0) translateY(0);
 }
 
 .section-title::after {
   content: '';
   position: absolute;
-  bottom: -3px;
+  bottom: 0;
   left: 0;
-  width: 40%;
+  width: 48px;
   height: 3px;
-  background: var(--accent-secondary);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
 }
 
 .section-header {
@@ -302,14 +369,12 @@ h1 {
 }
 
 .section-intro {
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   line-height: 1.7;
   margin-bottom: 3.5rem;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
   font-weight: 400;
 }
 
@@ -333,7 +398,14 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
   opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.albums-grid.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .empty-albums {
@@ -344,42 +416,6 @@ h1 {
   font-weight: 400;
 }
 
-/* Interests Section */
-.interests-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  margin-top: 2.5rem;
-  margin-bottom: 3.5rem;
-  justify-content: center;
-  opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
-}
-
-.interest-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.875rem 1.75rem;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border-radius: 50px;
-  border: 1.5px solid var(--border-color);
-  font-size: clamp(0.9375rem, 1.1vw, 1rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  cursor: default;
-}
-
-.interest-tag:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  border-color: var(--accent-primary);
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  color: var(--bg-primary);
-}
 
 /* Blog Section */
 .loading-state,
@@ -396,25 +432,33 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
   margin-top: 2.5rem;
-  opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
 }
 
 .blog-card {
   background: var(--bg-card);
   border-radius: 12px;
   padding: 2.25rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18);
   border: 1px solid var(--border-color);
   text-decoration: none;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 300px;
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(32px) scale(0.975);
+}
+
+.blog-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .blog-card::before {
@@ -429,14 +473,16 @@ h1 {
   transition: opacity 0.4s ease;
 }
 
-.blog-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12),
-              0 6px 12px rgba(0, 0, 0, 0.08);
-  border-color: var(--accent-primary)60;
+.blog-card.visible:hover {
+  transform: translateY(-8px) scale(1);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
+              0 8px 20px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(129, 140, 248, 0.08),
+              0 0 40px rgba(129, 140, 248, 0.06);
+  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
 }
 
-.blog-card:hover::before {
+.blog-card.visible:hover::before {
   opacity: 1;
 }
 
@@ -453,10 +499,12 @@ h1 {
 }
 
 .blog-date {
-  font-size: clamp(0.875rem, 1vw, 0.9375rem);
-  color: var(--text-tertiary);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.9;
 }
 
 .blog-reading-time {
@@ -522,7 +570,7 @@ h1 {
 
 .tag:hover {
   background: var(--accent-primary);
-  color: var(--bg-card);
+  color: #05060f;
   border-color: var(--accent-primary);
 }
 
@@ -542,14 +590,12 @@ h1 {
 
 /* Visitor Map Section */
 .visitor-intro {
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   line-height: 1.7;
   margin-bottom: 2.5rem;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
   font-weight: 400;
 }
 
@@ -560,7 +606,14 @@ h1 {
   margin-top: 2.5rem;
   width: 100%;
   opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.map-container.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .map-container a {
@@ -569,12 +622,14 @@ h1 {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
 .map-container a:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
+              0 0 30px rgba(129, 140, 248, 0.07);
 }
 
 .map-container img {
@@ -623,15 +678,7 @@ h1 {
     gap: 1.5rem;
   }
 
-  .interests-tags {
-    gap: 1rem;
-  }
-
-  .interest-tag {
-    padding: 0.75rem 1.5rem;
-  }
-
-  .blog-grid {
+.blog-grid {
     grid-template-columns: 1fr;
     gap: 1.75rem;
   }
@@ -668,8 +715,6 @@ h1 {
     padding: 1.5rem;
   }
 
-  .interest-tag {
-    padding: 0.625rem 1.25rem;
-  }
+
 }
 </style>

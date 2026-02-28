@@ -486,8 +486,9 @@ function getFlatIndex(item) {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
   z-index: 9998;
 }
 
@@ -501,13 +502,27 @@ function getFlatIndex(item) {
   max-width: 640px;
   max-height: 60vh;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 18%, var(--border-color));
   border-radius: 12px;
-  box-shadow: 0 16px 70px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.7),
+              0 0 0 1px rgba(129, 140, 248, 0.06),
+              0 0 60px rgba(129, 140, 248, 0.07);
   display: flex;
   flex-direction: column;
   z-index: 9999;
   overflow: hidden;
+}
+
+.command-palette-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  z-index: 1;
+  border-radius: 12px 12px 0 0;
 }
 
 /* Search Header */
@@ -532,7 +547,9 @@ function getFlatIndex(item) {
   outline: none;
   font-size: 1rem;
   color: var(--text-primary);
-  font-family: inherit;
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .search-input::placeholder {
@@ -573,12 +590,12 @@ function getFlatIndex(item) {
 }
 
 .results-container::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+  background: color-mix(in srgb, var(--accent-primary) 28%, var(--border-color));
   border-radius: 4px;
 }
 
 .results-container::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
+  background: color-mix(in srgb, var(--accent-primary) 52%, var(--border-color));
 }
 
 /* Results Section */

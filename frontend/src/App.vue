@@ -3,19 +3,18 @@ import { RouterLink, RouterView } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useProfessionalInfo } from './composables/useProfessionalInfo'
+import { CONTACT } from './config/contact'
 import { useBlog } from './composables/useBlog'
 import { useChatAssistant } from './composables/useChatAssistant'
 import { useSearch } from './composables/useSearch'
 import ChatAssistant from './components/ChatAssistant.vue'
-import CommandPalette from './components/CommandPalette.vue'
 
 const mobileMenuOpen = ref(false)
 const miscDropdownOpen = ref(false)
 const { theme, toggleTheme } = useTheme()
-const commandPaletteRef = ref(null)
 const { searchQuery, searchResults, showSearchResults, isLoadingBlogContent, searchPages, clearSearch } = useSearch()
-const { posts, fetchPosts } = useBlog()
-const { loadProfessionalInfo } = useProfessionalInfo()
+const { fetchPosts } = useBlog()
+const { personal, content, loadProfessionalInfo } = useProfessionalInfo()
 const { preloadContext } = useChatAssistant()
 
 onMounted(async () => {
@@ -25,11 +24,7 @@ onMounted(async () => {
   preloadContext().catch(err => console.warn('Failed to preload chat context:', err))
 })
 
-const openSearch = () => {
-  commandPaletteRef.value?.openPalette()
-}
-
-const selectSearchResult = (path) => {
+const selectSearchResult = () => {
   clearSearch()
   closeMobileMenu()
 }
@@ -51,18 +46,25 @@ const toggleMiscDropdown = () => {
   miscDropdownOpen.value = !miscDropdownOpen.value
 }
 
-const closeMiscDropdown = () => {
-  miscDropdownOpen.value = false
-}
 </script>
 
 <template>
   <div id="app">
+    <!-- Mobile menu backdrop -->
+    <Transition name="overlay">
+      <div
+        v-if="mobileMenuOpen"
+        class="mobile-overlay"
+        @click="closeMobileMenu"
+        aria-hidden="true"
+      ></div>
+    </Transition>
+
     <!-- Navigation -->
     <nav class="navbar">
       <div class="nav-container">
         <RouterLink to="/" class="logo" @click="closeMobileMenu">
-          Richwell Perez
+          {{ personal.name || 'Richwell Perez' }}
         </RouterLink>
 
         <!-- Mobile Menu Button -->
@@ -107,7 +109,21 @@ const closeMiscDropdown = () => {
                 :class="{ 'active': miscDropdownOpen }"
                 aria-label="Toggle Misc menu"
               >
-                <span class="dropdown-arrow" :class="{ 'open': miscDropdownOpen }">▼</span>
+                <svg
+                  class="dropdown-arrow"
+                  :class="{ 'open': miscDropdownOpen }"
+                  viewBox="0 0 24 24"
+                  width="10"
+                  height="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
               </button>
             </div>
             <div class="dropdown-menu" :class="{ 'show': miscDropdownOpen }">
@@ -182,92 +198,109 @@ const closeMiscDropdown = () => {
 
     <!-- Main Content -->
     <main>
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <Transition name="page" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </main>
 
     <!-- Footer -->
     <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h4>Let's Connect!</h4>
-          <div class="social-links">
-            <a href="mailto:richwell.perez@gmail.com" target="_blank" rel="noopener" class="social-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="footer-inner">
+
+        <!-- Brand + status -->
+        <div class="footer-brand">
+          <RouterLink to="/" class="footer-name">{{ personal.name || 'Richwell Perez' }}</RouterLink>
+          <span class="footer-status">
+            <span class="footer-dot"></span>
+            {{ content.availabilityLabel }}
+          </span>
+        </div>
+
+        <!-- Nav quick-links -->
+        <nav class="footer-nav">
+          <RouterLink to="/experience">Experience</RouterLink>
+          <RouterLink to="/projects">Projects</RouterLink>
+          <RouterLink to="/cv">CV</RouterLink>
+          <RouterLink to="/contact">Contact</RouterLink>
+        </nav>
+
+        <!-- Social + copyright -->
+        <div class="footer-social">
+          <div class="footer-links">
+            <a :href="`mailto:${CONTACT.email}`" aria-label="Email">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                 <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
-              Email
             </a>
-            <a
-              href="https://www.linkedin.com/in/richwell-perez"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="social-link"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <a :href="CONTACT.github" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+            </a>
+            <a :href="CONTACT.linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
               </svg>
-              LinkedIn
             </a>
           </div>
+          <p class="copyright">© 2026 {{ personal.name || 'Richwell Perez' }}</p>
         </div>
-        <div class="footer-section">
-          <p class="copyright">© 2026 Richwell Perez. Built with Vue.js.</p>
-        </div>
+
       </div>
     </footer>
 
     <!-- Chat Assistant -->
     <ChatAssistant />
 
-    <!-- Command Palette -->
-    <CommandPalette ref="commandPaletteRef" />
   </div>
 </template>
 
 <style>
-/* Import distinctive fonts */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+/* Urbanist (display headings) · Nunito (body) · JetBrains Mono (labels) */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,300..900;1,300..900&family=Nunito:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap');
 
-/* Warm Editorial Theme Variables */
+/* Midnight Depth — void-black / soft indigo / violet */
 :root[data-theme='dark'] {
-  --bg-primary: #0f1419;
-  --bg-secondary: #1a1f26;
-  --bg-tertiary: #252b33;
-  --bg-card: #1a1f26;
-  --bg-hover: #252b33;
-  --text-primary: #e8e6e3;
-  --text-secondary: #a8a29e;
-  --text-tertiary: #78716c;
-  --border-color: #38332d;
-  --accent-primary: #c86c4a;
-  --accent-hover: #d4825f;
-  --accent-secondary: #d4a574;
-  --accent-tertiary: #2d5f5f;
-  --link-color: #d4a574;
-  --link-hover: #e8b887;
-  --shadow: rgba(0, 0, 0, 0.4);
-  --gradient-subtle: linear-gradient(135deg, rgba(200, 108, 74, 0.08) 0%, rgba(212, 165, 116, 0.08) 100%);
+  --bg-primary: #05060f;
+  --bg-secondary: #090b1a;
+  --bg-tertiary: #0f1228;
+  --bg-card: #090b1a;
+  --bg-hover: #0f1228;
+  --text-primary: #e2e8f0;
+  --text-secondary: #8896b3;
+  --text-tertiary: #4d5a7a;
+  --border-color: #1a2040;
+  --accent-primary: #818cf8;
+  --accent-hover: #a5b0ff;
+  --accent-secondary: #a78bfa;
+  --accent-tertiary: #0d1030;
+  --link-color: #818cf8;
+  --link-hover: #a5b0ff;
+  --shadow: rgba(0, 0, 0, 0.7);
+  --gradient-subtle: linear-gradient(135deg, rgba(129, 140, 248, 0.1) 0%, rgba(167, 139, 250, 0.05) 100%);
 }
 
 :root[data-theme='light'] {
-  --bg-primary: #fafaf9;
+  --bg-primary: #f2f3fa;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f5f5f4;
+  --bg-tertiary: #e4e6f5;
   --bg-card: #ffffff;
-  --bg-hover: #f5f5f4;
-  --text-primary: #1c1917;
-  --text-secondary: #57534e;
-  --text-tertiary: #78716c;
-  --border-color: #e7e5e4;
-  --accent-primary: #b85a42;
-  --accent-hover: #c96d54;
-  --accent-secondary: #6b7b5e;
-  --accent-tertiary: #3d6b6b;
-  --link-color: #9d5d48;
-  --link-hover: #b85a42;
-  --shadow: rgba(0, 0, 0, 0.08);
-  --gradient-subtle: linear-gradient(135deg, rgba(184, 90, 66, 0.06) 0%, rgba(107, 123, 94, 0.06) 100%);
+  --bg-hover: #e4e6f5;
+  --text-primary: #0f1033;
+  --text-secondary: #3a4466;
+  --text-tertiary: #606890;
+  --border-color: #c2c8e8;
+  --accent-primary: #4f46e5;
+  --accent-hover: #6366f1;
+  --accent-secondary: #7c3aed;
+  --accent-tertiary: #eef0ff;
+  --link-color: #4f46e5;
+  --link-hover: #6366f1;
+  --shadow: rgba(0, 0, 0, 0.05);
+  --gradient-subtle: linear-gradient(135deg, rgba(79, 70, 229, 0.07) 0%, rgba(124, 58, 237, 0.04) 100%);
 }
 
 /* Global Styles */
@@ -282,16 +315,35 @@ html {
 }
 
 body {
-  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   color: var(--text-primary);
-  line-height: 1.65;
-  letter-spacing: -0.011em;
+  line-height: 1.7;
+  letter-spacing: 0;
   font-weight: 400;
   background: var(--bg-primary);
   transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
               color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent-primary) 30%, var(--border-color));
+  border-radius: 4px;
+  border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent-primary) 55%, var(--border-color));
 }
 
 /* Subtle texture overlay for depth */
@@ -310,24 +362,26 @@ body::before {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
   color: var(--text-primary);
 }
 
 h1 {
   font-size: clamp(2.25rem, 5vw, 3.75rem);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 h2 {
   font-size: clamp(1.875rem, 4vw, 2.75rem);
+  font-weight: 700;
 }
 
 h3 {
   font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
 }
 
 /* Improved link styling */
@@ -355,49 +409,64 @@ main {
   flex: 1;
 }
 
+/* Page Transitions */
+.page-enter-active {
+  transition: opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-leave-active {
+  transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(24px) scale(0.99);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-14px) scale(0.99);
+}
+
 /* Navigation */
 .navbar {
-  background: var(--bg-card)f5;
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  box-shadow: 0 1px 0 var(--border-color)60;
-  border-bottom: 1px solid var(--border-color)80;
+  background: rgba(5, 6, 15, 0.96);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.35s ease;
 }
 
-.navbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--gradient-subtle);
-  opacity: 0.6;
+:root[data-theme='light'] .navbar {
+  background: rgba(242, 243, 250, 0.96);
+  border-bottom-color: rgba(79, 70, 229, 0.15);
 }
 
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 0.875rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .logo {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.375rem;
-  font-weight: 700;
-  font-style: italic;
+  font-family: 'Urbanist', sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  font-style: normal;
   color: var(--text-primary);
   text-decoration: none;
   letter-spacing: -0.02em;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.2s ease;
   position: relative;
+  flex-shrink: 0;
 }
 
 .logo::after {
@@ -406,18 +475,22 @@ main {
   bottom: -3px;
   left: 0;
   width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 1px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 6px var(--accent-primary);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logo:hover {
   color: var(--accent-primary);
-  transform: translateY(-1px);
 }
 
 .logo:hover::after {
   width: 100%;
+}
+
+.logo:hover {
+  text-decoration-color: transparent;
 }
 
 .mobile-menu-btn {
@@ -476,31 +549,34 @@ main {
 }
 
 .nav-links a {
+  font-family: 'JetBrains Mono', monospace;
   color: var(--text-secondary);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9375rem;
-  letter-spacing: -0.01em;
-  padding: 0.625rem 0;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
   position: relative;
 }
 
 .nav-links a::after {
   content: '';
   position: absolute;
-  bottom: -2px;
+  bottom: -1px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
-  height: 2px;
+  height: 1px;
   background: var(--accent-primary);
-  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 4px var(--accent-primary);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-links a:hover {
-  color: var(--text-primary);
+  color: var(--accent-primary);
 }
 
 .nav-links a:hover::after {
@@ -508,8 +584,8 @@ main {
 }
 
 .nav-links a.active {
-  color: var(--text-primary);
-  font-weight: 600;
+  color: var(--accent-primary);
+  font-weight: 500;
 }
 
 .nav-links a.active::after {
@@ -530,13 +606,16 @@ main {
 }
 
 .dropdown-link {
+  font-family: 'JetBrains Mono', monospace;
   color: var(--text-secondary);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 1rem;
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 0.5rem 0;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s ease;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .dropdown-link:hover {
@@ -570,9 +649,9 @@ main {
 }
 
 .dropdown-arrow {
-  font-size: 0.7rem;
-  transition: transform 0.3s ease;
-  display: inline-block;
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .dropdown-arrow.open {
@@ -585,10 +664,10 @@ main {
   left: 0;
   margin-top: 0.625rem;
   background: var(--bg-card);
-  border: 1.5px solid var(--border-color);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
-              0 4px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(129, 140, 248, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(129, 140, 248, 0.05);
   min-width: 220px;
   opacity: 0;
   visibility: hidden;
@@ -611,15 +690,17 @@ main {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 1rem;
   color: var(--text-secondary);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9375rem;
-  letter-spacing: -0.01em;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
   border: none;
-  border-radius: 7px;
+  border-radius: 6px;
   position: relative;
 }
 
@@ -671,20 +752,20 @@ main {
 .search-bar {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5625rem 0.875rem;
-  background: var(--bg-primary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 220px;
+  gap: 0.5rem;
+  padding: 0.4375rem 0.75rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 190px;
 }
 
 .search-bar:focus-within {
   border-color: var(--accent-primary);
-  background: var(--bg-tertiary);
-  box-shadow: 0 0 0 3px var(--accent-primary)15,
-              0 2px 8px rgba(0, 0, 0, 0.06);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.1),
+              0 0 8px rgba(129, 140, 248, 0.08);
   transform: translateY(-1px);
 }
 
@@ -701,8 +782,9 @@ main {
   border: none;
   outline: none;
   color: var(--text-primary);
-  font-size: 0.875rem;
-  font-family: inherit;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.02em;
   min-width: 0;
   padding: 0;
 }
@@ -710,6 +792,7 @@ main {
 .search-input::placeholder {
   color: var(--text-tertiary);
 }
+
 
 /* Search Results Dropdown */
 .search-results {
@@ -720,8 +803,9 @@ main {
   background: var(--bg-card);
   border: 1.5px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
-              0 4px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55),
+              0 6px 16px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(129, 140, 248, 0.06);
   overflow: hidden;
   overflow-y: auto;
   max-height: 420px;
@@ -750,12 +834,12 @@ main {
 }
 
 .search-results::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+  background: color-mix(in srgb, var(--accent-primary) 40%, var(--border-color));
   border-radius: 3px;
 }
 
 .search-results::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
+  background: var(--accent-primary);
 }
 
 .search-result-item {
@@ -767,7 +851,7 @@ main {
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  border-bottom: 1px solid var(--border-color)50;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 31%, transparent);
   position: relative;
 }
 
@@ -818,6 +902,7 @@ main {
   margin-top: 0.25rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -863,17 +948,17 @@ main {
 
 .toggle-track {
   position: relative;
-  width: 68px;
-  height: 34px;
+  width: 62px;
+  height: 30px;
   background: var(--bg-hover);
-  border: 1.5px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 7px;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  padding: 0 6px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .theme-toggle:hover .toggle-track {
@@ -909,13 +994,12 @@ main {
 .toggle-slider {
   position: absolute;
   left: 4px;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
   border-radius: 50%;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15),
-              0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 .toggle-slider.light-mode {
@@ -923,7 +1007,7 @@ main {
 }
 
 .toggle-slider.dark-mode {
-  transform: translateX(30px);
+  transform: translateX(32px);
 }
 
 .theme-toggle:hover .toggle-slider {
@@ -935,74 +1019,163 @@ main {
 .footer {
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 3rem 2rem 2.5rem;
-  margin-top: 0;
-  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 2rem 2rem 1.75rem;
+  transition: background-color 0.35s ease;
   position: relative;
 }
 
 .footer::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: -1px;
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--gradient-subtle);
-  opacity: 0.8;
+  background: linear-gradient(90deg, transparent 0%, var(--accent-primary) 40%, var(--accent-primary) 60%, transparent 100%);
+  opacity: 0.35;
+  box-shadow: 0 0 8px var(--accent-primary);
 }
 
-.footer-content {
+.footer-inner {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  flex-wrap: wrap;
   gap: 2rem;
 }
 
-.footer-section h4 {
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+/* Brand */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.footer-name {
+  font-family: 'Urbanist', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 800;
   color: var(--text-primary);
-}
-
-.social-links {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.social-links a {
-  color: var(--link-color);
   text-decoration: none;
-  transition: color 0.3s ease;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  letter-spacing: -0.02em;
+  transition: color 0.2s ease;
 }
 
-.social-links a svg {
+.footer-name:hover {
+  color: var(--accent-primary);
+}
+
+.footer-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.footer-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  box-shadow: 0 0 5px rgba(129, 140, 248, 0.6);
+  animation: footerDotBlink 2.5s ease-in-out infinite;
   flex-shrink: 0;
 }
 
-.social-links a:hover {
-  color: var(--link-hover);
-  text-decoration: underline;
+@keyframes footerDotBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Nav quick-links — centered */
+.footer-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.footer-nav a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: var(--accent-primary);
+}
+
+/* Social icons + copyright — right-aligned */
+.footer-social {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.footer-links a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--accent-primary);
+  transform: translateY(-2px);
 }
 
 .copyright {
   color: var(--text-tertiary);
-  font-size: 0.9rem;
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.03em;
+}
+
+/* Mobile overlay backdrop */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 15, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99;
+}
+
+.overlay-enter-active,
+.overlay-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.overlay-enter-from,
+.overlay-leave-to {
+  opacity: 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .nav-container {
     padding: 1rem;
+  }
+
+  .mobile-overlay {
+    display: block;
   }
 
   .mobile-menu-btn {
@@ -1020,9 +1193,11 @@ main {
     background: var(--bg-card);
     flex-direction: column;
     padding: 5rem 2rem 2rem;
-    box-shadow: -2px 0 10px var(--shadow);
-    border-left: 1px solid var(--border-color);
-    transition: right 0.3s ease;
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(129, 140, 248, 0.07);
+    border-left: 1px solid color-mix(in srgb, var(--accent-primary) 18%, var(--border-color));
+    border-top: 3px solid var(--accent-primary);
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     gap: 1.5rem;
     align-items: flex-start;
   }
@@ -1032,9 +1207,9 @@ main {
   }
 
   .nav-links a {
-    font-size: 1.2rem;
+    font-size: 1rem;
     width: 100%;
-    padding: 0.75rem 0;
+    padding: 0.625rem 0;
   }
 
   /* Mobile Dropdown Styles */
@@ -1051,13 +1226,13 @@ main {
 
   .dropdown-link {
     flex: 1;
-    font-size: 1.2rem;
-    padding: 0.75rem 0;
+    font-size: 1rem;
+    padding: 0.625rem 0;
   }
 
   .dropdown-arrow-btn {
-    font-size: 1.2rem;
-    padding: 0.75rem 0.5rem;
+    font-size: 1rem;
+    padding: 0.625rem 0.5rem;
   }
 
   .dropdown-menu {
@@ -1111,16 +1286,28 @@ main {
 
   .result-subtitle {
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     font-size: 0.75rem;
   }
 
-  .footer-content {
-    flex-direction: column;
+  .footer-inner {
+    grid-template-columns: 1fr;
     text-align: center;
+    gap: 1.5rem;
   }
 
-  .social-links {
+  .footer-brand {
+    align-items: center;
+  }
+
+  .footer-nav {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-social {
+    align-items: center;
   }
 }
 </style>

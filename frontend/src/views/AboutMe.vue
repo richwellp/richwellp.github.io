@@ -3,35 +3,59 @@
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-background-accent"></div>
-      <div class="hero-content">
-        <div class="hero-text">
-          <h1>Richwell Cyrille Santos Perez</h1>
-          <p class="subtitle">
-            BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a> |
-            AI Engineer at <a href="https://www.linkedin.com/company/rave-aerospace" target="_blank" rel="noopener noreferrer">RAVE Aerospace</a>
-          </p>
+      <div class="hero-inner">
 
-          <!-- Animated Subtitle -->
-          <transition name="slide-fade" mode="out-in">
-            <div :key="currentIndex" class="animated-subtitle">
-              <p class="animated-title">{{ timelineItems[currentIndex].title }}</p>
-              <p class="animated-description">{{ timelineItems[currentIndex].description }}</p>
-            </div>
-          </transition>
-
-          <p class="intro">
-            I build software, data, and AI systems that solve real-world problems, actively seeking opportunities to continuously learn, grow, and apply my expertise.
-            I thrive in collaborative, fast-paced environments where I can make a meaningful, positive impact.
-          </p>
-        </div>
-
-        <div class="hero-image-container">
+        <!-- Circular Profile Photo -->
+        <div class="photo-ring">
           <img
             src="/assets/photos/professional_1.jpg"
             alt="Richwell Perez"
-            class="hero-image"
+            class="hero-photo"
           />
         </div>
+
+        <!-- Name -->
+        <h1>{{ personal.name }}</h1>
+
+        <!-- Role tagline -->
+        <p class="hero-tagline">
+          AI Engineer ·
+          BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a>
+        </p>
+
+        <!-- Rotating showcase — outer wrapper holds height stable during Vue out-in transition -->
+        <div v-if="showcaseItems.length > 0" class="rotating-wrapper">
+          <transition name="role-fade" mode="out-in">
+            <div :key="currentIndex" class="rotating-block">
+              <span class="rotating-label">{{ showcaseItems[currentIndex].label }}</span>
+              <p class="rotating-title">{{ showcaseItems[currentIndex].title }}</p>
+              <p class="rotating-desc">{{ showcaseItems[currentIndex].text }}</p>
+            </div>
+          </transition>
+        </div>
+
+        <!-- Progress dots — click to jump to any item -->
+        <div v-if="showcaseItems.length > 0" class="rotating-dots">
+          <span
+            v-for="(_, i) in showcaseItems"
+            :key="i"
+            class="rotating-dot"
+            :class="{ active: i === currentIndex }"
+            @click="goToSlide(i)"
+          />
+        </div>
+
+        <!-- Brief intro -->
+        <p class="hero-bio">{{ content.heroBio }}</p>
+
+        <!-- Chat CTA -->
+        <button class="hero-chat-btn" @click="toggleChat">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Ask me anything →
+        </button>
+
       </div>
     </section>
 
@@ -41,32 +65,41 @@
         <h2>About Me</h2>
         <div class="story-content">
           <div class="story-text">
-            <p>
-              Hello and welcome! I am Richwell Perez, and I earned a BS and MCS in Computer Science from UIUC, specializing in Data and Artificial Intelligence.
-              My background includes teaching assistantships, software engineering, database systems, data science, and AI engineering. 
-            </p>
-            <p>
-              I am drawn to building technology that solves real-world problems and have pursued opportunities into hands-on experience. 
-              I have developed full-stack applications, ML and deep learning models, explored data analytics, built retrieval-augmented generation (RAG) systems, worked with cloud platforms, and delivered AI-powered applications,
-              all to create solutions that make a real difference.
-            </p>
-            <p>
-              My journey in Computer Science started with curiosity about computers, the internet, software and how they could connect people, provide entertainment, and solve problems. 
-              Through school and early projects, I focused on roles that matched my strengths in critical thinking and problem-solving, which led me to specialize in software, data, and AI. 
-              I enjoy building systems that learn from information, analyze data, and provide actionable insights, and I am always seeking practical ways to apply my skills.
-            </p>
-            <p>
-              I am passionate about developing technologies that improve lives and deliver meaningful impact through software, data insights, and intelligent AI systems. 
-              To pursue this passion, I have taken on projects and roles that challenge me and expand my skills in designing scalable applications, building ML models, developing data pipelines, and deploying cloud-based AI solutions. 
-              I stay current with new tools and frameworks, thrive in fast-paced, collaborative environments, and aim to contribute to making the world a better place.
-            </p>
+            <p v-for="(para, i) in content.storyParagraphs" :key="i">{{ para }}</p>
           </div>
           <div class="story-images">
             <img
               src="/assets/photos/professional_0.jpg"
               alt="Graduation"
               class="story-photo"
+              :class="{ 'img-loaded': storyImageLoaded }"
+              @load="storyImageLoaded = true"
             />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="skills-section">
+      <div class="container">
+        <h2>Skills</h2>
+        <div class="skills-panel" v-if="orderedSkills.length">
+          <div class="panel-bar">
+            <span class="panel-dot red"></span>
+            <span class="panel-dot yellow"></span>
+            <span class="panel-dot green"></span>
+            <span class="panel-filename">// skills.json</span>
+          </div>
+          <div class="panel-body">
+            <div
+              v-for="{ key, label, items } in orderedSkills"
+              :key="key"
+              class="skill-row"
+            >
+              <span class="skill-cat">{{ label }}</span>
+              <span class="skill-list">{{ items.join(' · ') }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -77,41 +110,41 @@
       <div class="container">
         <h2>My Journey</h2>
         <div class="timeline">
-          <div class="timeline-item">
+          <!-- Professional experience entries (RAVE, IL SoS) -->
+          <div
+            v-for="exp in timelineExperience"
+            :key="exp.company"
+            class="timeline-item"
+          >
             <div class="timeline-header">
-              <h3>AI Engineer at RAVE Aerospace</h3>
-              <span class="timeline-date">June 2025 - Present</span>
+              <h3>{{ exp.title }} at {{ exp.company }}</h3>
+              <span class="timeline-date">{{ exp.dates }}</span>
             </div>
-            <p class="timeline-description">
-              Building full-stack applications with RAG, developing predictive maintenance systems for in-flight entertainment and connectivity (IFEC) systems, and
-              creating AI solutions to minimize manual labor.
-            </p>
+            <p class="timeline-description">{{ exp.timelineDescription }}</p>
           </div>
 
-          <div class="timeline-item">
+          <!-- UIUC compound entry: both degrees + part-time roles -->
+          <div v-if="education.length > 0" class="timeline-item">
             <div class="timeline-header">
-              <h3>Database Administrator at Illinois Secretary of State</h3>
-              <span class="timeline-date">February 2025 - June 2025</span>
-            </div>
-            <p class="timeline-description">
-              Managed and optimized high-throughput DB2 databases on z/OS mainframe systems and supported statewide digital initiatives, including the database systems for Apple Wallet mobile driver's license.
-            </p>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-header">
-              <h3>University of Illinois at Urbana-Champaign</h3>
-              <span class="timeline-date">August 2018 - May 2023</span>
+              <h3>{{ education[1]?.institution || education[0]?.institution }}</h3>
+              <span class="timeline-date">{{ education[1]?.dates }}</span>
             </div>
             <div class="timeline-details">
-              <p><strong>Master of Computer Science</strong> (August 2022 - May 2023, GPA: 3.52)</p>
-              <p>Focused on Computer Vision, Deep Learning, Data Mining, and Web Programming.</p>
-              <p><strong>Bachelor of Science in Computer Science with Honors</strong> (August 2018 - May 2023, GPA: 3.81)</p>
-              <p>Specialized in Intelligence and Data.</p>
-              <p><strong>Graduate Teaching Assistant</strong> (Part-time, August 2022 - May 2023)</p>
-              <p>Led discussions and labs for Software Design & Database Systems, teaching design patterns and databases to 800+ students.</p>
-              <p><strong>Software Engineer</strong> (Part-time, July 2021 - August 2021)</p>
-              <p>Developed and deployed LabWindows/CVI embedded software interfacing with new magnet-mapping hardware, enabling real-time data acquisition, control logic, and optimized system performance.</p>
+              <template v-for="edu in education" :key="edu.degree">
+                <p>
+                  <strong>{{ edu.degree }}</strong>
+                  ({{ edu.dates }}, GPA: {{ edu.gpa }})
+                </p>
+                <p v-if="edu.focus">Focused on {{ edu.focus.join(', ') }}.</p>
+                <p v-if="edu.specializations">Specialized in {{ edu.specializations.join(' and ') }}.</p>
+              </template>
+              <template v-for="exp in uiucExperience" :key="exp.title">
+                <p>
+                  <strong>{{ exp.title }}</strong>
+                  (Part-time, {{ exp.dates }})
+                </p>
+                <p>{{ exp.highlights[0] }}</p>
+              </template>
             </div>
           </div>
         </div>
@@ -121,59 +154,87 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { injectMultipleStructuredData, generatePersonSchema, generateOrganizationSchema } from '../composables/useStructuredData'
+import { useProfessionalInfo } from '../composables/useProfessionalInfo'
+import { useChatAssistant } from '../composables/useChatAssistant'
 
-const timelineItems = [
-  {
-    title: 'AI Engineer',
-    description: 'Full-stack Development, RAG, and Applied Machine Learning'
-  },
-  {
-    title: 'Master of Computer Science',
-    description: 'University of Illinois Urbana-Champaign (2022-2023, GPA: 3.52)'
-  },
-  {
-    title: 'B.S. in Computer Science',
-    description: 'University of Illinois Urbana-Champaign (2018-2023, GPA: 3.81)'
-  }
-]
+const storyImageLoaded = ref(false)
+
+const { personal, skills, education, experience, content, loadProfessionalInfo } = useProfessionalInfo()
+
+// Rotating showcase items — sourced from professionalInfo.json content.showcaseItems
+const showcaseItems = computed(() => content.value.showcaseItems || [])
+
+// My Journey — experience entries with a timelineDescription field
+const timelineExperience = computed(() =>
+  experience.value.filter(e => e.timelineDescription)
+)
+
+// UIUC part-time roles (TA + SWE) for the compound education entry
+const uiucExperience = computed(() =>
+  experience.value.filter(e =>
+    e.company === 'University of Illinois Urbana-Champaign' && !e.current
+  )
+)
+const { toggleChat } = useChatAssistant()
+
+// Skills panel — ordered display with readable labels
+const categoryOrder = ['languages', 'ai_ml', 'frameworks', 'databases', 'cloud', 'tools']
+const categoryLabels = {
+  languages:  'LANGUAGES',
+  ai_ml:      'AI / ML',
+  frameworks: 'FRAMEWORKS',
+  databases:  'DATABASES',
+  cloud:      'CLOUD',
+  tools:      'TOOLS'
+}
+const orderedSkills = computed(() => {
+  if (!skills.value) return []
+  return categoryOrder
+    .filter(k => skills.value[k])
+    .map(k => ({ key: k, label: categoryLabels[k], items: skills.value[k] }))
+})
 
 const currentIndex = ref(0)
 let intervalId = null
 
-onMounted(() => {
-  // Inject structured data for homepage
+const startInterval = () => {
+  if (intervalId) clearInterval(intervalId)
+  intervalId = setInterval(() => {
+    currentIndex.value = (currentIndex.value + 1) % showcaseItems.value.length
+  }, 4000)
+}
+
+const goToSlide = (i) => {
+  currentIndex.value = i
+  startInterval()
+}
+
+onMounted(async () => {
   injectMultipleStructuredData([
     { schema: generatePersonSchema(), id: 'person-schema' },
     { schema: generateOrganizationSchema(), id: 'organization-schema' }
   ])
 
-  intervalId = setInterval(() => {
-    currentIndex.value = (currentIndex.value + 1) % timelineItems.length
-  }, 4000)
+  await loadProfessionalInfo()
 
-  // Scroll-triggered animations for sections
+  startInterval()
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible')
-        }
+        if (entry.isIntersecting) entry.target.classList.add('visible')
       })
     },
     { threshold: 0.15, rootMargin: '0px 0px -80px 0px' }
   )
 
-  // Observe story and background sections
-  const sections = document.querySelectorAll('.story, .background')
-  sections.forEach((section) => observer.observe(section))
+  document.querySelectorAll('.story, .skills-section, .background').forEach((s) => observer.observe(s))
 })
 
 onUnmounted(() => {
-  if (intervalId) {
-    clearInterval(intervalId)
-  }
+  if (intervalId) clearInterval(intervalId)
 })
 </script>
 
@@ -182,12 +243,26 @@ onUnmounted(() => {
   width: 100%;
 }
 
-/* Hero Section */
+/* ── Hero ── */
 .hero {
   background: var(--bg-primary);
-  color: var(--text-primary);
-  padding: 8rem 2rem 6rem;
-  min-height: 88vh;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(129, 140, 248, 0.03) 39px,
+      rgba(129, 140, 248, 0.03) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 39px,
+      rgba(129, 140, 248, 0.03) 39px,
+      rgba(129, 140, 248, 0.03) 40px
+    );
+  padding: 6rem 2rem 5rem;
+  min-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -196,256 +271,241 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-/* Animated gradient background */
+
+/* Teal radial glow */
 .hero-background-accent {
   position: absolute;
-  top: -50%;
-  right: -15%;
-  width: 70%;
-  height: 140%;
-  background: var(--gradient-subtle);
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.7;
-  animation: float 25s ease-in-out infinite;
+  top: -20%;
+  right: -10%;
+  width: 65%;
+  height: 120%;
+  background: radial-gradient(ellipse at 60% 40%, rgba(129, 140, 248, 0.12) 0%, rgba(129, 140, 248, 0.04) 40%, transparent 70%);
+  animation: float 22s ease-in-out infinite;
   z-index: 0;
   pointer-events: none;
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  25% {
-    transform: translate(-30px, -60px) rotate(3deg) scale(1.05);
-  }
-  50% {
-    transform: translate(20px, 40px) rotate(-2deg) scale(0.95);
-  }
-  75% {
-    transform: translate(-15px, 50px) rotate(4deg) scale(1.02);
-  }
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25%       { transform: translate(-30px, -60px) rotate(3deg) scale(1.05); }
+  50%       { transform: translate(20px, 40px) rotate(-2deg) scale(0.95); }
+  75%       { transform: translate(-15px, 50px) rotate(4deg) scale(1.02); }
 }
 
-.hero-content {
+.hero-inner {
   position: relative;
   z-index: 1;
-  max-width: 1200px;
+  text-align: center;
+  max-width: 640px;
   width: 100%;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 5rem;
-  align-items: center;
 }
 
-.hero-text {
-  text-align: left;
-}
-
-.hero h1 {
-  font-size: clamp(2.5rem, 5.5vw, 4.25rem);
-  font-weight: 700;
-  line-height: 1.08;
-  margin-bottom: 1.25rem;
-  font-style: italic;
-  letter-spacing: -0.03em;
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: slideInUp 0.9s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-  animation-delay: 0.15s;
-}
-
-.hero .subtitle {
-  font-size: clamp(1rem, 1.8vw, 1.125rem);
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-  line-height: 1.6;
-  font-weight: 500;
-  animation: slideInUp 0.9s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-  animation-delay: 0.3s;
-}
-
-.hero .subtitle a {
-  color: var(--accent-primary);
-  font-weight: 600;
-  transition: all 0.25s ease;
-}
-
-.hero .subtitle a:hover {
-  color: var(--accent-hover);
-}
-
-.hero .intro {
-  font-size: clamp(1.05rem, 1.5vw, 1.15rem);
-  line-height: 1.75;
-  color: var(--text-secondary);
-  margin-top: 2rem;
-  max-width: 580px;
-  font-weight: 400;
-  animation: slideInUp 0.9s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-  animation-delay: 0.6s;
-}
-
-.hero-image-container {
-  position: relative;
-  animation: slideInRight 1s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-  animation-delay: 0.4s;
-}
-
-.hero-image {
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25),
-              0 8px 20px rgba(0, 0, 0, 0.15);
-  transform: perspective(1200px) rotateY(-4deg);
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hero-image:hover {
-  transform: perspective(1200px) rotateY(0deg) scale(1.02);
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3),
-              0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-/* Animated Subtitle */
-.animated-subtitle {
-  margin: 1.75rem 0;
-  min-height: 110px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  animation: slideInUp 0.9s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-  animation-delay: 0.45s;
-}
-
-.animated-title {
-  font-size: clamp(1.375rem, 2.2vw, 1.625rem);
-  font-weight: 700;
-  color: var(--accent-primary);
-  margin-bottom: 0.5rem;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  letter-spacing: -0.02em;
-}
-
-.animated-description {
-  font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
-  color: var(--text-tertiary);
-  opacity: 0.95;
-  line-height: 1.5;
-  font-weight: 400;
-}
-
-.slide-fade-enter-active {
-  transition: all 0.75s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.slide-fade-leave-active {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.slide-fade-enter-from {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.slide-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-/* Scroll-triggered animations */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.slide-fade-leave-active {
-  transition: all 0.6s ease-in;
-}
-
-.slide-fade-enter-from {
-  transform: translateY(30px);
-  opacity: 0;
-}
-
-.slide-fade-leave-to {
-  transform: translateY(-30px);
-  opacity: 0;
-}
-
-.hero-content {
-  max-width: 800px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
-:deep(.hero-image) {
+/* ── Circular photo ── */
+.photo-ring {
   width: 200px;
   height: 200px;
   border-radius: 50%;
+  margin: 0 auto 2rem;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-primary) 10%, transparent),
+              0 16px 48px rgba(0, 0, 0, 0.5);
+  animation: photoReveal 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both,
+             ringPulse 4s ease-in-out 1s infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-primary) 10%, transparent),
+                0 16px 48px rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent-primary) 5%, transparent),
+                0 20px 56px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   object-fit: cover;
-  border: 5px solid var(--border-color);
+  object-position: center top;
+  border: 3px solid var(--bg-primary);
+  display: block;
+}
+
+@keyframes photoReveal {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Name ── */
+h1 {
+  font-size: clamp(1.625rem, 3.2vw, 2.125rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  margin-bottom: 0.625rem;
+  color: var(--text-primary);
+  animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+/* ── Role tagline ── */
+.hero-tagline {
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  color: var(--text-secondary);
   margin-bottom: 1.5rem;
-  box-shadow: 0 10px 30px var(--shadow);
+  line-height: 1.5;
+  font-weight: 400;
+  animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
 }
 
-.hero h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
-}
-
-.subtitle {
-  font-size: 1.3rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.95;
-  font-weight: 300;
-}
-
-.subtitle a {
-  color: var(--link-color);
+.hero-tagline a {
+  color: var(--accent-primary);
+  font-weight: 600;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-.subtitle a:hover {
-  color: var(--link-hover);
-  text-decoration: underline;
+.hero-tagline a:hover {
+  color: var(--accent-hover);
 }
 
-.intro {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  max-width: 600px;
+/* ── Rotating showcase ── */
+/* Outer wrapper holds stable height so Vue out-in transition has no layout shift */
+.rotating-wrapper {
+  width: 100%;
+  max-width: 420px;
   margin: 0 auto;
-  opacity: 0.9;
+  min-height: 82px;
+  display: flex;
+  align-items: stretch;
+  animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
 }
 
-/* Sections */
+.rotating-block {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  background: color-mix(in srgb, var(--accent-primary) 3%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 14%, var(--border-color));
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.rotating-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-primary);
+  opacity: 0.7;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.rotating-title {
+  font-size: clamp(0.9375rem, 1.4vw, 1rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Urbanist', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin-bottom: 0.25rem;
+}
+
+.rotating-desc {
+  font-size: clamp(0.8125rem, 1vw, 0.875rem);
+  color: var(--text-tertiary);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Smooth in/out — faster leave so enter doesn't feel delayed */
+.role-fade-enter-active {
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.role-fade-leave-active {
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.role-fade-enter-from { opacity: 0; transform: translateY(12px); }
+.role-fade-leave-to   { opacity: 0; transform: translateY(-8px); }
+
+/* Progress dots */
+.rotating-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.375rem;
+  margin: 0.75rem auto 1.375rem;
+  animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+}
+
+.rotating-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-primary) 22%, var(--border-color));
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: block;
+}
+
+.rotating-dot.active {
+  background: var(--accent-primary);
+  transform: scale(1.4);
+  box-shadow: 0 0 6px rgba(129, 140, 248, 0.4);
+}
+
+/* ── Hero bio ── */
+.hero-bio {
+  font-size: clamp(0.9375rem, 1.2vw, 1rem);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 0;
+  font-weight: 400;
+  animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.62s both;
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Chat CTA button ── */
+.hero-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0.625rem 1.25rem;
+  background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
+  border-radius: 100px;
+  color: var(--accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.72s both;
+}
+
+.hero-chat-btn:hover {
+  background: var(--accent-primary);
+  color: #05060f;
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(129, 140, 248, 0.3);
+}
+
+/* ── Story & Background sections ── */
 section {
   padding: 4rem 2rem;
 }
@@ -453,16 +513,16 @@ section {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 5rem 2rem;
 }
 
 h2 {
   font-size: 2rem;
   margin-bottom: 2rem;
   color: var(--text-primary);
-  text-align: center;
+  text-align: left;
 }
 
-/* Story Section */
 .story {
   background: var(--bg-primary);
   opacity: 0;
@@ -493,21 +553,31 @@ h2 {
 :deep(.story-photo) {
   width: 100%;
   border-radius: 12px;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12),
-              0 3px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+              0 4px 12px rgba(0, 0, 0, 0.25),
+              0 0 0 1px rgba(129, 140, 248, 0.1),
+              0 0 30px rgba(129, 140, 248, 0.06);
   border: 1px solid var(--border-color);
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transition: opacity 0.5s ease,
+              transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:deep(.story-photo.img-loaded) {
+  opacity: 1;
 }
 
 :deep(.story-photo):hover {
   transform: translateY(-6px);
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15),
-              0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.5),
+              0 8px 20px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(129, 140, 248, 0.18),
+              0 0 50px rgba(129, 140, 248, 0.1);
 }
 
-/* Background Section */
 .background {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   opacity: 0;
   transform: translateY(50px);
   transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
@@ -518,22 +588,15 @@ h2 {
   transform: translateY(0);
 }
 
-/* Section container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 5rem 2rem;
-}
-
 .container h2 {
   margin-bottom: 3rem;
   font-size: clamp(2rem, 3.5vw, 2.5rem);
   font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
   position: relative;
   padding-bottom: 1rem;
+  text-align: left;
 }
 
 .container h2::after {
@@ -545,71 +608,124 @@ h2 {
   height: 3px;
   background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
   border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
 }
 
-/* Background/Timeline */
+/* ── Skills section ── */
+.skills-section {
+  background: var(--bg-secondary);
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.skills-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.skills-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.panel-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.panel-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.panel-dot.red    { background: #ff5f56; }
+.panel-dot.yellow { background: #ffbd2e; }
+.panel-dot.green  { background: #27c93f; }
+
+.panel-filename {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+  margin-left: 0.625rem;
+}
+
+.panel-body {
+  padding: 0.5rem 0;
+}
+
+.skill-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 1.5rem;
+  padding: 0.75rem 1.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
+  align-items: baseline;
+}
+
+.skill-row:last-child {
+  border-bottom: none;
+}
+
+.skill-cat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--accent-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+.skill-list {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+/* Timeline */
 .timeline {
   max-width: 820px;
   margin: 0 auto;
-  position: relative;
-  padding-left: 3.5rem;
-}
-
-/* Timeline vertical line */
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(180deg,
-    var(--accent-primary) 0%,
-    var(--accent-secondary) 50%,
-    var(--accent-tertiary) 100%
-  );
-  opacity: 0.6;
 }
 
 .timeline-item {
   position: relative;
-  margin-bottom: 3.5rem;
+  margin-bottom: 1.25rem;
   padding: 2.25rem 2.5rem;
   background: var(--bg-card);
   border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.18);
   border: 1px solid var(--border-color);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 3px solid color-mix(in srgb, var(--accent-primary) 28%, transparent);
+  transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Timeline dot indicator */
-.timeline-item::before {
-  content: '';
-  position: absolute;
-  left: -3.5rem;
-  top: 2.25rem;
-  width: 18px;
-  height: 18px;
-  background: var(--accent-primary);
-  border: 4px solid var(--bg-primary);
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px var(--accent-primary)30;
-  z-index: 1;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.timeline-item:first-child {
+  border-left-color: var(--accent-primary);
 }
 
 .timeline-item:hover {
-  transform: translateX(8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1),
-              0 4px 8px rgba(0, 0, 0, 0.06);
-  border-color: var(--accent-primary)40;
-}
-
-.timeline-item:hover::before {
-  transform: scale(1.35);
-  box-shadow: 0 0 0 8px var(--accent-primary)40;
-  background: var(--accent-hover);
+  transform: translateX(6px);
+  border-left-color: var(--accent-primary);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.28),
+              0 0 0 1px rgba(129, 140, 248, 0.06);
 }
 
 .timeline-header {
@@ -618,10 +734,11 @@ h2 {
   align-items: baseline;
   margin-bottom: 1.125rem;
   gap: 1.25rem;
-  flex-wrap: wrap;
 }
 
 .timeline-item h3 {
+  flex: 1;
+  min-width: 0;
   color: var(--text-primary);
   margin: 0;
   font-size: clamp(1.25rem, 2vw, 1.5rem);
@@ -631,11 +748,15 @@ h2 {
 }
 
 .timeline-date {
-  color: var(--accent-primary);
+  flex-shrink: 0;
+  color: var(--accent-secondary);
   font-size: 0.9375rem;
   font-weight: 600;
   white-space: nowrap;
   letter-spacing: -0.01em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  opacity: 0.9;
 }
 
 .timeline-description {
@@ -665,34 +786,16 @@ h2 {
   margin-bottom: 0;
 }
 
-/* Responsive */
-@media (max-width: 968px) {
+/* ── Responsive ── */
+@media (max-width: 768px) {
   .hero {
-    padding: 6rem 2rem 4rem;
-    min-height: 75vh;
+    padding: 4.5rem 1.5rem 4rem;
+    min-height: auto;
   }
 
-  .hero-content {
-    grid-template-columns: 1fr;
-    gap: 3.5rem;
-  }
-
-  .hero-text {
-    text-align: center;
-  }
-
-  .hero .intro {
-    max-width: 100%;
-  }
-
-  .animated-subtitle {
-    align-items: center;
-  }
-
-  .hero-image {
-    transform: perspective(1200px) rotateY(0deg);
-    max-width: 400px;
-    margin: 0 auto;
+  .photo-ring {
+    width: 170px;
+    height: 170px;
   }
 
   .story-content {
@@ -700,42 +803,24 @@ h2 {
     gap: 2.5rem;
   }
 
-  .timeline {
-    padding-left: 2.5rem;
-  }
-
-  .timeline-item::before {
-    left: -2.5rem;
-  }
 }
+
 
 @media (max-width: 640px) {
   .hero {
-    padding: 4rem 1.5rem 3rem;
+    padding: 4rem 1.5rem 3.5rem;
   }
 
   .container {
     padding: 3.5rem 1.5rem;
   }
 
-  .timeline {
-    padding-left: 2rem;
-  }
-
   .timeline-item {
     padding: 1.75rem 1.5rem;
   }
 
-  .timeline-item::before {
-    left: -2rem;
-    width: 14px;
-    height: 14px;
-  }
-
   .timeline-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 }
 </style>

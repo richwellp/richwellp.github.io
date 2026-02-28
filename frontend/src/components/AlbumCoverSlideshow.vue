@@ -152,8 +152,8 @@ import { computed } from 'vue'
   overflow: hidden;
   text-decoration: none;
   display: block;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35),
+              0 1px 4px rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   aspect-ratio: 4 / 3;
@@ -174,9 +174,11 @@ import { computed } from 'vue'
 
 .album-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12),
-              0 8px 16px rgba(0, 0, 0, 0.08);
-  border-color: var(--accent-primary)40;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6),
+              0 10px 24px rgba(0, 0, 0, 0.35),
+              0 0 0 1px rgba(129, 140, 248, 0.1),
+              0 0 50px rgba(129, 140, 248, 0.08);
+  border-color: color-mix(in srgb, var(--accent-primary) 30%, transparent);
 }
 
 .album-card:hover::before {

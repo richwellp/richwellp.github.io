@@ -160,7 +160,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.875rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
   position: relative;
   overflow: hidden;
 }
@@ -181,7 +181,8 @@ onUnmounted(() => {
   background: var(--bg-tertiary);
   border-color: var(--accent-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+              0 0 16px rgba(129, 140, 248, 0.08);
 }
 
 .toc-toggle:hover::before {
@@ -221,8 +222,9 @@ onUnmounted(() => {
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18),
+              0 0 0 1px rgba(129, 140, 248, 0.04);
   position: relative;
 }
 
@@ -301,7 +303,7 @@ onUnmounted(() => {
 
 .toc-list a:hover {
   color: var(--text-primary);
-  background: linear-gradient(90deg, rgba(200, 108, 74, 0.08), transparent);
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.08), transparent);
   border-left-color: var(--accent-primary);
   transform: translateX(2px);
 }
@@ -309,7 +311,7 @@ onUnmounted(() => {
 .toc-list a.active {
   color: var(--accent-primary);
   border-left-color: var(--accent-primary);
-  background: linear-gradient(90deg, rgba(200, 108, 74, 0.12), transparent);
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.12), transparent);
   font-weight: 600;
 }
 
@@ -321,7 +323,8 @@ onUnmounted(() => {
   margin-top: 0.75rem;
   animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1.5px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
 .toc-nav.mobile .toc-list {
@@ -337,7 +340,7 @@ onUnmounted(() => {
 
 .toc-nav.mobile a.active {
   border-left-color: var(--accent-primary);
-  background: linear-gradient(90deg, rgba(200, 108, 74, 0.12), transparent);
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.12), transparent);
 }
 
 @keyframes slideDown {

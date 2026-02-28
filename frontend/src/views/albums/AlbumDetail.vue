@@ -10,10 +10,12 @@
     :coming-soon-message="getComingSoonMessage()"
   />
   <div v-else-if="loading" class="loading-state">
+    <div class="loading-spinner"></div>
     <p>Loading album...</p>
   </div>
   <div v-else-if="error" class="error-state">
-    <p>Error: {{ error }}</p>
+    <div class="error-icon">⚠</div>
+    <p>{{ error }}</p>
   </div>
 </template>
 
@@ -91,14 +93,42 @@ onMounted(async () => {
   text-align: center;
   padding: 4rem 2rem;
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 1.2vw, 1.0625rem);
   min-height: 50vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1.25rem;
+  font-weight: 400;
+}
+
+.loading-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-icon {
+  font-size: 2.5rem;
+  color: #ef4444;
+  line-height: 1;
 }
 
 .error-state {
+  color: var(--text-secondary);
+}
+
+.error-state p {
   color: #ef4444;
+  font-weight: 500;
 }
 </style>

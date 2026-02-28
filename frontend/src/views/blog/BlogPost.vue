@@ -1,5 +1,10 @@
 <template>
   <div class="blog-post">
+    <!-- Reading Progress Bar -->
+    <div v-if="post && !loading" class="reading-progress">
+      <div class="reading-progress-bar" :style="{ width: readProgress + '%' }"></div>
+    </div>
+
     <div class="container">
       <!-- Loading State -->
       <div v-if="loading" class="loading">
@@ -43,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useBlog } from '../../composables/useBlog'
 import { injectStructuredData, generateBlogPostSchema } from '../../composables/useStructuredData'
@@ -57,6 +62,13 @@ const { getPostBySlug } = useBlog()
 const post = ref(null)
 const loading = ref(true)
 const error = ref(null)
+const readProgress = ref(0)
+
+const updateReadProgress = () => {
+  const scrollTop = window.scrollY
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight
+  readProgress.value = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
+}
 
 const md = new MarkdownIt({
   html: false,  // Prevent HTML injection - blog posts are pure markdown
@@ -95,6 +107,8 @@ const renderedContent = computed(() => {
 })
 
 onMounted(async () => {
+  window.addEventListener('scroll', updateReadProgress, { passive: true })
+
   try {
     const slug = route.params.slug
     post.value = await getPostBySlug(slug)
@@ -112,6 +126,10 @@ onMounted(async () => {
   }
 })
 
+onUnmounted(() => {
+  window.removeEventListener('scroll', updateReadProgress)
+})
+
 const formatDate = (date) => {
   if (!date) return 'No date'
   const d = new Date(date)
@@ -121,6 +139,27 @@ const formatDate = (date) => {
 </script>
 
 <style scoped>
+/* Reading Progress Bar */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 200;
+  pointer-events: none;
+}
+
+.reading-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  transition: width 0.1s linear;
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.6),
+              0 0 16px rgba(129, 140, 248, 0.2);
+  border-radius: 0 2px 2px 0;
+}
+
 .blog-post {
   padding: 5rem 2rem;
   background: var(--bg-primary);
@@ -174,9 +213,8 @@ const formatDate = (date) => {
   font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
   margin-bottom: 1.25rem;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  font-weight: 800;
+  letter-spacing: -0.035em;
 }
 
 .error-state p {
@@ -199,7 +237,7 @@ const formatDate = (date) => {
   border-radius: 8px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: -0.01em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 .back-button:hover {
@@ -207,7 +245,8 @@ const formatDate = (date) => {
   border-color: var(--accent-primary);
   background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+              0 0 14px rgba(129, 140, 248, 0.1);
 }
 
 /* Post Header */
@@ -257,9 +296,12 @@ const formatDate = (date) => {
 }
 
 .post-date {
-  color: var(--accent-primary);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  color: var(--accent-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.9;
 }
 
 .post-author {
@@ -310,7 +352,7 @@ const formatDate = (date) => {
 
 .tag:hover {
   background: var(--accent-primary);
-  color: var(--bg-card);
+  color: #05060f;
   border-color: var(--accent-primary);
   transform: translateY(-2px);
 }
@@ -402,11 +444,14 @@ const formatDate = (date) => {
 .post-content :deep(pre) {
   background: var(--bg-card);
   border: 1.5px solid var(--border-color);
+  border-top: 2px solid var(--accent-primary);
   border-radius: 10px;
   padding: 1.75rem;
   overflow-x: auto;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18),
+              0 0 0 1px rgba(129, 140, 248, 0.04);
 }
 
 .post-content :deep(pre code) {
@@ -425,7 +470,7 @@ const formatDate = (date) => {
   margin: 2rem 0;
   color: var(--text-secondary);
   font-style: italic;
-  background: linear-gradient(90deg, rgba(200, 108, 74, 0.05), transparent);
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.05), transparent);
   border-radius: 0 8px 8px 0;
   font-size: 1.05em;
 }
@@ -434,8 +479,9 @@ const formatDate = (date) => {
   max-width: 100%;
   border-radius: 10px;
   margin: 2.5rem 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12),
-              0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+              0 2px 8px rgba(0, 0, 0, 0.25),
+              0 0 0 1px rgba(129, 140, 248, 0.05);
   border: 1px solid var(--border-color);
 }
 
@@ -444,6 +490,45 @@ const formatDate = (date) => {
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--border-color), transparent);
   margin: 3.5rem 0;
+}
+
+.post-content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.9375rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.post-content :deep(thead) {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--accent-primary);
+}
+
+.post-content :deep(th) {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  font-size: 0.875rem;
+}
+
+.post-content :deep(td) {
+  padding: 0.75rem 1rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+}
+
+.post-content :deep(tbody tr:last-child td) {
+  border-bottom: none;
+}
+
+.post-content :deep(tbody tr:hover) {
+  background: color-mix(in srgb, var(--accent-primary) 4%, transparent);
 }
 
 /* Responsive */

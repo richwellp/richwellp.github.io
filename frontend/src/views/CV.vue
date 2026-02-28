@@ -2,10 +2,7 @@
   <div class="cv">
     <div class="container">
       <h1>Curriculum Vitae</h1>
-      <p class="page-intro">
-        You can view my one-page resume below or download it
-        using your browser's built-in PDF controls.
-      </p>
+      <p class="page-intro">{{ content.cvPageIntro }}</p>
 
       <div class="pdf-container">
         <embed
@@ -27,7 +24,16 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted } from 'vue'
+import { useProfessionalInfo } from '../composables/useProfessionalInfo'
+
+const { content, loadProfessionalInfo } = useProfessionalInfo()
+
+onMounted(async () => {
+  await loadProfessionalInfo()
+})
+</script>
 
 <style scoped>
 .cv {
@@ -54,25 +60,54 @@
   }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes headingReveal {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lineExpand {
+  from { width: 0; opacity: 0; }
+  to   { width: 48px; opacity: 1; }
+}
+
 h1 {
   font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 1.25rem;
-  text-align: center;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  margin-bottom: 2rem;
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  position: relative;
+  padding-bottom: 1.25rem;
+  opacity: 0;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  animation: lineExpand 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.65s both;
 }
 
 .page-intro {
-  text-align: center;
+  text-align: left;
   font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 3.5rem;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
   font-weight: 400;
 }
 
@@ -86,6 +121,8 @@ h1 {
   margin-bottom: 2.5rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 0.45s both;
 }
 
 .pdf-container::before {
@@ -100,8 +137,9 @@ h1 {
 }
 
 .pdf-container:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12),
-              0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
+              0 6px 16px rgba(0, 0, 0, 0.28),
+              0 0 0 1px rgba(129, 140, 248, 0.07);
   transform: translateY(-2px);
 }
 
@@ -111,13 +149,16 @@ h1 {
 }
 
 .note {
-  text-align: center;
+  text-align: left;
   background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
   padding: 1.75rem 2rem;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25),
+              0 1px 3px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--border-color);
   border-left: 5px solid var(--accent-primary);
+  opacity: 0;
+  animation: fadeIn 0.8s ease 0.65s both;
 }
 
 .note p {

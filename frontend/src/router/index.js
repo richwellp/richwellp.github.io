@@ -21,6 +21,9 @@ import PostEditor from '../views/admin/PostEditor.vue'
 import AlbumsAdmin from '../views/admin/AlbumsAdmin.vue'
 import PhotoManager from '../views/admin/PhotoManager.vue'
 
+// 404
+import NotFound from '../views/NotFound.vue'
+
 // Structured data utilities
 import { useStructuredDataOnRouteChange } from '../composables/useStructuredData'
 
@@ -110,6 +113,12 @@ const router = createRouter({
       path: '/admin/edit/:slug',
       name: 'admin-edit-post',
       component: PostEditor
+    },
+    // 404 catch-all
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFound
     }
   ],
   scrollBehavior(to, from, savedPosition) {

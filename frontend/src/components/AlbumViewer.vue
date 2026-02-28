@@ -94,8 +94,14 @@
 
     <!-- Lightbox -->
     <div v-if="lightboxPhoto" class="lightbox" @click="closeLightbox">
-      <div class="lightbox-content" @click.stop>
+      <div class="lightbox-content" @click.stop @touchstart="handleTouchStart" @touchend="handleTouchEnd">
         <button class="lightbox-close" @click="closeLightbox">×</button>
+        <button
+          v-if="currentPhotos.length > 1"
+          class="lightbox-nav lightbox-prev"
+          @click.stop="navigateLightbox(-1)"
+          aria-label="Previous photo"
+        >‹</button>
         <OptimizedImage
           v-if="!isVideo(lightboxPhoto)"
           :src="lightboxPhoto.src"
@@ -114,14 +120,25 @@
           playsinline
           preload="auto"
         />
-        <p class="lightbox-caption">{{ lightboxPhoto.caption }}</p>
+        <button
+          v-if="currentPhotos.length > 1"
+          class="lightbox-nav lightbox-next"
+          @click.stop="navigateLightbox(1)"
+          aria-label="Next photo"
+        >›</button>
+        <p class="lightbox-caption">
+          {{ lightboxPhoto.caption }}
+          <span v-if="currentPhotos.length > 1" class="lightbox-counter">
+            {{ lightboxIndex + 1 }} / {{ currentPhotos.length }}
+          </span>
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import OptimizedImage from './OptimizedImage.vue'
 
@@ -164,6 +181,7 @@ const activeTab = ref(props.defaultCategory || (props.categories[0]?.id || null)
 const lightboxPhoto = ref(null)
 const searchQuery = ref('')
 const sortBy = ref('order')
+const touchStartX = ref(0)
 
 const hasCategories = computed(() => props.categories.length > 0)
 
@@ -242,6 +260,11 @@ const currentPhotos = computed(() => {
   return photos
 })
 
+const lightboxIndex = computed(() => {
+  if (!lightboxPhoto.value) return -1
+  return currentPhotos.value.findIndex(p => p.src === lightboxPhoto.value.src)
+})
+
 const openLightbox = (photo) => {
   lightboxPhoto.value = photo
 }
@@ -249,6 +272,42 @@ const openLightbox = (photo) => {
 const closeLightbox = () => {
   lightboxPhoto.value = null
 }
+
+const navigateLightbox = (direction) => {
+  const photos = currentPhotos.value
+  if (photos.length === 0) return
+  const newIndex = (lightboxIndex.value + direction + photos.length) % photos.length
+  lightboxPhoto.value = photos[newIndex]
+}
+
+const handleKeydown = (e) => {
+  if (e.key === 'Escape' && lightboxPhoto.value) {
+    closeLightbox()
+  } else if (e.key === 'ArrowRight' && lightboxPhoto.value) {
+    navigateLightbox(1)
+  } else if (e.key === 'ArrowLeft' && lightboxPhoto.value) {
+    navigateLightbox(-1)
+  }
+}
+
+const handleTouchStart = (e) => {
+  touchStartX.value = e.touches[0].clientX
+}
+
+const handleTouchEnd = (e) => {
+  const delta = e.changedTouches[0].clientX - touchStartX.value
+  if (Math.abs(delta) > 50) {
+    navigateLightbox(delta > 0 ? -1 : 1)
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style scoped>
@@ -282,14 +341,36 @@ const closeLightbox = () => {
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  position: relative;
+  padding-bottom: 1.25rem;
+  text-align: center;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
 }
 
 .album-subtitle {
-  font-size: 1.1rem;
+  font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.7;
+  font-weight: 400;
+  margin-bottom: 2.5rem;
 }
 
 /* Coming Soon */
@@ -364,10 +445,25 @@ h1 {
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   background: var(--bg-card);
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 15%, var(--border-color));
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25),
+              0 0 0 1px rgba(129, 140, 248, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.photo-controls::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0.6;
 }
 
 .search-box {
@@ -390,6 +486,7 @@ h1 {
 .search-input:focus {
   outline: none;
   border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
 }
 
 .search-input::placeholder {
@@ -423,6 +520,7 @@ h1 {
 .sort-select:focus {
   outline: none;
   border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
 }
 
 /* Photo Grid */
@@ -531,6 +629,49 @@ h1 {
   transform: scale(1.2);
 }
 
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  color: white;
+  font-size: 2.5rem;
+  line-height: 1;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.lightbox-prev {
+  left: -64px;
+}
+
+.lightbox-next {
+  right: -64px;
+}
+
+.lightbox-nav:hover {
+  background: rgba(129, 140, 248, 0.2);
+  border-color: var(--accent-primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-counter {
+  display: inline-block;
+  margin-left: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
 .lightbox-content :deep(img),
 .lightbox-content video,
 :deep(.lightbox-image) {
@@ -613,6 +754,24 @@ h1 {
   .lightbox-close {
     top: -50px;
     font-size: 2.5rem;
+  }
+
+  .lightbox-prev {
+    left: 8px;
+    top: auto;
+    bottom: 56px;
+    transform: none;
+  }
+
+  .lightbox-next {
+    right: 8px;
+    top: auto;
+    bottom: 56px;
+    transform: none;
+  }
+
+  .lightbox-nav:hover {
+    transform: scale(1.1);
   }
 }
 </style>

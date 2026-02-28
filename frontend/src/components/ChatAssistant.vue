@@ -33,7 +33,7 @@
     >
       <!-- Header -->
       <div class="chat-header">
-        <h4 id="chat-title" class="chat-title">Virtual Assistant</h4>
+        <h4 id="chat-title" class="chat-title">Ask Richwell's AI</h4>
         <div class="chat-header-actions">
           <button @click="clearChat" class="chat-action-btn" aria-label="Clear conversation" title="Clear conversation">
             <!-- Refresh/Clear Icon -->
@@ -430,17 +430,16 @@ watch(isOpen, async (newValue) => {
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(200, 108, 74, 0.3),
+  box-shadow: 0 4px 20px rgba(129, 140, 248, 0.3),
               0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bg-primary);
+  color: #05060f;
   pointer-events: auto;
   touch-action: manipulation;
-  position: relative;
   overflow: hidden;
 }
 
@@ -455,9 +454,37 @@ watch(isOpen, async (newValue) => {
   transition: left 0.6s ease;
 }
 
+/* Tooltip label — visible on hover when chat is closed */
+.chat-fab::after {
+  content: 'Chat with me';
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  padding: 0.4375rem 0.875rem;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.chat-fab:not(.chat-fab-active):hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
 .chat-fab:hover {
   transform: translateY(-4px) scale(1.08);
-  box-shadow: 0 8px 32px rgba(200, 108, 74, 0.4),
+  box-shadow: 0 8px 32px rgba(129, 140, 248, 0.4),
               0 4px 12px rgba(0, 0, 0, 0.15);
   background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
 }
@@ -498,17 +525,17 @@ watch(isOpen, async (newValue) => {
   width: min(440px, calc(100vw - 48px));
   max-height: min(660px, calc(100vh - 140px));
   background: var(--bg-card);
-  border: 1.5px solid var(--border-color);
+  border: 1.5px solid color-mix(in srgb, var(--accent-primary) 15%, var(--border-color));
   border-radius: 16px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12),
-              0 4px 16px rgba(0, 0, 0, 0.08),
-              0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55),
+              0 6px 20px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(129, 140, 248, 0.06),
+              0 0 50px rgba(129, 140, 248, 0.07);
   z-index: 999;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   backdrop-filter: blur(12px);
-  position: relative;
 }
 
 .chat-panel::before {
@@ -678,7 +705,7 @@ watch(isOpen, async (newValue) => {
   word-wrap: break-word;
   word-break: break-word;
   font-size: clamp(0.9375rem, 1.1vw, 1rem);
-  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-weight: 400;
   letter-spacing: -0.01em;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -686,9 +713,9 @@ watch(isOpen, async (newValue) => {
 
 .chat-message.user .message-content {
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  color: var(--bg-primary);
+  color: #05060f;
   border-bottom-right-radius: 4px;
-  box-shadow: 0 3px 12px rgba(200, 108, 74, 0.25),
+  box-shadow: 0 3px 12px rgba(129, 140, 248, 0.25),
               0 1px 4px rgba(0, 0, 0, 0.1);
   font-weight: 500;
 }
@@ -698,21 +725,21 @@ watch(isOpen, async (newValue) => {
   color: var(--text-primary);
   border-bottom-left-radius: 4px;
   border: 1.5px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
   padding-right: 2.75rem; /* Make room for copy button */
 }
 
-/* CRITICAL: Links must override the text-primary color above */
+/* Use theme variables so links adapt to dark/light mode */
 .chat-message.assistant .message-content :deep(a) {
-  color: #79c0ff !important;
-  text-decoration: none !important;
-  transition: color 0.3s ease;
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.25s ease;
   font-weight: 500;
 }
 
 .chat-message.assistant .message-content :deep(a:hover) {
-  color: #a5d6ff !important;
-  text-decoration: underline !important;
+  color: var(--link-hover);
+  text-decoration: underline;
 }
 
 .message-wrapper:hover .message-content {
@@ -881,8 +908,9 @@ watch(isOpen, async (newValue) => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--text-tertiary);
+  background: var(--accent-primary);
   animation: typing 1.4s infinite ease-in-out;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--accent-primary) 40%, transparent);
 }
 
 .typing-indicator span:nth-child(2) {
@@ -956,21 +984,21 @@ watch(isOpen, async (newValue) => {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .chat-quick-actions button:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  color: var(--bg-primary);
+  color: #05060f;
   border-color: var(--accent-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(200, 108, 74, 0.25),
-              0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.3),
+              0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .chat-quick-actions button:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(200, 108, 74, 0.2);
+  box-shadow: 0 2px 6px rgba(129, 140, 248, 0.2);
 }
 
 .chat-quick-actions button:focus-visible {
@@ -1001,18 +1029,18 @@ watch(isOpen, async (newValue) => {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: clamp(0.9375rem, 1.1vw, 1rem);
-  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-weight: 400;
   letter-spacing: -0.01em;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .chat-input-area input:focus {
   outline: none;
   border-color: var(--accent-primary);
   background: var(--bg-card);
-  box-shadow: 0 0 0 4px rgba(200, 108, 74, 0.12),
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.12),
               0 2px 8px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
@@ -1030,7 +1058,7 @@ watch(isOpen, async (newValue) => {
 .send-btn {
   padding: 1rem 1.25rem;
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  color: var(--bg-primary);
+  color: #05060f;
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -1041,7 +1069,7 @@ watch(isOpen, async (newValue) => {
   flex-shrink: 0;
   min-width: 50px;
   font-weight: 600;
-  box-shadow: 0 3px 12px rgba(200, 108, 74, 0.25),
+  box-shadow: 0 3px 12px rgba(129, 140, 248, 0.25),
               0 1px 3px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
@@ -1061,7 +1089,7 @@ watch(isOpen, async (newValue) => {
 .send-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(200, 108, 74, 0.35),
+  box-shadow: 0 8px 24px rgba(129, 140, 248, 0.35),
               0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
@@ -1071,7 +1099,7 @@ watch(isOpen, async (newValue) => {
 
 .send-btn:active:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(200, 108, 74, 0.3);
+  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.3);
 }
 
 .send-btn:focus-visible {

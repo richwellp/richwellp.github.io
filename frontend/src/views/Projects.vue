@@ -2,9 +2,7 @@
   <div class="projects">
     <div class="container">
       <h1>Projects</h1>
-      <p class="page-intro">
-        A showcase of my personal and academic projects, demonstrating my expertise in AI, full-stack development, and software engineering.
-      </p>
+      <p class="page-intro">{{ content.projectsPageIntro }}</p>
 
       <div class="projects-grid">
         <div
@@ -24,7 +22,7 @@
               rel="noopener noreferrer"
               :class="link.includes('github') ? 'github-link' : 'award-badge'"
             >
-              {{ link.includes('hackathon-winners') ? '🏆 3rd Place, Ashby Prize in Computational Science' : 'View on GitHub →' }}
+              {{ link.includes('hackathon-winners') ? '3rd Place, Ashby Prize in Computational Science' : 'View on GitHub →' }}
             </a>
           </div>
           <p class="project-description">{{ project.description }}</p>
@@ -49,12 +47,38 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, nextTick } from 'vue'
 import { injectStructuredData, generateProjectsListSchema } from '../composables/useStructuredData'
 import { useProfessionalInfo } from '../composables/useProfessionalInfo'
 
 // Load professional info
-const { projects, loadProfessionalInfo } = useProfessionalInfo()
+const { projects, content, loadProfessionalInfo } = useProfessionalInfo()
+
+let cardObserver = null
+
+const setupCardObserver = () => {
+  if (cardObserver) cardObserver.disconnect()
+  cardObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const idx = parseInt(entry.target.dataset.idx || 0)
+          entry.target.style.transitionDelay = `${idx * 0.12}s`
+          entry.target.classList.add('visible')
+          entry.target.addEventListener('transitionend', () => {
+            entry.target.style.transitionDelay = '0s'
+          }, { once: true })
+          cardObserver.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+  )
+  document.querySelectorAll('.project-block').forEach((el, i) => {
+    el.dataset.idx = i
+    cardObserver.observe(el)
+  })
+}
 
 onMounted(async () => {
   await loadProfessionalInfo()
@@ -68,6 +92,15 @@ onMounted(async () => {
     const projectsSchema = generateProjectsListSchema(projectsForSchema)
     injectStructuredData(projectsSchema, 'projects-list-schema')
   }
+
+  // Scroll-triggered reveal — double-tick ensures v-for is fully flushed
+  await nextTick()
+  await nextTick()
+  setupCardObserver()
+})
+
+onUnmounted(() => {
+  cardObserver?.disconnect()
 })
 </script>
 
@@ -83,26 +116,52 @@ onMounted(async () => {
   margin: 0 auto;
 }
 
+@keyframes headingReveal {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lineExpand {
+  from { width: 0; opacity: 0; }
+  to   { width: 48px; opacity: 1; }
+}
+
 h1 {
   font-size: clamp(2.25rem, 4vw, 3rem);
   color: var(--text-primary);
-  margin-bottom: 1.25rem;
-  text-align: center;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.025em;
+  margin-bottom: 2rem;
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  position: relative;
+  padding-bottom: 1.25rem;
+  opacity: 0;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  animation: lineExpand 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.65s both;
 }
 
 .page-intro {
-  text-align: center;
+  text-align: left;
   font-size: clamp(1.0625rem, 1.4vw, 1.15rem);
   color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 4rem;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
   font-weight: 400;
+  opacity: 0;
+  animation: headingReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both;
 }
 
 /* Projects Grid */
@@ -116,35 +175,21 @@ h1 {
   background: var(--bg-card);
   border-radius: 12px;
   padding: 2.25rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
-              0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.18);
   border: 1px solid var(--border-color);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   opacity: 0;
-  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform: translateY(36px) scale(0.965);
 }
 
-/* Staggered animation delays */
-.project-block:nth-child(1) { animation-delay: 0.1s; }
-.project-block:nth-child(2) { animation-delay: 0.2s; }
-.project-block:nth-child(3) { animation-delay: 0.3s; }
-.project-block:nth-child(4) { animation-delay: 0.4s; }
-.project-block:nth-child(5) { animation-delay: 0.5s; }
-.project-block:nth-child(6) { animation-delay: 0.6s; }
-.project-block:nth-child(7) { animation-delay: 0.7s; }
-.project-block:nth-child(8) { animation-delay: 0.8s; }
-.project-block:nth-child(9) { animation-delay: 0.9s; }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.project-block.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .project-block::before {
@@ -160,14 +205,16 @@ h1 {
   transition: opacity 0.4s ease;
 }
 
-.project-block:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12),
-              0 6px 12px rgba(0, 0, 0, 0.08);
-  border-color: var(--accent-primary)60;
+.project-block.visible:hover {
+  transform: translateY(-8px) scale(1);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
+              0 8px 20px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(129, 140, 248, 0.08),
+              0 0 40px rgba(129, 140, 248, 0.06);
+  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
 }
 
-.project-block:hover::before {
+.project-block.visible:hover::before {
   opacity: 1;
 }
 
@@ -182,6 +229,11 @@ h1 {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.3;
+  transition: color 0.3s ease;
+}
+
+.project-block:hover .project-header h3 {
+  color: var(--accent-primary);
 }
 
 .project-subtitle {
@@ -203,7 +255,7 @@ h1 {
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-  border: 1.5px solid var(--accent-primary)50;
+  border: 1.5px solid color-mix(in srgb, var(--accent-primary) 31%, transparent);
   text-decoration: none;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: 0.625rem;
@@ -226,9 +278,10 @@ h1 {
 .award-badge:hover,
 .github-link:hover {
   background: var(--accent-primary);
-  color: var(--bg-card);
+  color: #05060f;
   transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(129, 140, 248, 0.2);
   border-color: var(--accent-primary);
 }
 
@@ -273,7 +326,7 @@ h1 {
   height: 6px;
   background: var(--accent-primary);
   border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--accent-primary)30;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 19%, transparent);
 }
 
 /* Tech Stack */
@@ -283,7 +336,7 @@ h1 {
   gap: 0.625rem;
   margin-top: 1.75rem;
   padding-top: 1.75rem;
-  border-top: 1px solid var(--border-color)80;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
 }
 
 .tech-tag {
@@ -301,9 +354,10 @@ h1 {
 
 .tech-tag:hover {
   background: var(--accent-primary);
-  color: var(--bg-card);
+  color: #05060f;
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4),
+              0 0 14px rgba(129, 140, 248, 0.18);
   border-color: var(--accent-primary);
 }
 

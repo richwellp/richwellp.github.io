@@ -6,6 +6,7 @@
 import { ref } from 'vue'
 import { useBlog } from './useBlog'
 import { useProfessionalInfo } from './useProfessionalInfo'
+import { CONTACT } from '../config/contact'
 
 // Shared state
 const searchQuery = ref('')
@@ -19,48 +20,59 @@ const blogContentLoaded = ref(false)
 const frontendContent = {
   about: {
     title: 'About Me',
-    content: `Richwell Perez AI Engineer specializing in full-stack development RAG systems machine learning
-    I build software data and AI systems that solve real-world problems actively seeking opportunities to learn grow
-    University of Illinois UIUC Master Computer Science Bachelor Computer Science with Honors
-    drawn to building technology that solves real-world problems developed full-stack applications ML deep learning models
-    explored data analytics built retrieval-augmented generation RAG systems worked with cloud platforms AI-powered applications
-    passionate about developing technologies that improve lives deliver meaningful impact software data insights intelligent AI systems`,
+    content: `Richwell Cyrille Santos Perez AI Engineer RAVE Aerospace multi-agent RAG systems LangGraph hierarchical chatbot
+    aerospace IFEC in-flight entertainment connectivity full-stack development Vue.js Python Quart Azure OpenAI PostgreSQL
+    University of Illinois Urbana-Champaign UIUC Master of Computer Science MCS Bachelor BS Computer Science with Honors
+    Intelligence Data specialization GPA 3.81 3.52
+    mainframe database administrator Illinois Secretary of State DB2 z/OS billion records query optimization
+    Ashby Prize NCSA AI Innovation Hackathon deep learning aerosol climate model
+    teaching assistant software design database systems 800 students object-oriented design patterns
+    PySpark Delta Lake Microsoft Fabric distributed ETL predictive maintenance scikit-learn
+    LangChain LangGraph multi-agent orchestration RAG production infrastructure`,
     path: '/',
     icon: '👤'
   },
   experience: {
-    title: 'Experience Overview',
+    title: 'Experience',
     content: `AI Engineer RAVE Aerospace Database Administrator Illinois Secretary of State Teaching Assistant UIUC Software Engineer
-    Full-stack development RAG systems predictive maintenance multi-agent architectures LangGraph chatbot
-    Azure OpenAI PostgreSQL Python Quart Vue.js machine learning clustering analytics dashboard
-    In-flight entertainment connectivity IFEC systems aviation aerospace Safran Passenger Innovations
-    DB2 mainframe z/OS SQL optimization ETL pipelines Azure cloud services statewide digital initiatives
-    Software Design Database Systems object-oriented design patterns performance optimization`,
+    full-stack development RAG systems predictive maintenance multi-agent architectures LangGraph chatbot 600 users
+    Azure OpenAI PostgreSQL Python Quart Vue.js machine learning clustering analytics dashboard UMAP HDBSCAN K-Means DBSCAN
+    in-flight entertainment connectivity IFEC systems aviation aerospace Kingswood Capital Management
+    DB2 mainframe z/OS SQL optimization ETL pipelines Azure cloud services statewide digital initiatives REAL ID mobile driver license
+    5 billion records query performance 20 seconds instantaneous
+    software design database systems object-oriented design patterns performance optimization 800 students Java
+    LabWindows CVI embedded systems magnet mapping hardware C
+    50 percent latency reduction 30x log compression 500x searchable volume reduction`,
     path: '/experience',
     icon: '💼'
   },
   projects: {
     title: 'Projects',
-    content: `AI-Powered Admission System predictive college admission machine learning neural networks decision trees
-    Automated ETL Pipeline Azure Databricks PySpark cloud data engineering automation
-    Personal Portfolio Website Vue.js Flask responsive design modern web development
-    Retrieval Augmented Generation RAG systems embeddings vector search semantic similarity`,
+    content: `UIUC Letter Grades full-stack analytics Node.js MongoDB Python TensorFlow GPA prediction machine learning linear logistic regression
+    Video Anomaly Detection Model crime surveillance YOLO Faster R-CNN PyTorch UCF-Crime Multi-Instance Learning MIL weapon recognition
+    Deep Learning Aerosol Model climate NCSA AI Innovation Hackathon Ashby Prize 3rd place transformers encoder decoder HPC HAL 9000 supercomputer
+    COVID Logging System database relational schema SQL Python web development contact tracing CRUD
+    Not Geoff facial recognition OpenCV computer vision deep learning real-time video face detection
+    Rocket Rollers Unity C# game development physics collision detection level progression
+    Open Flights flight data analysis Python Pandas visualization route optimization global airport data`,
     path: '/projects',
     icon: '🚀'
   },
   cv: {
     title: 'CV / Resume',
-    content: `Resume curriculum vitae qualifications education experience skills achievements
-    Computer Science BS MS Master UIUC University Illinois
-    Python JavaScript TypeScript SQL Vue React Flask FastAPI
-    Machine Learning Deep Learning Natural Language Processing Computer Vision`,
+    content: `Resume curriculum vitae qualifications education experience skills achievements download PDF
+    Computer Science BS MS Master UIUC University of Illinois Urbana-Champaign GPA 3.81 3.52
+    Python JavaScript TypeScript SQL Vue.js Flask Quart LangChain LangGraph
+    Machine Learning Deep Learning Computer Vision RAG LLM Azure OpenAI
+    PySpark Delta Lake PostgreSQL MongoDB DB2`,
     path: '/cv',
     icon: '📄'
   },
   contact: {
     title: 'Contact',
-    content: `contact email richwell.perez@gmail.com get in touch message collaboration opportunities
-    LinkedIn GitHub social media professional networking connect reach out`,
+    content: `contact email ${CONTACT.email} get in touch message collaboration opportunities freelance
+    LinkedIn GitHub social media professional networking connect reach out
+    full-time roles software AI conversations`,
     path: '/contact',
     icon: '📧'
   }
