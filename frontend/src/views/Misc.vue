@@ -97,7 +97,14 @@
         </p>
         <div class="map-container">
           <!-- Primary: globe widget -->
-          <div v-if="mapState === 'globe'" ref="mapContainerRef" class="globe-container"></div>
+          <iframe
+            v-if="mapState === 'globe'"
+            ref="mapContainerRef"
+            class="globe-iframe"
+            :srcdoc="globeHtml"
+            scrolling="no"
+            frameborder="0"
+          />
 
           <!-- Fallback 1: static image -->
           <a v-else-if="mapState === 'image'"
@@ -140,10 +147,45 @@ const featuredAlbums = computed(() => albums.value.slice(0, 3))
 const albumsVisible = ref(false)
 const mapState = ref('globe')   // 'globe' | 'image' | 'blocked'
 const mapContainerRef = ref(null)
-let globeTimer = null
-let globeObserver = null
-let origBodyAppend = null
-let origBodyInsert = null
+let globeMessageHandler = null
+
+// srcdoc for the globe iframe — runs globe.js in a fresh page context (same as new tab)
+// Uses postMessage to report dimensions or failure back to the parent Vue component.
+const globeHtml = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+* { margin: 0; padding: 0; }
+html, body { background: #05060f; overflow: hidden; width: 100%; }
+\x3C/style>\x3C/head><body>
+\x3Cscript>(function () {
+  var timer = setTimeout(function () {
+    if (!document.querySelector('.clstrm_outer')) {
+      window.parent.postMessage({ type: 'globe_failed' }, '*');
+    }
+  }, 6000);
+  var observer = new MutationObserver(function () {
+    var g = document.querySelector('.clstrm_outer');
+    if (!g) return;
+    observer.disconnect();
+    clearTimeout(timer);
+    requestAnimationFrame(function () {
+      var w = parseFloat(g.style.width) || g.offsetWidth;
+      var h = parseFloat(g.style.height) || g.scrollHeight;
+      window.parent.postMessage({ type: 'globe_ready', w: w, h: h }, '*');
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.id = 'clstr_globe';
+  s.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8';
+  s.onerror = function () {
+    clearTimeout(timer);
+    observer.disconnect();
+    window.parent.postMessage({ type: 'globe_failed' }, '*');
+  };
+  document.body.appendChild(s);
+})();\x3C/script>
+\x3C/body>\x3C/html>`
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -197,93 +239,31 @@ onMounted(async () => {
   // Elements that may already be loaded (cached data)
   document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
 
-  const el = mapContainerRef.value
-  if (!el) { mapState.value = 'image' }
-  else {
-    // Clean up any remnants from prior visits (incl. #clstr_a guard element globe.js checks)
-    document.getElementById('clstr_a')?.remove()
-    document.querySelector('.clstrm_outer')?.remove()
-    document.getElementById('clstr_globe')?.remove()
-    delete window.embed_clustrmaps
-
-    const commitGlobe = (globe) => {
-      // Restore intercepted DOM methods first so any subsequent appends work normally
-      if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
-      if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
-
-      const container = mapContainerRef.value
-      if (!container) return
-      if (!container.contains(globe)) {
-        container.appendChild(globe)
-        // Scale globe to fit container using zoom (affects layout, unlike transform:scale)
-        requestAnimationFrame(() => {
-          const globeW = parseFloat(globe.style.width) || globe.offsetWidth
-          const containerW = container.offsetWidth || window.innerWidth
-          if (globeW && containerW && globeW > containerW) {
-            globe.style.zoom = String(containerW / globeW)
-          }
-        })
+  // Listen for postMessage from the globe iframe
+  globeMessageHandler = (event) => {
+    if (event.data?.type === 'globe_ready') {
+      const iframe = mapContainerRef.value
+      if (!iframe) return
+      const iframeW = iframe.offsetWidth
+      const globeW = event.data.w
+      const globeH = event.data.h
+      if (globeW && iframeW) {
+        const scale = Math.min(1, iframeW / globeW)
+        iframe.style.height = Math.round((globeH || 500) * scale) + 'px'
+        // Apply zoom inside the iframe so the globe fills the iframe width
+        try {
+          const inner = iframe.contentDocument?.querySelector('.clstrm_outer')
+          if (inner) inner.style.zoom = String(scale)
+        } catch (_) { /* cross-origin guard */ }
+      } else {
+        iframe.style.height = '500px'
       }
-      container.closest('.map-container')?.classList.add('visible')
-      clearTimeout(globeTimer)
-      globeObserver?.disconnect()
-      globeObserver = null
-    }
-
-    // Intercept document.body.appendChild and insertBefore to capture globe.js output
-    // regardless of which event (load, DOMContentLoaded, or immediate) it uses to init.
-    origBodyAppend = document.body.appendChild.bind(document.body)
-    origBodyInsert = document.body.insertBefore.bind(document.body)
-
-    const interceptNode = (node) => {
-      if (node?.classList?.contains('clstrm_outer')) {
-        commitGlobe(node)
-        return true
-      }
-      return false
-    }
-
-    document.body.appendChild = function (node) {
-      if (interceptNode(node)) return node
-      return origBodyAppend(node)
-    }
-    document.body.insertBefore = function (node, ref) {
-      if (interceptNode(node)) return node
-      return origBodyInsert(node, ref)
-    }
-
-    // MutationObserver as secondary fallback (jQuery's DOM methods may bypass the intercept)
-    globeObserver = new MutationObserver(() => {
-      const globe = document.querySelector('.clstrm_outer')
-      if (globe && !mapContainerRef.value?.contains(globe)) commitGlobe(globe)
-    })
-    globeObserver.observe(document.body, { childList: true, subtree: true })
-
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.id = 'clstr_globe'
-    script.src = `//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&_t=${Date.now()}`
-    script.onerror = () => {
-      clearTimeout(globeTimer)
-      globeObserver?.disconnect()
-      globeObserver = null
-      if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
-      if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
+      iframe.closest('.map-container')?.classList.add('visible')
+    } else if (event.data?.type === 'globe_failed') {
       mapState.value = 'image'
     }
-    document.body.appendChild(script)
-
-    globeTimer = setTimeout(() => {
-      globeObserver?.disconnect()
-      globeObserver = null
-      if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
-      if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
-      if (!mapContainerRef.value?.querySelector('.clstrm_outer')) {
-        document.querySelector('.clstrm_outer')?.remove()
-        mapState.value = 'image'
-      }
-    }, 8000)
   }
+  window.addEventListener('message', globeMessageHandler)
 })
 
 // Re-observe when async data loads after mount
@@ -300,12 +280,10 @@ watch(() => featuredAlbums.value, async (albums) => {
 
 onUnmounted(() => {
   revealObserver?.disconnect()
-  clearTimeout(globeTimer)
-  globeObserver?.disconnect()
-  if (origBodyAppend) { document.body.appendChild = origBodyAppend; origBodyAppend = null }
-  if (origBodyInsert) { document.body.insertBefore = origBodyInsert; origBodyInsert = null }
-  document.querySelector('.clstrm_outer')?.remove()
-  document.getElementById('clstr_globe')?.remove()
+  if (globeMessageHandler) {
+    window.removeEventListener('message', globeMessageHandler)
+    globeMessageHandler = null
+  }
 })
 </script>
 
@@ -756,10 +734,11 @@ h1::after {
   border-radius: 12px;
 }
 
-.globe-container {
+.globe-iframe {
   width: 100%;
-  margin: 0 auto;
   min-height: 200px;
+  border: none;
+  display: block;
 }
 
 .map-blocked {
