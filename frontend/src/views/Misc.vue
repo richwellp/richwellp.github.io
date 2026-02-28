@@ -96,27 +96,17 @@
           Thanks for visiting! See where other visitors have connected from around the world.
         </p>
         <div class="map-container">
-          <!-- Primary: globe widget -->
-          <iframe
-            v-if="mapState === 'globe'"
-            ref="mapContainerRef"
-            class="globe-iframe"
-            :srcdoc="globeHtml"
-            scrolling="no"
-            frameborder="0"
-          />
-
-          <!-- Fallback 1: static image -->
-          <a v-else-if="mapState === 'image'"
+          <!-- Static visitor map -->
+          <a v-if="!mapError"
              href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'>
             <img
               src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=800&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff'
               alt='Visitor map'
-              @error="mapState = 'blocked'"
+              @error="mapError = true"
             />
           </a>
 
-          <!-- Fallback 2: text placeholder -->
+          <!-- Fallback: text placeholder -->
           <div v-else class="map-blocked">
             <p>Map unavailable — enable third-party content.
               <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'
@@ -145,47 +135,7 @@ const { albums, loading: albumsLoading, fetchAlbums } = useAlbums()
 const recentPosts = computed(() => posts.value.slice(0, 3))
 const featuredAlbums = computed(() => albums.value.slice(0, 3))
 const albumsVisible = ref(false)
-const mapState = ref('globe')   // 'globe' | 'image' | 'blocked'
-const mapContainerRef = ref(null)
-let globeMessageHandler = null
-
-// srcdoc for the globe iframe — runs globe.js in a fresh page context (same as new tab)
-// Uses postMessage to report dimensions or failure back to the parent Vue component.
-const globeHtml = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><style>
-* { margin: 0; padding: 0; }
-html, body { background: #05060f; overflow: hidden; width: 100%; }
-\x3C/style>\x3C/head><body>
-\x3Cscript>(function () {
-  var timer = setTimeout(function () {
-    if (!document.querySelector('.clstrm_outer')) {
-      window.parent.postMessage({ type: 'globe_failed' }, '*');
-    }
-  }, 6000);
-  var observer = new MutationObserver(function () {
-    var g = document.querySelector('.clstrm_outer');
-    if (!g) return;
-    observer.disconnect();
-    clearTimeout(timer);
-    requestAnimationFrame(function () {
-      var w = parseFloat(g.style.width) || g.offsetWidth;
-      var h = parseFloat(g.style.height) || g.scrollHeight;
-      window.parent.postMessage({ type: 'globe_ready', w: w, h: h }, '*');
-    });
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-  var s = document.createElement('script');
-  s.type = 'text/javascript';
-  s.id = 'clstr_globe';
-  s.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8';
-  s.onerror = function () {
-    clearTimeout(timer);
-    observer.disconnect();
-    window.parent.postMessage({ type: 'globe_failed' }, '*');
-  };
-  document.body.appendChild(s);
-})();\x3C/script>
-\x3C/body>\x3C/html>`
+const mapError = ref(false)
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -238,32 +188,6 @@ onMounted(async () => {
 
   // Elements that may already be loaded (cached data)
   document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
-
-  // Listen for postMessage from the globe iframe
-  globeMessageHandler = (event) => {
-    if (event.data?.type === 'globe_ready') {
-      const iframe = mapContainerRef.value
-      if (!iframe) return
-      const iframeW = iframe.offsetWidth
-      const globeW = event.data.w
-      const globeH = event.data.h
-      if (globeW && iframeW) {
-        const scale = Math.min(1, iframeW / globeW)
-        iframe.style.height = Math.round((globeH || 500) * scale) + 'px'
-        // Apply zoom inside the iframe so the globe fills the iframe width
-        try {
-          const inner = iframe.contentDocument?.querySelector('.clstrm_outer')
-          if (inner) inner.style.zoom = String(scale)
-        } catch (_) { /* cross-origin guard */ }
-      } else {
-        iframe.style.height = '500px'
-      }
-      iframe.closest('.map-container')?.classList.add('visible')
-    } else if (event.data?.type === 'globe_failed') {
-      mapState.value = 'image'
-    }
-  }
-  window.addEventListener('message', globeMessageHandler)
 })
 
 // Re-observe when async data loads after mount
@@ -280,10 +204,6 @@ watch(() => featuredAlbums.value, async (albums) => {
 
 onUnmounted(() => {
   revealObserver?.disconnect()
-  if (globeMessageHandler) {
-    window.removeEventListener('message', globeMessageHandler)
-    globeMessageHandler = null
-  }
 })
 </script>
 
@@ -734,12 +654,6 @@ h1::after {
   border-radius: 12px;
 }
 
-.globe-iframe {
-  width: 100%;
-  min-height: 200px;
-  border: none;
-  display: block;
-}
 
 .map-blocked {
   display: flex;
