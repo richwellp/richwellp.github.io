@@ -141,6 +141,7 @@ const albumsVisible = ref(false)
 const mapState = ref('globe')   // 'globe' | 'image' | 'blocked'
 const mapContainerRef = ref(null)
 let globeTimer = null
+let globeObserver = null
 
 const formatDate = (date) => {
   if (!date) return 'Recent'
@@ -197,22 +198,36 @@ onMounted(async () => {
   const el = mapContainerRef.value
   if (!el) { mapState.value = 'image' }
   else {
+    // Cancel the timeout the moment a canvas/iframe appears — avoids racing against async render
+    globeObserver = new MutationObserver(() => {
+      if (el.querySelector('canvas, iframe')) {
+        clearTimeout(globeTimer)
+        globeObserver.disconnect()
+        globeObserver = null
+      }
+    })
+    globeObserver.observe(el, { childList: true, subtree: true })
+
     const script = document.createElement('script')
     script.type = 'text/javascript'
     script.id = 'clstr_globe'
     script.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
     script.onerror = () => {
       clearTimeout(globeTimer)
+      globeObserver?.disconnect()
+      globeObserver = null
       mapState.value = 'image'
     }
     el.appendChild(script)
 
-    // Timeout: if no canvas/iframe appears within 4s, fall back to static image
+    // Last-resort timeout: if no canvas/iframe in 8s, fall back to static image
     globeTimer = setTimeout(() => {
+      globeObserver?.disconnect()
+      globeObserver = null
       if (!el.querySelector('canvas, iframe')) {
         mapState.value = 'image'
       }
-    }, 4000)
+    }, 8000)
   }
 })
 
@@ -231,6 +246,7 @@ watch(() => featuredAlbums.value, async (albums) => {
 onUnmounted(() => {
   revealObserver?.disconnect()
   clearTimeout(globeTimer)
+  globeObserver?.disconnect()
 })
 </script>
 
