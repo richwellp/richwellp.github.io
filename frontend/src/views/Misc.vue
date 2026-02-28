@@ -196,25 +196,27 @@ onMounted(async () => {
   document.querySelectorAll('.blog-card').forEach((el, i) => observeEl(el, i))
 
   const el = mapContainerRef.value
+  console.log('[globe] el:', el, 'isConnected:', el?.isConnected)
   if (!el) { mapState.value = 'image' }
   else {
     // Clean up any orphaned globe element from a prior SPA visit
     document.querySelector('.clstrm_outer')?.remove()
 
     const commitGlobe = (globe) => {
-      if (!el.contains(globe)) el.appendChild(globe)
-      // Force map-container visible immediately — don't wait for scroll reveal,
-      // since on SPA nav the page starts at the top and map-container is opacity:0
-      el.closest('.map-container')?.classList.add('visible')
+      // Always use the live ref in case Vue replaced the element since mount
+      const container = mapContainerRef.value
+      console.log('[globe] commitGlobe — container:', container, 'isConnected:', container?.isConnected)
+      if (!container) return
+      if (!container.contains(globe)) container.appendChild(globe)
+      container.closest('.map-container')?.classList.add('visible')
       clearTimeout(globeTimer)
       globeObserver?.disconnect()
       globeObserver = null
     }
 
-    // Globe.js appends .clstrm_outer to document.body by default (not to the script's parent).
-    // Watch body; when it appears, relocate into our container so layout/cleanup works.
     globeObserver = new MutationObserver(() => {
       const globe = document.querySelector('.clstrm_outer')
+      console.log('[globe] MutationObserver fired — .clstrm_outer found:', !!globe)
       if (globe) commitGlobe(globe)
     })
     globeObserver.observe(document.body, { childList: true, subtree: true })
@@ -224,25 +226,27 @@ onMounted(async () => {
     script.id = 'clstr_globe'
     script.src = '//clustrmaps.com/globe.js?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8'
     script.onerror = () => {
+      console.log('[globe] script.onerror fired')
       clearTimeout(globeTimer)
       globeObserver?.disconnect()
       globeObserver = null
       mapState.value = 'image'
     }
     script.onload = () => {
-      // Globe.js defers init via window.addEventListener('load',...).
-      // In a SPA that event has already fired, so dispatch it to unblock rendering.
-      if (!document.querySelector('.clstrm_outer')) {
-        window.dispatchEvent(new Event('load'))
-      }
+      const found = !!document.querySelector('.clstrm_outer')
+      console.log('[globe] script.onload — .clstrm_outer already exists:', found)
+      if (!found) window.dispatchEvent(new Event('load'))
     }
-    el.appendChild(script)
+    // Append to body (not el) — ensures script is always in a connected DOM node
+    document.body.appendChild(script)
+    console.log('[globe] script appended to body, isConnected:', script.isConnected)
 
-    // Last-resort timeout: if no .clstrm_outer in 8s, fall back to static image
     globeTimer = setTimeout(() => {
+      const found = !!document.querySelector('.clstrm_outer')
+      console.log('[globe] 8s timer fired — .clstrm_outer exists:', found)
       globeObserver?.disconnect()
       globeObserver = null
-      if (!el.querySelector('.clstrm_outer')) {
+      if (!mapContainerRef.value?.querySelector('.clstrm_outer')) {
         document.querySelector('.clstrm_outer')?.remove()
         mapState.value = 'image'
       }
@@ -266,8 +270,8 @@ onUnmounted(() => {
   revealObserver?.disconnect()
   clearTimeout(globeTimer)
   globeObserver?.disconnect()
-  // Vue removes globe-container from DOM on unmount; clean up any orphan still in body
   document.querySelector('.clstrm_outer')?.remove()
+  document.getElementById('clstr_globe')?.remove()
 })
 </script>
 
