@@ -136,11 +136,13 @@ h1::after {
   z-index: 1;
 }
 
-.pdf-container:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
-              0 6px 16px rgba(0, 0, 0, 0.28),
-              0 0 0 1px rgba(129, 140, 248, 0.07);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .pdf-container:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
+                0 6px 16px rgba(0, 0, 0, 0.28),
+                0 0 0 1px rgba(129, 140, 248, 0.07);
+    transform: translateY(-2px);
+  }
 }
 
 .pdf-embed {
@@ -201,7 +203,7 @@ h1::after {
   }
 
   .pdf-embed {
-    height: 800px;
+    height: 75svh;
   }
 
   .note {
@@ -215,7 +217,7 @@ h1::after {
   }
 
   .pdf-embed {
-    height: 700px;
+    height: 70svh;
   }
 }
 </style>

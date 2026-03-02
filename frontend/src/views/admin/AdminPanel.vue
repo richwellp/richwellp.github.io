@@ -332,10 +332,12 @@ onMounted(() => {
   color: white;
 }
 
-.btn-primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+@media (hover: hover) {
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+  }
 }
 
 .btn-secondary {
@@ -451,9 +453,11 @@ onMounted(() => {
   transition: all 0.2s ease;
 }
 
-.post-card:hover {
-  box-shadow: 0 4px 12px var(--shadow);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .post-card:hover {
+    box-shadow: 0 4px 12px var(--shadow);
+    transform: translateY(-2px);
+  }
 }
 
 .post-info {
@@ -527,9 +531,11 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.action-btn:hover {
-  background: var(--bg-hover);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .action-btn:hover {
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+  }
 }
 
 .action-btn:disabled {

@@ -145,10 +145,12 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px var(--shadow);
-  border-color: var(--accent-primary);
+@media (hover: hover) {
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px var(--shadow);
+    border-color: var(--accent-primary);
+  }
 }
 
 .card-icon {

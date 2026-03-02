@@ -348,9 +348,11 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-.photo-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px var(--shadow);
+@media (hover: hover) {
+  .photo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px var(--shadow);
+  }
 }
 
 .photo-image {

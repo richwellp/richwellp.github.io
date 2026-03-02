@@ -364,13 +364,15 @@ h1::after {
   letter-spacing: -0.01em;
 }
 
-.view-all-link:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-  text-decoration-color: var(--accent-primary);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
-  transform: translateX(3px);
+@media (hover: hover) {
+  .view-all-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-primary);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    transform: translateX(3px);
+  }
 }
 
 .section-description {
@@ -486,13 +488,15 @@ h1::after {
   transition: opacity 0.4s ease;
 }
 
-.blog-card.visible:hover {
-  transform: translateY(-8px) scale(1);
-  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
-              0 8px 20px rgba(0, 0, 0, 0.3),
-              0 0 0 1px rgba(129, 140, 248, 0.08),
-              0 0 40px rgba(129, 140, 248, 0.06);
-  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
+@media (hover: hover) {
+  .blog-card.visible:hover {
+    transform: translateY(-8px) scale(1);
+    box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(129, 140, 248, 0.08),
+                0 0 40px rgba(129, 140, 248, 0.06);
+    border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
+  }
 }
 
 .blog-card.visible:hover::before {
@@ -596,9 +600,11 @@ h1::after {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.blog-card:hover .read-more {
-  color: var(--accent-hover);
-  transform: translateX(3px);
+@media (hover: hover) {
+  .blog-card:hover .read-more {
+    color: var(--accent-hover);
+    transform: translateX(3px);
+  }
 }
 
 /* Visitor Map Section */
@@ -639,10 +645,12 @@ h1::after {
               0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
-.map-container a:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
-              0 0 30px rgba(129, 140, 248, 0.07);
+@media (hover: hover) {
+  .map-container a:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(129, 140, 248, 0.07);
+  }
 }
 
 .map-container img {

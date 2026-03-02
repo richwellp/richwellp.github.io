@@ -399,12 +399,14 @@ h1::after {
   font-family: 'JetBrains Mono', monospace;
 }
 
-.tech-tag:hover {
-  background: var(--accent-primary);
-  color: #05060f;
-  border-color: var(--accent-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(129, 140, 248, 0.22);
+@media (hover: hover) {
+  .tech-tag:hover {
+    background: var(--accent-primary);
+    color: #05060f;
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(129, 140, 248, 0.22);
+  }
 }
 
 /* ── Responsive ── */

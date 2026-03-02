@@ -240,13 +240,15 @@ const formatDate = (date) => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
-.back-button:hover {
-  color: var(--accent-hover);
-  border-color: var(--accent-primary);
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
-              0 0 14px rgba(129, 140, 248, 0.1);
+@media (hover: hover) {
+  .back-button:hover {
+    color: var(--accent-hover);
+    border-color: var(--accent-primary);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 14px rgba(129, 140, 248, 0.1);
+  }
 }
 
 /* Post Header */
@@ -280,9 +282,11 @@ const formatDate = (date) => {
   letter-spacing: -0.01em;
 }
 
-.back-link:hover {
-  color: var(--accent-hover);
-  transform: translateX(-3px);
+@media (hover: hover) {
+  .back-link:hover {
+    color: var(--accent-hover);
+    transform: translateX(-3px);
+  }
 }
 
 .post-meta {
@@ -350,11 +354,13 @@ const formatDate = (date) => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tag:hover {
-  background: var(--accent-primary);
-  color: #05060f;
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .tag:hover {
+    background: var(--accent-primary);
+    color: #05060f;
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+  }
 }
 
 /* Post Content (Markdown Styles) */

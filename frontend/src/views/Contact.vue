@@ -340,11 +340,13 @@ h1 em {
   animation: heroReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
 }
 
-.email-cta:hover {
-  background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-card));
-  border-color: var(--accent-primary);
-  transform: translateX(6px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), 0 0 20px rgba(129, 140, 248, 0.07);
+@media (hover: hover) {
+  .email-cta:hover {
+    background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-card));
+    border-color: var(--accent-primary);
+    transform: translateX(6px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), 0 0 20px rgba(129, 140, 248, 0.07);
+  }
 }
 
 .cta-meta {
@@ -372,8 +374,10 @@ h1 em {
   transition: transform 0.25s ease;
 }
 
-.email-cta:hover .cta-arrow {
-  transform: translateX(4px);
+@media (hover: hover) {
+  .email-cta:hover .cta-arrow {
+    transform: translateX(4px);
+  }
 }
 
 /* ── Social pills ── */
@@ -401,12 +405,14 @@ h1 em {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.social-pill:hover {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: #05060f;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(129, 140, 248, 0.22);
+@media (hover: hover) {
+  .social-pill:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #05060f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(129, 140, 248, 0.22);
+  }
 }
 
 /* ── Message form section ── */
@@ -569,10 +575,12 @@ h1 em {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.submit-btn:hover:not(:disabled) {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(129, 140, 248, 0.3);
+@media (hover: hover) {
+  .submit-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(129, 140, 248, 0.3);
+  }
 }
 
 .submit-btn:active:not(:disabled) {

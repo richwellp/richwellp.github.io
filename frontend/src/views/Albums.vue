@@ -100,9 +100,11 @@ onMounted(async () => {
   letter-spacing: -0.01em;
 }
 
-.back-link:hover {
-  color: var(--accent-hover);
-  transform: translateX(-3px);
+@media (hover: hover) {
+  .back-link:hover {
+    color: var(--accent-hover);
+    transform: translateX(-3px);
+  }
 }
 
 h1 {
@@ -196,13 +198,15 @@ h1::after {
   z-index: 2;
 }
 
-.album-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
-              0 8px 20px rgba(0, 0, 0, 0.3),
-              0 0 0 1px rgba(129, 140, 248, 0.08),
-              0 0 40px rgba(129, 140, 248, 0.06);
-  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
+@media (hover: hover) {
+  .album-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(129, 140, 248, 0.08),
+                0 0 40px rgba(129, 140, 248, 0.06);
+    border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
+  }
 }
 
 .album-card:hover::before {
@@ -229,9 +233,11 @@ h1::after {
   background: #000;
 }
 
-.album-card:hover .album-image :deep(img),
-.album-card:hover .album-image video {
-  transform: scale(1.08);
+@media (hover: hover) {
+  .album-card:hover .album-image :deep(img),
+  .album-card:hover .album-image video {
+    transform: scale(1.08);
+  }
 }
 
 .album-image.placeholder {
@@ -294,9 +300,11 @@ h1::after {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.album-card:hover .view-more {
-  color: var(--accent-hover);
-  transform: translateX(3px);
+@media (hover: hover) {
+  .album-card:hover .view-more {
+    color: var(--accent-hover);
+    transform: translateX(3px);
+  }
 }
 
 .coming-soon-badge {

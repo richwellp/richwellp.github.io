@@ -497,12 +497,14 @@ h1 {
   animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.72s both;
 }
 
-.hero-chat-btn:hover {
-  background: var(--accent-primary);
-  color: #05060f;
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(129, 140, 248, 0.3);
+@media (hover: hover) {
+  .hero-chat-btn:hover {
+    background: var(--accent-primary);
+    color: #05060f;
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(129, 140, 248, 0.3);
+  }
 }
 
 /* ── Story & Background sections ── */
@@ -568,12 +570,14 @@ h2 {
   opacity: 1;
 }
 
-:deep(.story-photo):hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.5),
-              0 8px 20px rgba(0, 0, 0, 0.3),
-              0 0 0 1px rgba(129, 140, 248, 0.18),
-              0 0 50px rgba(129, 140, 248, 0.1);
+@media (hover: hover) {
+  :deep(.story-photo):hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.5),
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(129, 140, 248, 0.18),
+                0 0 50px rgba(129, 140, 248, 0.1);
+  }
 }
 
 .background {
@@ -721,11 +725,13 @@ h2 {
   border-left-color: var(--accent-primary);
 }
 
-.timeline-item:hover {
-  transform: translateX(6px);
-  border-left-color: var(--accent-primary);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.28),
-              0 0 0 1px rgba(129, 140, 248, 0.06);
+@media (hover: hover) {
+  .timeline-item:hover {
+    transform: translateX(6px);
+    border-left-color: var(--accent-primary);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.28),
+                0 0 0 1px rgba(129, 140, 248, 0.06);
+  }
 }
 
 .timeline-header {
@@ -840,6 +846,22 @@ h2 {
 
   .timeline-item {
     padding: 1.5rem 1.25rem;
+  }
+
+  .timeline-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+
+  .skill-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    padding: 0.625rem 1rem;
+  }
+
+  .skill-cat {
+    white-space: normal;
   }
 }
 </style>

@@ -205,13 +205,15 @@ h1::after {
   transition: opacity 0.4s ease;
 }
 
-.project-block.visible:hover {
-  transform: translateY(-8px) scale(1);
-  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
-              0 8px 20px rgba(0, 0, 0, 0.3),
-              0 0 0 1px rgba(129, 140, 248, 0.08),
-              0 0 40px rgba(129, 140, 248, 0.06);
-  border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
+@media (hover: hover) {
+  .project-block.visible:hover {
+    transform: translateY(-8px) scale(1);
+    box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55),
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(129, 140, 248, 0.08),
+                0 0 40px rgba(129, 140, 248, 0.06);
+    border-color: color-mix(in srgb, var(--accent-primary) 38%, transparent);
+  }
 }
 
 .project-block.visible:hover::before {
@@ -275,14 +277,16 @@ h1::after {
   transition: left 0.6s ease;
 }
 
-.award-badge:hover,
-.github-link:hover {
-  background: var(--accent-primary);
-  color: #05060f;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
-              0 0 20px rgba(129, 140, 248, 0.2);
-  border-color: var(--accent-primary);
+@media (hover: hover) {
+  .award-badge:hover,
+  .github-link:hover {
+    background: var(--accent-primary);
+    color: #05060f;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(129, 140, 248, 0.2);
+    border-color: var(--accent-primary);
+  }
 }
 
 .award-badge:hover::before,
@@ -352,13 +356,15 @@ h1::after {
   cursor: default;
 }
 
-.tech-tag:hover {
-  background: var(--accent-primary);
-  color: #05060f;
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4),
-              0 0 14px rgba(129, 140, 248, 0.18);
-  border-color: var(--accent-primary);
+@media (hover: hover) {
+  .tech-tag:hover {
+    background: var(--accent-primary);
+    color: #05060f;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4),
+                0 0 14px rgba(129, 140, 248, 0.18);
+    border-color: var(--accent-primary);
+  }
 }
 
 /* Responsive */
