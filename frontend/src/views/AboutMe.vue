@@ -823,4 +823,23 @@ h2 {
     gap: 0.75rem;
   }
 }
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 3.5rem 1.25rem 3rem;
+  }
+
+  .photo-ring {
+    width: 150px;
+    height: 150px;
+  }
+
+  .container {
+    padding: 3rem 1.25rem;
+  }
+
+  .timeline-item {
+    padding: 1.5rem 1.25rem;
+  }
+}
 </style>
