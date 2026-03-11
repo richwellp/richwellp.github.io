@@ -23,15 +23,24 @@
           BS/MCS @ <a href="https://siebelschool.illinois.edu/" target="_blank" rel="noopener noreferrer">UIUC</a>
         </p>
 
-        <!-- Rotating showcase — outer wrapper holds height stable during Vue out-in transition -->
-        <div v-if="showcaseItems.length > 0" class="rotating-wrapper">
-          <transition name="role-fade" mode="out-in">
-            <div :key="currentIndex" class="rotating-block">
-              <span class="rotating-label">{{ showcaseItems[currentIndex].label }}</span>
-              <p class="rotating-title">{{ showcaseItems[currentIndex].title }}</p>
-              <p class="rotating-desc">{{ showcaseItems[currentIndex].text }}</p>
-            </div>
-          </transition>
+        <!-- Rotating showcase — slide-container holds arrows + card -->
+        <div v-if="showcaseItems.length > 0" class="slide-container">
+          <button class="slide-arrow slide-arrow--prev" @click="prevSlide" aria-label="Previous">&#8249;</button>
+          <div
+            class="rotating-wrapper"
+            @pointerdown="onDragStart"
+            @pointerup="onDragEnd"
+            @pointercancel="onDragEnd"
+          >
+            <transition :name="slideTransition" mode="out-in">
+              <div :key="currentIndex" class="rotating-block">
+                <span class="rotating-label">{{ showcaseItems[currentIndex].label }}</span>
+                <p class="rotating-title">{{ showcaseItems[currentIndex].title }}</p>
+                <p class="rotating-desc">{{ showcaseItems[currentIndex].text }}</p>
+              </div>
+            </transition>
+          </div>
+          <button class="slide-arrow slide-arrow--next" @click="nextSlide" aria-label="Next">&#8250;</button>
         </div>
 
         <!-- Progress dots — click to jump to any item -->
@@ -197,18 +206,49 @@ const orderedSkills = computed(() => {
 })
 
 const currentIndex = ref(0)
+const direction = ref('next')  // 'next' | 'prev'
+const slideTransition = computed(() =>
+  direction.value === 'next' ? 'slide-next' : 'slide-prev'
+)
+let dragStartX = null
 let intervalId = null
+
+const nextSlide = () => {
+  direction.value = 'next'
+  currentIndex.value = (currentIndex.value + 1) % showcaseItems.value.length
+  startInterval()
+}
+
+const prevSlide = () => {
+  direction.value = 'prev'
+  currentIndex.value = (currentIndex.value - 1 + showcaseItems.value.length) % showcaseItems.value.length
+  startInterval()
+}
 
 const startInterval = () => {
   if (intervalId) clearInterval(intervalId)
-  intervalId = setInterval(() => {
-    currentIndex.value = (currentIndex.value + 1) % showcaseItems.value.length
-  }, 4000)
+  intervalId = setInterval(nextSlide, 4000)
 }
 
+// Uses >= so clicking the already-active dot resolves to 'next' as a safe tie-breaker
 const goToSlide = (i) => {
+  direction.value = i >= currentIndex.value ? 'next' : 'prev'
   currentIndex.value = i
   startInterval()
+}
+
+const onDragStart = (e) => {
+  dragStartX = e.clientX
+  e.currentTarget.setPointerCapture(e.pointerId)
+}
+
+const onDragEnd = (e) => {
+  if (dragStartX === null) return
+  const delta = e.clientX - dragStartX
+  dragStartX = null
+  if (Math.abs(delta) >= 40) {
+    delta < 0 ? nextSlide() : prevSlide()
+  }
 }
 
 onMounted(async () => {
@@ -376,14 +416,82 @@ h1 {
 /* ── Rotating showcase ── */
 /* Outer wrapper holds stable height so Vue out-in transition has no layout shift */
 .rotating-wrapper {
-  width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
+  flex: 1;
+  min-width: 0;
   min-height: 82px;
   display: flex;
   align-items: stretch;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.rotating-wrapper:active {
+  cursor: grabbing;
+}
+
+/* Slide container — replaces rotating-wrapper's own width/margin/animation */
+.slide-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
   animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
 }
+
+.slide-arrow {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 22%, transparent);
+  color: var(--accent-primary);
+  font-size: 1.125rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  padding: 0;
+}
+
+@media (hover: hover) {
+  .slide-arrow { opacity: 0; }
+  .slide-container:hover .slide-arrow { opacity: 1; }
+  .slide-arrow:hover { background: color-mix(in srgb, var(--accent-primary) 18%, transparent); }
+}
+
+@media (hover: none) {
+  .slide-arrow { opacity: 1; }
+}
+
+/* Direction-aware slide transitions */
+.slide-next-enter-active {
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide-next-leave-active {
+  transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide-next-enter-from { opacity: 0; transform: translateX(32px); }
+.slide-next-leave-to   { opacity: 0; transform: translateX(-32px); }
+
+.slide-prev-enter-active {
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide-prev-leave-active {
+  transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide-prev-enter-from { opacity: 0; transform: translateX(-32px); }
+.slide-prev-leave-to   { opacity: 0; transform: translateX(32px); }
 
 .rotating-block {
   width: 100%;
@@ -424,17 +532,6 @@ h1 {
   line-height: 1.4;
 }
 
-/* Smooth in/out — faster leave so enter doesn't feel delayed */
-.role-fade-enter-active {
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.role-fade-leave-active {
-  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.role-fade-enter-from { opacity: 0; transform: translateY(12px); }
-.role-fade-leave-to   { opacity: 0; transform: translateY(-8px); }
 
 /* Progress dots */
 .rotating-dots {
