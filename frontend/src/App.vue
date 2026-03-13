@@ -46,6 +46,16 @@ const toggleMiscDropdown = () => {
   miscDropdownOpen.value = !miscDropdownOpen.value
 }
 
+// On touch/mobile the nav panel is open, so mouseenter fires on tap BEFORE click,
+// causing the dropdown to open then immediately toggle closed. Only use hover-open
+// when the mobile menu is closed (i.e. we're in desktop pointer mode).
+const handleMiscEnter = () => {
+  if (!mobileMenuOpen.value) miscDropdownOpen.value = true
+}
+const handleMiscLeave = () => {
+  if (!mobileMenuOpen.value) miscDropdownOpen.value = false
+}
+
 </script>
 
 <template>
@@ -91,8 +101,8 @@ const toggleMiscDropdown = () => {
           <!-- Misc Dropdown -->
           <div
             class="nav-dropdown"
-            @mouseenter="miscDropdownOpen = true"
-            @mouseleave="miscDropdownOpen = false"
+            @mouseenter="handleMiscEnter"
+            @mouseleave="handleMiscLeave"
           >
             <div class="dropdown-toggle-wrapper">
               <RouterLink
@@ -717,14 +727,16 @@ main {
   transition: height 0.25s ease;
 }
 
-.dropdown-item:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  padding-left: 1.25rem;
-}
+@media (hover: hover) {
+  .dropdown-item:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    padding-left: 1.25rem;
+  }
 
-.dropdown-item:hover::before {
-  height: 60%;
+  .dropdown-item:hover::before {
+    height: 60%;
+  }
 }
 
 .dropdown-item.router-link-active {
@@ -787,6 +799,12 @@ main {
   letter-spacing: 0.02em;
   min-width: 0;
   padding: 0;
+}
+
+@media (max-width: 768px) {
+  .search-input {
+    font-size: 1rem; /* ≥16px prevents iOS Safari auto-zoom on focus */
+  }
 }
 
 .search-input::placeholder {
@@ -871,13 +889,15 @@ main {
   transition: opacity 0.2s ease;
 }
 
-.search-result-item:hover {
-  background: var(--bg-hover);
-  padding-left: 1.375rem;
-}
+@media (hover: hover) {
+  .search-result-item:hover {
+    background: var(--bg-hover);
+    padding-left: 1.375rem;
+  }
 
-.search-result-item:hover::before {
-  opacity: 1;
+  .search-result-item:hover::before {
+    opacity: 1;
+  }
 }
 
 .result-icon {
@@ -1135,9 +1155,11 @@ main {
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.footer-links a:hover {
-  color: var(--accent-primary);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .footer-links a:hover {
+    color: var(--accent-primary);
+    transform: translateY(-2px);
+  }
 }
 
 .copyright {
@@ -1188,11 +1210,13 @@ main {
     top: 0;
     right: -100%;
     height: 100vh;
+    height: 100dvh;
     width: 70%;
     max-width: 300px;
     background: var(--bg-card);
     flex-direction: column;
-    padding: 5rem 2rem 2rem;
+    padding: max(5rem, calc(3.5rem + env(safe-area-inset-top))) 2rem max(2rem, env(safe-area-inset-bottom));
+    padding-right: max(2rem, env(safe-area-inset-right));
     box-shadow: -8px 0 40px rgba(0, 0, 0, 0.55),
                 0 0 0 1px rgba(129, 140, 248, 0.07);
     border-left: 1px solid color-mix(in srgb, var(--accent-primary) 18%, var(--border-color));
@@ -1200,6 +1224,8 @@ main {
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     gap: 1.5rem;
     align-items: flex-start;
+    overflow-y: auto;
+    z-index: 200;
   }
 
   .nav-links.mobile-open {

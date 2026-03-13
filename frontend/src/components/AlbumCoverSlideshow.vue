@@ -204,17 +204,19 @@ onBeforeUnmount(() => {
   z-index: 3;
 }
 
-.album-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6),
-              0 10px 24px rgba(0, 0, 0, 0.35),
-              0 0 0 1px rgba(129, 140, 248, 0.1),
-              0 0 50px rgba(129, 140, 248, 0.08);
-  border-color: color-mix(in srgb, var(--accent-primary) 30%, transparent);
-}
+@media (hover: hover) {
+  .album-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6),
+                0 10px 24px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(129, 140, 248, 0.1),
+                0 0 50px rgba(129, 140, 248, 0.08);
+    border-color: color-mix(in srgb, var(--accent-primary) 30%, transparent);
+  }
 
-.album-card:hover::before {
-  opacity: 1;
+  .album-card:hover::before {
+    opacity: 1;
+  }
 }
 
 .album-cover {

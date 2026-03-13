@@ -543,9 +543,11 @@ h1::after {
   aspect-ratio: 4 / 3;
 }
 
-.photo-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px var(--shadow);
+@media (hover: hover) {
+  .photo-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px var(--shadow);
+  }
 }
 
 .photo-item :deep(img),
@@ -576,8 +578,10 @@ h1::after {
   transition: opacity 0.3s ease;
 }
 
-.photo-item:hover .photo-caption {
-  opacity: 1;
+@media (hover: hover) {
+  .photo-item:hover .photo-caption {
+    opacity: 1;
+  }
 }
 
 /* Empty State */
@@ -625,8 +629,10 @@ h1::after {
   transition: transform 0.2s ease;
 }
 
-.lightbox-close:hover {
-  transform: scale(1.2);
+@media (hover: hover) {
+  .lightbox-close:hover {
+    transform: scale(1.2);
+  }
 }
 
 .lightbox-nav {
@@ -657,10 +663,12 @@ h1::after {
   right: -64px;
 }
 
-.lightbox-nav:hover {
-  background: rgba(129, 140, 248, 0.2);
-  border-color: var(--accent-primary);
-  transform: translateY(-50%) scale(1.1);
+@media (hover: hover) {
+  .lightbox-nav:hover {
+    background: rgba(129, 140, 248, 0.2);
+    border-color: var(--accent-primary);
+    transform: translateY(-50%) scale(1.1);
+  }
 }
 
 .lightbox-counter {
@@ -770,6 +778,9 @@ h1::after {
     transform: none;
   }
 
+}
+
+@media (max-width: 768px) and (hover: hover) {
   .lightbox-nav:hover {
     transform: scale(1.1);
   }

@@ -177,16 +177,18 @@ onUnmounted(() => {
   transition: opacity 0.4s ease;
 }
 
-.toc-toggle:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
-              0 0 16px rgba(129, 140, 248, 0.08);
-}
+@media (hover: hover) {
+  .toc-toggle:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 16px rgba(129, 140, 248, 0.08);
+  }
 
-.toc-toggle:hover::before {
-  opacity: 1;
+  .toc-toggle:hover::before {
+    opacity: 1;
+  }
 }
 
 .toc-icon {
@@ -301,11 +303,13 @@ onUnmounted(() => {
   letter-spacing: -0.01em;
 }
 
-.toc-list a:hover {
-  color: var(--text-primary);
-  background: linear-gradient(90deg, rgba(129, 140, 248, 0.08), transparent);
-  border-left-color: var(--accent-primary);
-  transform: translateX(2px);
+@media (hover: hover) {
+  .toc-list a:hover {
+    color: var(--text-primary);
+    background: linear-gradient(90deg, rgba(129, 140, 248, 0.08), transparent);
+    border-left-color: var(--accent-primary);
+    transform: translateX(2px);
+  }
 }
 
 .toc-list a.active {

@@ -482,15 +482,17 @@ watch(isOpen, async (newValue) => {
   transform: translateY(-50%) translateX(0);
 }
 
-.chat-fab:hover {
-  transform: translateY(-4px) scale(1.08);
-  box-shadow: 0 8px 32px rgba(129, 140, 248, 0.4),
-              0 4px 12px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
-}
+@media (hover: hover) {
+  .chat-fab:hover {
+    transform: translateY(-4px) scale(1.08);
+    box-shadow: 0 8px 32px rgba(129, 140, 248, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
+  }
 
-.chat-fab:hover::before {
-  left: 100%;
+  .chat-fab:hover::before {
+    left: 100%;
+  }
 }
 
 .chat-fab:active {
@@ -610,10 +612,12 @@ watch(isOpen, async (newValue) => {
   border-radius: 6px;
 }
 
-.chat-action-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-  transform: scale(1.05);
+@media (hover: hover) {
+  .chat-action-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    transform: scale(1.05);
+  }
 }
 
 .chat-action-btn:active {
@@ -742,8 +746,10 @@ watch(isOpen, async (newValue) => {
   text-decoration: underline;
 }
 
-.message-wrapper:hover .message-content {
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .message-wrapper:hover .message-content {
+    transform: translateY(-1px);
+  }
 }
 
 /* Copy Button */
@@ -764,13 +770,17 @@ watch(isOpen, async (newValue) => {
   justify-content: center;
 }
 
-.message-wrapper:hover .copy-btn {
-  opacity: 1;
+@media (hover: hover) {
+  .message-wrapper:hover .copy-btn {
+    opacity: 1;
+  }
 }
 
-.copy-btn:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+@media (hover: hover) {
+  .copy-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
 }
 
 .copy-btn.copied {
@@ -878,11 +888,13 @@ watch(isOpen, async (newValue) => {
   cursor: pointer;
 }
 
-.source-badge:hover {
-  background: var(--accent-primary);
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px var(--shadow);
+@media (hover: hover) {
+  .source-badge:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px var(--shadow);
+  }
 }
 
 .message-time {
@@ -987,13 +999,15 @@ watch(isOpen, async (newValue) => {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-.chat-quick-actions button:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  color: #05060f;
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.3),
-              0 2px 6px rgba(0, 0, 0, 0.3);
+@media (hover: hover) {
+  .chat-quick-actions button:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    color: #05060f;
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(129, 140, 248, 0.3),
+                0 2px 6px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .chat-quick-actions button:active:not(:disabled) {
@@ -1086,15 +1100,17 @@ watch(isOpen, async (newValue) => {
   transition: left 0.6s ease;
 }
 
-.send-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(129, 140, 248, 0.35),
-              0 4px 8px rgba(0, 0, 0, 0.12);
-}
+@media (hover: hover) {
+  .send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(129, 140, 248, 0.35),
+                0 4px 8px rgba(0, 0, 0, 0.12);
+  }
 
-.send-btn:hover:not(:disabled)::before {
-  left: 100%;
+  .send-btn:hover:not(:disabled)::before {
+    left: 100%;
+  }
 }
 
 .send-btn:active:not(:disabled) {
@@ -1128,10 +1144,12 @@ watch(isOpen, async (newValue) => {
   min-width: 48px;
 }
 
-.cancel-btn:hover {
-  background: #c82333;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+@media (hover: hover) {
+  .cancel-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
 }
 
 .cancel-btn:active {
@@ -1329,7 +1347,7 @@ watch(isOpen, async (newValue) => {
 
   .chat-input-area input {
     padding: 0.75rem 0.875rem;
-    font-size: 0.875rem;
+    font-size: 1rem; /* ≥16px prevents iOS Safari auto-zoom on focus */
   }
 
   .send-btn {
@@ -1393,7 +1411,7 @@ watch(isOpen, async (newValue) => {
   }
 
   .chat-input-area input {
-    font-size: 0.8125rem;
+    font-size: 1rem; /* keep ≥16px to prevent iOS auto-zoom */
   }
 
   .send-btn {

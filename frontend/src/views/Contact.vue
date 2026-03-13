@@ -618,6 +618,12 @@ h1 em {
   .submit-btn {
     width: 100%;
   }
+
+  /* ≥16px prevents iOS Safari auto-zoom when tapping form fields */
+  .form-group input,
+  .form-group textarea {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
