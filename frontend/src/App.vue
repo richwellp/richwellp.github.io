@@ -322,9 +322,11 @@ const handleMiscLeave = () => {
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip; /* prevent layout viewport expansion from off-screen elements */
 }
 
 body {
+  overflow-x: clip;
   font-family: 'Nunito', system-ui, sans-serif;
   color: var(--text-primary);
   line-height: 1.7;
@@ -514,6 +516,7 @@ main {
   cursor: pointer;
   padding: 0;
   z-index: 101;
+  touch-action: manipulation; /* prevents multi-touch (pinch) from firing click */
 }
 
 .mobile-menu-btn span,
@@ -1208,7 +1211,7 @@ main {
   .nav-links {
     position: fixed;
     top: 0;
-    right: -100%;
+    right: 0; /* stay at edge — transform moves it off-screen instead of right: -100% */
     height: 100vh;
     height: 100dvh;
     width: 70%;
@@ -1221,7 +1224,9 @@ main {
                 0 0 0 1px rgba(129, 140, 248, 0.07);
     border-left: 1px solid color-mix(in srgb, var(--accent-primary) 18%, var(--border-color));
     border-top: 3px solid var(--accent-primary);
-    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* transform instead of right — transforms don't expand the layout viewport */
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     gap: 1.5rem;
     align-items: flex-start;
     overflow-y: auto;
@@ -1229,7 +1234,7 @@ main {
   }
 
   .nav-links.mobile-open {
-    right: 0;
+    transform: translateX(0);
   }
 
   .nav-links a {
