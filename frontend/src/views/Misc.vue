@@ -100,7 +100,7 @@
           <a v-if="!mapError"
              href='https://clustrmaps.com/site/1c8ov' title='Visit tracker'>
             <img
-              src='//www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff'
+              src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=800&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff'
               alt='Visitor map'
               @error="mapError = true"
             />
