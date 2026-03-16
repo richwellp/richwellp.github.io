@@ -100,7 +100,7 @@
           <a v-if="!mapError"
              href='https://clustrmaps.com/site/1c8ov' title='Visit tracker'>
             <img
-              src='https://clustrmaps.com/map_v2.png?cl=ffffff&w=800&t=tt&d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&co=2d78ad&ct=ffffff'
+              src='//www.clustrmaps.com/map_v2.png?d=bUwnH32XrcZZm4BmWIy-rlCG47vK_-JRxDo71nilFs8&cl=ffffff'
               alt='Visitor map'
               @error="mapError = true"
             />
@@ -109,7 +109,7 @@
           <!-- Fallback: text placeholder -->
           <div v-else class="map-blocked">
             <p>Map unavailable — enable third-party content.
-              <a href='https://clustrmaps.com/site/1c0c0' title='Visit tracker'
+              <a href='https://clustrmaps.com/site/1c8ov' title='Visit tracker'
                  class="map-blocked-link" target="_blank" rel="noopener noreferrer">
                 I am using ClustrMaps
               </a>.
