@@ -22,8 +22,11 @@ def mock_env_vars():
 
 
 @pytest.fixture
-def blog_app():
+def blog_app(monkeypatch):
     """Create Flask app with blog blueprint registered."""
+    import auth
+    monkeypatch.setattr(auth, 'ADMIN_KEY', 'test-admin-key')
+
     from api.index import app
     from api.blog import blog_bp
 
