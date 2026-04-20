@@ -361,11 +361,13 @@ h1 em {
 
 .cta-address {
   font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(0.875rem, 1.3vw, 1rem);
+  font-size: clamp(0.8rem, 1.3vw, 1rem);
   color: var(--text-primary);
   font-weight: 500;
   letter-spacing: -0.01em;
   flex: 1;
+  word-break: break-all;
+  min-width: 0;
 }
 
 .cta-arrow {

@@ -785,4 +785,29 @@ h1::after {
     transform: scale(1.1);
   }
 }
+
+@media (max-width: 480px) {
+  .album-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .photo-controls {
+    padding: 0.875rem 1rem;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .sort-box {
+    gap: 0.375rem;
+  }
+
+  .sort-label {
+    font-size: 0.875rem;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+}
 </style>

@@ -768,8 +768,8 @@ h2 {
 
 .skill-row {
   display: grid;
-  grid-template-columns: 130px 1fr;
-  gap: 1.5rem;
+  grid-template-columns: min(130px, 30%) 1fr;
+  gap: 1rem;
   padding: 0.75rem 1.75rem;
   border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
   align-items: baseline;
@@ -923,7 +923,9 @@ h2 {
   }
 
   .timeline-header {
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
   }
 }
 
@@ -959,6 +961,10 @@ h2 {
 
   .skill-cat {
     white-space: normal;
+  }
+
+  .slide-container {
+    max-width: 100%;
   }
 }
 </style>

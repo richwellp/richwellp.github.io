@@ -420,15 +420,38 @@ h1::after {
   }
 }
 
+@media (max-width: 640px) {
+  .entry-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1.5rem 1.5rem 0;
+  }
+
+  .header-right {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 0.125rem;
+    margin-bottom: 1rem;
+    flex-shrink: 1;
+  }
+
+  .expandable-inner {
+    padding: 1.125rem 1.5rem 1.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .experience {
     padding: 3rem 1.25rem;
   }
 
-  .entry-header,
-  .description {
-    padding-left: 1.375rem;
-    padding-right: 1.375rem;
+  .entry-header {
+    padding: 1.375rem 1.375rem 0;
+  }
+
+  .header-right {
+    padding: 0;
   }
 
   .expandable-inner {

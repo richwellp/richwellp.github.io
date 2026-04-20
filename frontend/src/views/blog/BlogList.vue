@@ -510,5 +510,11 @@ h1::after {
   .empty-state {
     padding: 3rem 1rem;
   }
+
+  .post-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
 }
 </style>

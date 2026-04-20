@@ -600,7 +600,9 @@ const formatDate = (date) => {
   }
 
   .post-meta {
-    gap: 1rem;
+    gap: 0.625rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .post-content :deep(pre) {

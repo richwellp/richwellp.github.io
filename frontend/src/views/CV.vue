@@ -203,11 +203,17 @@ h1::after {
   }
 
   .pdf-embed {
-    height: 75svh;
+    height: 72svh;
   }
 
   .note {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .pdf-embed {
+    height: 65svh;
   }
 }
 
@@ -217,7 +223,7 @@ h1::after {
   }
 
   .pdf-embed {
-    height: 70svh;
+    height: 58svh;
   }
 }
 </style>

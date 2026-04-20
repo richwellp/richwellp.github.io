@@ -764,6 +764,14 @@ h1::after {
     padding: 1.5rem;
   }
 
+  .blog-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
 
+  .section-title {
+    margin-bottom: 1.75rem;
+  }
 }
 </style>
