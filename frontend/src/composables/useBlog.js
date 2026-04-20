@@ -32,7 +32,6 @@ export function useBlog() {
     }).catch((err) => {
       console.debug('Blog posts unavailable (expected in local dev):', err.message)
       posts.value = []
-      error.value = null
       return { posts: [], page: 1, per_page: 10 }
     })
   }
