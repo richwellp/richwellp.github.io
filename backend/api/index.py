@@ -35,12 +35,12 @@ app.register_blueprint(albums_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(sitemap_bp)
 
-# CORS configuration for cross-origin requests
-allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:5173,https://richwellp.github.io,https://richwellp-github-io.vercel.app').split(',')
+# Auth uses Bearer tokens, not cookies — wildcard origin is safe.
+# Restricting to a specific origin breaks in-app browsers (Google app, Instagram,
+# etc.) which send Origin: null for navigations, causing CORS blocks on mobile.
 CORS(app,
-     origins=allowed_origins,
+     origins='*',
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-     supports_credentials=False,
      allow_headers=['Content-Type', 'Authorization'])
 
 # Simple in-memory rate limiter (per IP)
