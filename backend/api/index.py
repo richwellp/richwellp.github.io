@@ -40,7 +40,7 @@ allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:5173,https
 CORS(app,
      origins=allowed_origins,
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-     supports_credentials=True,  # Allow credentials (not required for Bearer tokens, but harmless)
+     supports_credentials=False,
      allow_headers=['Content-Type', 'Authorization'])
 
 # Simple in-memory rate limiter (per IP)

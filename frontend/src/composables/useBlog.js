@@ -30,9 +30,9 @@ export function useBlog() {
       posts.value = data.posts
       return data
     }).catch((err) => {
-      // Silently fail in development (SSL cert issues on localhost)
       console.debug('Blog posts unavailable (expected in local dev):', err.message)
       posts.value = []
+      error.value = null
       return { posts: [], page: 1, per_page: 10 }
     })
   }
